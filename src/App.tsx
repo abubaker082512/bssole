@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ShoppingBag, Menu, X, Instagram, Facebook, Twitter, Mail, Phone, MapPin, Trash2, Edit, Plus, Save, ArrowRight, Search, User, LogOut, Shield } from 'lucide-react';
+import { ShoppingBag, Menu, X, Instagram, Facebook, Twitter, Trash2, Edit, Plus, Save, ArrowRight, Search, User, LogOut, Shield, Eye, EyeOff, AlertCircle, UserCircle2 } from 'lucide-react';
 import { Product, Page, CartItem } from './types';
 import { supabase } from './lib/supabase';
 import AdminLogin from './components/AdminLogin';
@@ -12,6 +12,7 @@ export default function App() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
 
@@ -48,14 +49,10 @@ export default function App() {
     }
   };
 
-  const handleNavToAdmin = () => {
-    setCurrentPage('admin');
-    setIsMenuOpen(false);
-  };
-
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setCurrentPage('home');
+    setIsAuthOpen(false);
   };
 
   const addToCart = (product: Product) => {
@@ -91,6 +88,9 @@ export default function App() {
     }
   };
 
+  const isAdmin = session?.user?.email === 'adminbssole@gmail.com';
+
+
   return (
     <div className="min-h-screen flex flex-col selection:bg-gold selection:text-black">
       {/* Announcement Bar */}
@@ -124,13 +124,14 @@ export default function App() {
                 </button>
               ))}
             </div>
-            {session ? (
-              <button onClick={handleLogout} className="text-white/70 hover:text-red-400 transition-colors" title="Logout">
-                <LogOut size={18} />
-              </button>
-            ) : (
-              <button className="text-white/70 hover:text-gold transition-colors"><User size={20} /></button>
-            )}
+            <button
+              onClick={() => setIsAuthOpen(true)}
+              className="text-white/70 hover:text-gold transition-colors relative"
+              title={session ? session.user.email : 'Login / Sign Up'}
+            >
+              <User size={20} />
+              {session && <span className="absolute -top-1 -right-1 w-2 h-2 bg-gold rounded-full" />}
+            </button>
             <button onClick={() => setIsCartOpen(true)} className="text-white/70 hover:text-gold transition-colors relative">
               <ShoppingBag size={20} />
               {cartCount > 0 && (
@@ -162,12 +163,6 @@ export default function App() {
                     <span className={currentPage === page ? 'gold-text-gradient' : 'text-white/20 group-hover:text-white'}>{page.toUpperCase()}</span>
                   </motion.button>
                 ))}
-                <motion.button initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.3 }}
-                  onClick={handleNavToAdmin}
-                  className="text-5xl md:text-7xl font-serif font-bold text-left hover:italic hover:pl-4 transition-all duration-500 group flex items-center gap-4">
-                  <span className={currentPage === 'admin' ? 'gold-text-gradient' : 'text-white/20 group-hover:text-white'}>ADMIN</span>
-                  <Shield size={24} className="text-white/10 group-hover:text-gold transition-colors" />
-                </motion.button>
               </div>
               <div className="flex gap-8 text-white/30 text-xs tracking-[0.2em] uppercase font-bold">
                 <a href="#" className="hover:text-gold">Instagram</a>
@@ -247,6 +242,16 @@ export default function App() {
           </>
         )}
       </AnimatePresence>
+
+      {/* Auth Modal */}
+      <UserAuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        session={session}
+        isAdmin={isAdmin}
+        onLogout={handleLogout}
+        onNavigateAdmin={() => { setCurrentPage('admin'); setIsAuthOpen(false); }}
+      />
 
       {/* Main Content */}
       <main className="flex-grow">
@@ -702,3 +707,191 @@ function AdminPage({ products, refresh, onLogout }: { products: Product[], refre
     </div>
   );
 }
+
+function UserAuthModal({
+  isOpen, onClose, session, isAdmin, onLogout, onNavigateAdmin
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  session: any;
+  isAdmin: boolean;
+  onLogout: () => void;
+  onNavigateAdmin: () => void;
+}) {
+  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const reset = () => { setEmail(''); setPassword(''); setName(''); setError(''); setSuccess(''); setShowPassword(false); };
+
+  const handleClose = () => { reset(); onClose(); };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true); setError(''); setSuccess('');
+    if (mode === 'login') {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) setError('Invalid email or password.');
+      else { setSuccess('Welcome back!'); setTimeout(handleClose, 800); }
+    } else {
+      const { error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: name } } });
+      if (error) setError(error.message);
+      else setSuccess('Account created! Check your email to confirm.');
+    }
+    setLoading(false);
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={handleClose} className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[250]" />
+          <motion.div
+            initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+            className="fixed top-0 right-0 h-full w-full max-w-sm bg-[#050505] border-l border-white/5 z-[300] flex flex-col"
+          >
+            {/* Header */}
+            <div className="p-8 border-b border-white/5 flex justify-between items-center">
+              <div>
+                {session ? (
+                  <h2 className="text-xl font-serif font-bold gold-text-gradient">MY ACCOUNT</h2>
+                ) : (
+                  <div className="flex gap-6">
+                    <button onClick={() => { setMode('login'); reset(); }}
+                      className={`text-xs font-bold uppercase tracking-[0.2em] pb-2 border-b-2 transition-all ${mode === 'login' ? 'border-gold text-gold' : 'border-transparent text-white/30 hover:text-white'}`}>
+                      Login
+                    </button>
+                    <button onClick={() => { setMode('signup'); reset(); }}
+                      className={`text-xs font-bold uppercase tracking-[0.2em] pb-2 border-b-2 transition-all ${mode === 'signup' ? 'border-gold text-gold' : 'border-transparent text-white/30 hover:text-white'}`}>
+                      Sign Up
+                    </button>
+                  </div>
+                )}
+              </div>
+              <button onClick={handleClose} className="text-white/30 hover:text-gold transition-colors"><X size={20} /></button>
+            </div>
+
+            <div className="flex-grow overflow-y-auto p-8">
+              {session ? (
+                /* Logged-in profile view */
+                <div className="space-y-8">
+                  <div className="flex items-center gap-5 p-6 bg-black border border-white/5">
+                    <div className="w-14 h-14 rounded-full bg-gold/10 border border-gold/20 flex items-center justify-center">
+                      <UserCircle2 size={28} className="text-gold" />
+                    </div>
+                    <div>
+                      <div className="font-serif font-bold text-lg">{session.user.user_metadata?.full_name || 'Customer'}</div>
+                      <div className="text-[10px] text-white/30 uppercase tracking-[0.2em] mt-1">{session.user.email}</div>
+                      {isAdmin && <div className="text-[9px] font-bold text-gold uppercase tracking-[0.2em] mt-1">★ Admin</div>}
+                    </div>
+                  </div>
+
+                  {isAdmin && (
+                    <button onClick={onNavigateAdmin}
+                      className="w-full flex items-center justify-between px-6 py-4 border border-gold/20 text-gold hover:bg-gold/5 transition-all group">
+                      <div className="flex items-center gap-3">
+                        <Shield size={16} />
+                        <span className="text-xs font-bold uppercase tracking-[0.2em]">Admin Dashboard</span>
+                      </div>
+                      <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  )}
+
+                  <div className="space-y-3">
+                    {[
+                      { label: 'My Orders', icon: ShoppingBag },
+                    ].map(({ label, icon: Icon }) => (
+                      <button key={label} className="w-full flex items-center justify-between px-6 py-4 border border-white/5 text-white/50 hover:border-white/20 hover:text-white transition-all group">
+                        <div className="flex items-center gap-3">
+                          <Icon size={16} />
+                          <span className="text-xs font-bold uppercase tracking-[0.2em]">{label}</span>
+                        </div>
+                        <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                      </button>
+                    ))}
+                  </div>
+
+                  <button onClick={onLogout}
+                    className="w-full flex items-center justify-center gap-3 px-6 py-4 border border-red-500/20 text-red-400 hover:bg-red-500/5 transition-all text-xs font-bold uppercase tracking-[0.2em] mt-auto">
+                    <LogOut size={14} /> Sign Out
+                  </button>
+                </div>
+              ) : (
+                /* Login / Signup form */
+                <form onSubmit={handleSubmit} className="space-y-8">
+                  <p className="text-white/30 text-sm leading-relaxed">
+                    {mode === 'login' ? 'Welcome back. Sign in to your BSSOLE account.' : 'Create your BSSOLE account for a seamless luxury experience.'}
+                  </p>
+
+                  {mode === 'signup' && (
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Full Name</label>
+                      <input type="text" required value={name} onChange={e => setName(e.target.value)}
+                        placeholder="YOUR NAME"
+                        className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-all text-sm placeholder:text-white/20" />
+                    </div>
+                  )}
+
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Email</label>
+                    <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
+                      placeholder="YOUR@EMAIL.COM"
+                      className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-all text-sm placeholder:text-white/20" />
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Password</label>
+                    <div className="relative">
+                      <input type={showPassword ? 'text' : 'password'} required value={password} onChange={e => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                        className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-all text-sm pr-10 placeholder:text-white/20" />
+                      <button type="button" onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-0 top-1/2 -translate-y-1/2 text-white/20 hover:text-gold transition-colors">
+                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {error && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                      className="flex items-center gap-3 bg-red-500/10 border border-red-500/20 px-4 py-3 text-red-400 text-xs font-bold">
+                      <AlertCircle size={14} /> {error}
+                    </motion.div>
+                  )}
+                  {success && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                      className="flex items-center gap-3 bg-gold/10 border border-gold/20 px-4 py-3 text-gold text-xs font-bold">
+                      ✓ {success}
+                    </motion.div>
+                  )}
+
+                  <button type="submit" disabled={loading}
+                    className="btn-luxury w-full py-5 flex items-center justify-center gap-3 disabled:opacity-50">
+                    {loading ? <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> : null}
+                    {mode === 'login' ? 'Sign In' : 'Create Account'}
+                  </button>
+
+                  <p className="text-center text-white/20 text-[10px] uppercase tracking-[0.2em]">
+                    {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
+                    <button type="button" onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); reset(); }}
+                      className="text-gold hover:underline">
+                      {mode === 'login' ? 'Sign Up' : 'Sign In'}
+                    </button>
+                  </p>
+                </form>
+              )}
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
