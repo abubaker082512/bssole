@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;600;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-gold: #D4AF37;
+  --color-gold-light: #F1E5AC;
+  --color-gold-dark: #996515;
+  --color-black-matte: #0D0D0D;
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
+}
+
+body {
+  @apply bg-black text-white font-sans antialiased;
+}
+
+.gold-gradient {
+  background: linear-gradient(135deg, #D4AF37 0%, #F1E5AC 50%, #996515 100%);
+}
+
+.gold-text-gradient {
+  background: linear-gradient(135deg, #D4AF37 0%, #F1E5AC 50%, #996515 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.btn-luxury {
+  @apply relative overflow-hidden border border-gold/50 text-gold px-10 py-4 uppercase tracking-[0.2em] text-xs font-bold transition-all duration-500 hover:text-black hover:bg-gold;
+}
+
+.card-luxury {
+  @apply relative bg-black-matte border border-white/5 overflow-hidden transition-all duration-700 hover:border-gold/30;
+}
+
+.announcement-bar {
+  @apply bg-gold text-black text-[10px] font-bold uppercase tracking-[0.2em] py-2 text-center;
+}
+
+h1, h2, h3 {
+  @apply font-serif;
+}
