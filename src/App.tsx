@@ -171,7 +171,7 @@ export default function App() {
               </div>
             </div>
             <div className="hidden md:block flex-1 relative overflow-hidden">
-              <img src="https://picsum.photos/seed/menu/1200/1600" className="w-full h-full object-cover opacity-50 grayscale hover:grayscale-0 transition-all duration-1000" referrerPolicy="no-referrer" />
+              <img src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=1200&q=80&fit=crop" className="w-full h-full object-cover opacity-50 grayscale hover:grayscale-0 transition-all duration-1000" alt="Shoe menu" />
               <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
             </div>
           </motion.div>
@@ -313,7 +313,7 @@ function HomePage({ products, setPage, addToCart }: { products: Product[], setPa
     <div>
       <section className="relative h-screen flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img src="https://picsum.photos/seed/luxury-shoe/1920/1080" className="w-full h-full object-cover scale-110" referrerPolicy="no-referrer" />
+          <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1920&q=80&fit=crop" alt="Luxury shoe hero" className="w-full h-full object-cover scale-110" />
           <div className="absolute inset-0 bg-black/40"></div>
           <div className="absolute inset-0 bg-gradient-to-r from-black via-black/20 to-transparent"></div>
         </div>
@@ -344,7 +344,7 @@ function HomePage({ products, setPage, addToCart }: { products: Product[], setPa
         <div className="max-w-[1600px] mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 h-[800px]">
             <div className="md:col-span-8 relative group overflow-hidden cursor-pointer" onClick={() => setPage('shop')}>
-              <img src="https://picsum.photos/seed/cat1/1200/800" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" referrerPolicy="no-referrer" />
+              <img src="https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=1200&q=80&fit=crop" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Formal collection" />
               <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors"></div>
               <div className="absolute bottom-12 left-12">
                 <h3 className="text-5xl font-serif font-bold mb-4">THE FORMAL <br /> COLLECTION</h3>
@@ -353,7 +353,7 @@ function HomePage({ products, setPage, addToCart }: { products: Product[], setPa
             </div>
             <div className="md:col-span-4 grid grid-rows-2 gap-6">
               <div className="relative group overflow-hidden cursor-pointer" onClick={() => setPage('shop')}>
-                <img src="https://picsum.photos/seed/cat2/600/600" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" referrerPolicy="no-referrer" />
+                <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80&fit=crop" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Casual soles" />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors"></div>
                 <div className="absolute bottom-8 left-8">
                   <h3 className="text-3xl font-serif font-bold mb-2">CASUAL SOLES</h3>
@@ -361,7 +361,7 @@ function HomePage({ products, setPage, addToCart }: { products: Product[], setPa
                 </div>
               </div>
               <div className="relative group overflow-hidden cursor-pointer" onClick={() => setPage('shop')}>
-                <img src="https://picsum.photos/seed/cat3/600/600" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" referrerPolicy="no-referrer" />
+                <img src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&q=80&fit=crop" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Accessories" />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors"></div>
                 <div className="absolute bottom-8 left-8">
                   <h3 className="text-3xl font-serif font-bold mb-2">ACCESSORIES</h3>
