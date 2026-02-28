@@ -512,6 +512,9 @@ function AdminPage({ products, refresh, onLogout }: { products: Product[], refre
   const [editingId, setEditingId] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<number | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [imageUploading, setImageUploading] = useState(false);
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
   const [formData, setFormData] = useState<Partial<Product>>({ name: '', description: '', price: 0, image: '', category: '', featured: 0 });
 
@@ -520,16 +523,43 @@ function AdminPage({ products, refresh, onLogout }: { products: Product[], refre
     setTimeout(() => setToast(null), 3000);
   };
 
-  const handleEdit = (product: Product) => { setEditingId(product.id); setFormData(product); };
+  const handleEdit = (product: Product) => {
+    setEditingId(product.id);
+    setFormData(product);
+    setImageFile(null);
+    setImagePreview(product.image || '');
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
 
   const handleSave = async () => {
     setSaving(true);
     try {
+      let imageUrl = formData.image || '';
+
+      // Upload new image file if selected
+      if (imageFile) {
+        setImageUploading(true);
+        const ext = imageFile.name.split('.').pop();
+        const fileName = `product-${Date.now()}.${ext}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(fileName, imageFile, { upsert: true });
+        setImageUploading(false);
+        if (uploadError) throw new Error('Image upload failed: ' + uploadError.message);
+        const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(uploadData.path);
+        imageUrl = urlData.publicUrl;
+      }
       if (editingId === 0) {
         // New product
         const { error } = await supabase.from('products').insert([{
           name: formData.name, description: formData.description,
-          price: formData.price, image: formData.image,
+          price: formData.price, image: imageUrl,
           category: formData.category, featured: formData.featured ? 1 : 0,
         }]);
         if (error) throw error;
@@ -538,7 +568,7 @@ function AdminPage({ products, refresh, onLogout }: { products: Product[], refre
         // Update
         const { error } = await supabase.from('products').update({
           name: formData.name, description: formData.description,
-          price: formData.price, image: formData.image,
+          price: formData.price, image: imageUrl,
           category: formData.category, featured: formData.featured ? 1 : 0,
         }).eq('id', editingId);
         if (error) throw error;
@@ -546,6 +576,8 @@ function AdminPage({ products, refresh, onLogout }: { products: Product[], refre
       }
       setEditingId(null);
       setFormData({ name: '', description: '', price: 0, image: '', category: '', featured: 0 });
+      setImageFile(null);
+      setImagePreview('');
       refresh();
     } catch (err: any) {
       showToast(err.message || 'Failed to save product', 'error');
@@ -618,7 +650,6 @@ function AdminPage({ products, refresh, onLogout }: { products: Product[], refre
             {[
               { label: 'Product Name', key: 'name', placeholder: 'E.G. GOLDEN SOLE RUNNER', type: 'text' },
               { label: 'Price (RS.)', key: 'price', placeholder: 'E.G. 15000', type: 'number' },
-              { label: 'Image URL', key: 'image', placeholder: 'HTTPS://...', type: 'text' },
               { label: 'Category', key: 'category', placeholder: 'E.G. FORMAL', type: 'text' },
             ].map(field => (
               <div key={field.key} className="space-y-4">
@@ -629,6 +660,46 @@ function AdminPage({ products, refresh, onLogout }: { products: Product[], refre
                   onChange={e => setFormData({ ...formData, [field.key]: field.type === 'number' ? parseFloat(e.target.value) : e.target.value })} />
               </div>
             ))}
+
+            {/* Image Upload */}
+            <div className="space-y-4">
+              <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Product Image</label>
+              <label
+                htmlFor="product-image-upload"
+                className="flex flex-col items-center justify-center w-full border border-dashed border-white/10 hover:border-gold cursor-pointer transition-all overflow-hidden relative group"
+                style={{ minHeight: '160px' }}
+              >
+                {imagePreview ? (
+                  <>
+                    <img src={imagePreview} alt="Preview" className="w-full h-40 object-cover opacity-80 group-hover:opacity-60 transition-opacity" />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/50">
+                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold">Change Image</span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center gap-3 py-10 text-white/20">
+                    <svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Click to upload image</span>
+                    <span className="text-[9px] text-white/10">JPG, PNG, WEBP supported</span>
+                  </div>
+                )}
+                <input
+                  id="product-image-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageChange}
+                />
+              </label>
+              {imageUploading && (
+                <div className="flex items-center gap-2 text-gold text-[10px] font-bold uppercase tracking-[0.2em]">
+                  <div className="w-3 h-3 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+                  Uploading...
+                </div>
+              )}
+            </div>
             <div className="space-y-4 md:col-span-2">
               <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Description</label>
               <textarea className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-all text-sm resize-none"
