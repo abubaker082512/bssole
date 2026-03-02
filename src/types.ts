@@ -20,4 +20,4 @@ export interface DeliveryCharge {
   label: string;
 }
 
-export type Page = 'home' | 'shop' | 'contact' | 'admin';
+export type Page = 'home' | 'shop' | 'contact' | 'admin' | 'returns';

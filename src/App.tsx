@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ShoppingBag, Menu, X, Instagram, Facebook, Twitter, Trash2, Edit, Plus, Save, ArrowRight, Search, User, LogOut, Shield, Eye, EyeOff, AlertCircle, UserCircle2 } from 'lucide-react';
+import { ShoppingBag, Menu, X, Instagram, Facebook, Trash2, Edit, Plus, Save, ArrowRight, Search, User, LogOut, Shield, Eye, EyeOff, AlertCircle, UserCircle2 } from 'lucide-react';
 import { Product, Page, CartItem, DeliveryCharge } from './types';
 import { supabase } from './lib/supabase';
 import AdminLogin from './components/AdminLogin';
@@ -97,6 +97,7 @@ export default function App() {
       case 'admin':
         if (!session) return <AdminLogin onLoginSuccess={() => setCurrentPage('admin')} />;
         return <AdminPage products={products} refresh={loadProducts} deliveryCharges={deliveryCharges} refreshCharges={loadDeliveryCharges} onLogout={handleLogout} />;
+      case 'returns': return <ReturnPolicyPage setPage={setCurrentPage} />;
       default: return <HomePage products={products.filter(p => p.featured)} setPage={setCurrentPage} addToCart={addToCart} />;
     }
   };
@@ -136,7 +137,7 @@ export default function App() {
 
           {/* Center: Logo */}
           <div className="cursor-pointer flex items-center" onClick={() => setCurrentPage('home')}>
-            <img src={logo} alt="BSSOLE" className="h-24 w-auto object-contain hover:opacity-80 transition-opacity" />
+            <img src={logo} alt="BSSOLE" className="h-32 w-auto object-contain hover:opacity-80 transition-opacity" />
           </div>
 
           {/* Right */}
@@ -177,7 +178,7 @@ export default function App() {
             className="fixed inset-0 z-[100] bg-black flex flex-col md:flex-row">
             <div className="flex-1 p-12 flex flex-col justify-between border-r border-white/5">
               <div className="flex justify-between items-center">
-                <img src={logo} alt="BSSOLE" className="h-20 w-auto object-contain" />
+                <img src={logo} alt="BSSOLE" className="h-28 w-auto object-contain" />
                 <button onClick={() => setIsMenuOpen(false)} className="text-gold hover:rotate-90 transition-transform duration-500"><X size={32} /></button>
               </div>
               <div className="flex flex-col gap-6">
@@ -190,9 +191,9 @@ export default function App() {
                 ))}
               </div>
               <div className="flex gap-8 text-white/30 text-xs tracking-[0.2em] uppercase font-bold">
-                <a href="#" className="hover:text-gold">Instagram</a>
-                <a href="#" className="hover:text-gold">Facebook</a>
-                <a href="#" className="hover:text-gold">Twitter</a>
+                <a href="https://www.instagram.com/bssoleofficial/?hl=en" target="_blank" rel="noreferrer" className="hover:text-gold">Instagram</a>
+                <a href="https://www.facebook.com/bssoleofficial" target="_blank" rel="noreferrer" className="hover:text-gold">Facebook</a>
+                <a href="https://tiktok.com/@bssoleofficial" target="_blank" rel="noreferrer" className="hover:text-gold">TikTok</a>
               </div>
             </div>
             <div className="hidden md:block flex-1 relative overflow-hidden">
@@ -293,14 +294,16 @@ export default function App() {
           <div className="max-w-[1600px] mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-24">
               <div className="col-span-1 md:col-span-2">
-                <img src={logo} alt="BSSOLE" className="h-24 w-auto object-contain mb-8" />
+                <img src={logo} alt="BSSOLE" className="h-32 w-auto object-contain mb-8" />
                 <p className="text-white/40 text-lg max-w-md leading-relaxed mb-8">
                   Redefining everyday luxury with handcrafted footwear and accessories. Experience the soul of premium craftsmanship at BSSOLE.COM.
                 </p>
                 <div className="flex gap-6">
-                  <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-gold hover:text-gold transition-all"><Instagram size={18} /></a>
-                  <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-gold hover:text-gold transition-all"><Facebook size={18} /></a>
-                  <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-gold hover:text-gold transition-all"><Twitter size={18} /></a>
+                  <a href="https://www.instagram.com/bssoleofficial/?hl=en" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-gold hover:text-gold transition-all"><Instagram size={18} /></a>
+                  <a href="https://www.facebook.com/bssoleofficial" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-gold hover:text-gold transition-all"><Facebook size={18} /></a>
+                  <a href="https://tiktok.com/@bssoleofficial" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-gold hover:text-gold transition-all">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.78a8.18 8.18 0 004.78 1.52V6.85a4.85 4.85 0 01-1.01-.16z" /></svg>
+                  </a>
                 </div>
               </div>
               <div>
@@ -316,8 +319,7 @@ export default function App() {
                 <h4 className="text-[10px] font-bold text-gold uppercase tracking-[0.3em] mb-8">Company</h4>
                 <ul className="space-y-4 text-sm text-white/50">
                   <li><button onClick={() => setCurrentPage('contact')} className="hover:text-white transition-colors">Contact Us</button></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Shipping Policy</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Returns & Exchanges</a></li>
+                  <li><button onClick={() => setCurrentPage('returns')} className="hover:text-white transition-colors">Returns Policy</button></li>
                   <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
                 </ul>
               </div>
@@ -527,6 +529,87 @@ function ContactPage() {
             </div>
             <button className="btn-luxury w-full">Send Inquiry</button>
           </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReturnPolicyPage({ setPage }: { setPage: (p: Page) => void }) {
+  const policies = [
+    {
+      title: 'Return Window',
+      icon: '📅',
+      detail: 'You may return any product within 7 days of delivery. Returns requested after 7 days will not be accepted under any circumstances.',
+    },
+    {
+      title: 'Delivery Charges',
+      icon: '🚚',
+      detail: 'All delivery charges incurred during the return process are the sole responsibility of the customer. BSSOLE does not cover return shipping costs.',
+    },
+    {
+      title: 'Product Condition',
+      icon: '📦',
+      detail: 'Items must be returned in their original, unworn condition with all original packaging, tags, and accessories intact. Worn or damaged items will not be accepted.',
+    },
+    {
+      title: 'How to Initiate a Return',
+      icon: '✉️',
+      detail: 'Contact us at bssoleofficial@gmail.com or WhatsApp 0325 528 1122 with your order details to initiate a return request within the 7-day window.',
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-black">
+      {/* Hero */}
+      <div className="relative py-40 px-6 md:px-12 border-b border-white/5">
+        <div className="max-w-[1600px] mx-auto">
+          <span className="text-gold text-[10px] font-bold tracking-[0.5em] uppercase mb-6 block">Policy</span>
+          <h1 className="text-6xl md:text-8xl font-serif font-bold tracking-tighter mb-6">
+            RETURN <span className="gold-text-gradient italic">POLICY</span>
+          </h1>
+          <p className="text-white/40 text-lg max-w-xl leading-relaxed">
+            At BSSOLE, we stand behind the quality of every product. Please read our return policy carefully before making a purchase.
+          </p>
+        </div>
+      </div>
+
+      {/* Policy Cards */}
+      <div className="max-w-[1600px] mx-auto px-6 md:px-12 py-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-24">
+          {policies.map((policy, i) => (
+            <motion.div
+              key={policy.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1 }}
+              className="bg-[#050505] border border-white/5 p-10 hover:border-gold/20 transition-all duration-500 group"
+            >
+              <div className="text-3xl mb-6">{policy.icon}</div>
+              <h3 className="text-lg font-serif font-bold gold-text-gradient mb-4">{policy.title}</h3>
+              <p className="text-white/50 text-sm leading-relaxed">{policy.detail}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Summary Banner */}
+        <div className="border border-gold/20 bg-gold/5 p-10 md:p-16 text-center mb-16">
+          <div className="text-gold text-[10px] font-bold tracking-[0.5em] uppercase mb-4">In Short</div>
+          <p className="text-2xl md:text-3xl font-serif font-bold leading-snug max-w-2xl mx-auto">
+            Returns accepted within <span className="gold-text-gradient">7 days</span> of delivery.<br />
+            Return delivery charges are paid by the <span className="gold-text-gradient">customer</span>.
+          </p>
+        </div>
+
+        {/* Contact CTA */}
+        <div className="text-center">
+          <p className="text-white/40 mb-8 text-sm">Have questions about your return?</p>
+          <button
+            onClick={() => setPage('contact')}
+            className="btn-luxury flex items-center gap-3 mx-auto"
+          >
+            Contact Us <ArrowRight size={16} />
+          </button>
         </div>
       </div>
     </div>
