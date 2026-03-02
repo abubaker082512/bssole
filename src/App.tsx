@@ -466,8 +466,8 @@ function ContactPage() {
           </p>
           <div className="space-y-12">
             {[
-              { label: 'Email', value: 'concierge@bssole.com' },
-              { label: 'Phone', value: '+92 300 1234567' },
+              { label: 'Email', value: 'bssoleofficial@gmail.com' },
+              { label: 'WhatsApp', value: '0325 528 1122' },
               { label: 'Studio', value: 'Gulberg III, Lahore, Pakistan' },
             ].map(item => (
               <div key={item.label} className="flex items-start gap-8">
