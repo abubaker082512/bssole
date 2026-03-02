@@ -5,6 +5,7 @@ import { Product, Page, CartItem, DeliveryCharge } from './types';
 import { supabase } from './lib/supabase';
 import AdminLogin from './components/AdminLogin';
 import type { Session } from '@supabase/supabase-js';
+import logo from './assets/logo.jpeg';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
@@ -134,9 +135,8 @@ export default function App() {
           </div>
 
           {/* Center: Logo */}
-          <div className="text-3xl font-serif font-black tracking-tighter cursor-pointer flex items-center gap-1 group" onClick={() => setCurrentPage('home')}>
-            <span className="gold-text-gradient group-hover:opacity-80 transition-opacity">BS</span>
-            <span className="text-white">SOLE</span>
+          <div className="cursor-pointer flex items-center" onClick={() => setCurrentPage('home')}>
+            <img src={logo} alt="BSSOLE" className="h-12 w-auto object-contain hover:opacity-80 transition-opacity" />
           </div>
 
           {/* Right */}
@@ -177,7 +177,7 @@ export default function App() {
             className="fixed inset-0 z-[100] bg-black flex flex-col md:flex-row">
             <div className="flex-1 p-12 flex flex-col justify-between border-r border-white/5">
               <div className="flex justify-between items-center">
-                <div className="text-2xl font-serif font-bold gold-text-gradient">BSSOLE</div>
+                <img src={logo} alt="BSSOLE" className="h-10 w-auto object-contain" />
                 <button onClick={() => setIsMenuOpen(false)} className="text-gold hover:rotate-90 transition-transform duration-500"><X size={32} /></button>
               </div>
               <div className="flex flex-col gap-6">
@@ -293,7 +293,7 @@ export default function App() {
           <div className="max-w-[1600px] mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-24">
               <div className="col-span-1 md:col-span-2">
-                <h3 className="text-4xl font-serif font-bold gold-text-gradient mb-8">BSSOLE</h3>
+                <img src={logo} alt="BSSOLE" className="h-12 w-auto object-contain mb-8" />
                 <p className="text-white/40 text-lg max-w-md leading-relaxed mb-8">
                   Redefining everyday luxury with handcrafted footwear and accessories. Experience the soul of premium craftsmanship at BSSOLE.COM.
                 </p>
