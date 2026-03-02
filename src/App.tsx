@@ -137,7 +137,7 @@ export default function App() {
 
           {/* Center: Logo */}
           <div className="cursor-pointer flex items-center" onClick={() => setCurrentPage('home')}>
-            <img src={logo} alt="BSSOLE" className="h-32 w-auto object-contain hover:opacity-80 transition-opacity" />
+            <img src={logo} alt="BSSOLE" className="h-40 w-auto object-contain hover:opacity-80 transition-opacity" />
           </div>
 
           {/* Right */}
@@ -178,7 +178,7 @@ export default function App() {
             className="fixed inset-0 z-[100] bg-black flex flex-col md:flex-row">
             <div className="flex-1 p-12 flex flex-col justify-between border-r border-white/5">
               <div className="flex justify-between items-center">
-                <img src={logo} alt="BSSOLE" className="h-28 w-auto object-contain" />
+                <img src={logo} alt="BSSOLE" className="h-36 w-auto object-contain" />
                 <button onClick={() => setIsMenuOpen(false)} className="text-gold hover:rotate-90 transition-transform duration-500"><X size={32} /></button>
               </div>
               <div className="flex flex-col gap-6">
@@ -294,7 +294,7 @@ export default function App() {
           <div className="max-w-[1600px] mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-24">
               <div className="col-span-1 md:col-span-2">
-                <img src={logo} alt="BSSOLE" className="h-32 w-auto object-contain mb-8" />
+                <img src={logo} alt="BSSOLE" className="h-40 w-auto object-contain mb-8" />
                 <p className="text-white/40 text-lg max-w-md leading-relaxed mb-8">
                   Redefining everyday luxury with handcrafted footwear and accessories. Experience the soul of premium craftsmanship at BSSOLE.COM.
                 </p>
