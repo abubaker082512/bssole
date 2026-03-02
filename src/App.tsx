@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingBag, Menu, X, Instagram, Facebook, Twitter, Trash2, Edit, Plus, Save, ArrowRight, Search, User, LogOut, Shield, Eye, EyeOff, AlertCircle, UserCircle2 } from 'lucide-react';
-import { Product, Page, CartItem } from './types';
+import { Product, Page, CartItem, DeliveryCharge } from './types';
 import { supabase } from './lib/supabase';
 import AdminLogin from './components/AdminLogin';
 import type { Session } from '@supabase/supabase-js';
@@ -15,9 +15,11 @@ export default function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
+  const [deliveryCharges, setDeliveryCharges] = useState<DeliveryCharge[]>([]);
 
   useEffect(() => {
     loadProducts();
+    loadDeliveryCharges();
     const savedCart = localStorage.getItem('bss_cart');
     if (savedCart) {
       try { setCart(JSON.parse(savedCart)); } catch (e) { console.error("Failed to parse cart", e); }
@@ -46,6 +48,16 @@ export default function App() {
       console.error("Failed to load products", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadDeliveryCharges = async () => {
+    try {
+      const { data, error } = await supabase.from('delivery_charges').select('*').order('min_order', { ascending: true });
+      if (error) throw error;
+      setDeliveryCharges(data || []);
+    } catch (err) {
+      console.error('Failed to load delivery charges', err);
     }
   };
 
@@ -83,7 +95,7 @@ export default function App() {
       case 'contact': return <ContactPage />;
       case 'admin':
         if (!session) return <AdminLogin onLoginSuccess={() => setCurrentPage('admin')} />;
-        return <AdminPage products={products} refresh={loadProducts} onLogout={handleLogout} />;
+        return <AdminPage products={products} refresh={loadProducts} deliveryCharges={deliveryCharges} refreshCharges={loadDeliveryCharges} onLogout={handleLogout} />;
       default: return <HomePage products={products.filter(p => p.featured)} setPage={setCurrentPage} addToCart={addToCart} />;
     }
   };
@@ -95,7 +107,20 @@ export default function App() {
     <div className="min-h-screen flex flex-col selection:bg-gold selection:text-black">
       {/* Announcement Bar */}
       <div className="announcement-bar">
-        🎉 FREE SHIPPING ON ORDERS ABOVE RS. 10,000! | USE CODE #BSSOLE7 – EXTRA DISCOUNT!
+        {deliveryCharges.length > 0 ? (
+          <span>
+            🚚 {deliveryCharges.map((dc, i) => {
+              const isFree = dc.charge === 0;
+              const range = dc.max_order != null
+                ? `RS. ${dc.min_order.toLocaleString()}–${dc.max_order.toLocaleString()}`
+                : `above RS. ${dc.min_order.toLocaleString()}`;
+              const chargeText = isFree ? 'FREE DELIVERY' : `RS. ${dc.charge.toLocaleString()} delivery`;
+              return `${dc.label || `Orders ${range}`}: ${chargeText}`;
+            }).join('  |  ')}
+          </span>
+        ) : (
+          '🎉 FREE SHIPPING ON ORDERS ABOVE RS. 10,000! | USE CODE #BSSOLE7 – EXTRA DISCOUNT!'
+        )}
       </div>
 
       {/* Navigation */}
@@ -508,7 +533,14 @@ function ContactPage() {
   );
 }
 
-function AdminPage({ products, refresh, onLogout }: { products: Product[], refresh: () => void, onLogout: () => void }) {
+function AdminPage({ products, refresh, deliveryCharges, refreshCharges, onLogout }: {
+  products: Product[];
+  refresh: () => void;
+  deliveryCharges: DeliveryCharge[];
+  refreshCharges: () => void;
+  onLogout: () => void;
+}) {
+  const [activeTab, setActiveTab] = useState<'products' | 'delivery'>('products');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<number | null>(null);
@@ -627,151 +659,319 @@ function AdminPage({ products, refresh, onLogout }: { products: Product[], refre
         </div>
       </div>
 
-      {/* Stats Bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
-        {[
-          { label: 'Total Products', value: products.length },
-          { label: 'Featured', value: products.filter(p => p.featured).length },
-          { label: 'Categories', value: new Set(products.map(p => p.category)).size },
-          { label: 'Avg. Price', value: `RS. ${products.length ? Math.round(products.reduce((a, p) => a + p.price, 0) / products.length).toLocaleString() : 0}` },
-        ].map(stat => (
-          <div key={stat.label} className="bg-[#050505] border border-white/5 p-6">
-            <div className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em] mb-3">{stat.label}</div>
-            <div className="text-3xl font-serif font-bold text-gold">{stat.value}</div>
-          </div>
+      {/* Tab Bar */}
+      <div className="flex gap-0 mb-16 border-b border-white/5">
+        {[{ key: 'products', label: 'Products' }, { key: 'delivery', label: 'Delivery Charges' }].map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key as any)}
+            className={`px-8 py-4 text-xs font-bold uppercase tracking-[0.3em] transition-all border-b-2 ${activeTab === tab.key
+              ? 'border-gold text-gold'
+              : 'border-transparent text-white/30 hover:text-white'
+              }`}
+          >
+            {tab.label}
+          </button>
         ))}
       </div>
 
-      {/* Add/Edit Form */}
-      {editingId !== null && (
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="bg-[#050505] border border-white/5 p-12 mb-20">
-          <h2 className="text-2xl font-serif font-bold mb-12 text-gold">{editingId === 0 ? 'New Product' : 'Edit Product'}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
-            {[
-              { label: 'Product Name', key: 'name', placeholder: 'E.G. GOLDEN SOLE RUNNER', type: 'text' },
-              { label: 'Price (RS.)', key: 'price', placeholder: 'E.G. 15000', type: 'number' },
-              { label: 'Category', key: 'category', placeholder: 'E.G. FORMAL', type: 'text' },
-            ].map(field => (
-              <div key={field.key} className="space-y-4">
-                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">{field.label}</label>
-                <input type={field.type} placeholder={field.placeholder}
-                  className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-all text-sm"
-                  value={(formData as any)[field.key] || ''}
-                  onChange={e => setFormData({ ...formData, [field.key]: field.type === 'number' ? parseFloat(e.target.value) : e.target.value })} />
-              </div>
-            ))}
+      {activeTab === 'products' && (<>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+          {[
+            { label: 'Total Products', value: products.length },
+            { label: 'Featured', value: products.filter(p => p.featured).length },
+            { label: 'Categories', value: new Set(products.map(p => p.category)).size },
+            { label: 'Avg. Price', value: `RS. ${products.length ? Math.round(products.reduce((a, p) => a + p.price, 0) / products.length).toLocaleString() : 0}` },
+          ].map(stat => (
+            <div key={stat.label} className="bg-[#050505] border border-white/5 p-6">
+              <div className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em] mb-3">{stat.label}</div>
+              <div className="text-3xl font-serif font-bold text-gold">{stat.value}</div>
+            </div>
+          ))}
+        </div>
 
-            {/* Image Upload */}
-            <div className="space-y-4">
-              <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Product Image</label>
-              <label
-                htmlFor="product-image-upload"
-                className="flex flex-col items-center justify-center w-full border border-dashed border-white/10 hover:border-gold cursor-pointer transition-all overflow-hidden relative group"
-                style={{ minHeight: '160px' }}
-              >
-                {imagePreview ? (
-                  <>
-                    <img src={imagePreview} alt="Preview" className="w-full h-40 object-cover opacity-80 group-hover:opacity-60 transition-opacity" />
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/50">
-                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold">Change Image</span>
+        {/* Add/Edit Form */}
+        {editingId !== null && (
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="bg-[#050505] border border-white/5 p-12 mb-20">
+            <h2 className="text-2xl font-serif font-bold mb-12 text-gold">{editingId === 0 ? 'New Product' : 'Edit Product'}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
+              {[
+                { label: 'Product Name', key: 'name', placeholder: 'E.G. GOLDEN SOLE RUNNER', type: 'text' },
+                { label: 'Price (RS.)', key: 'price', placeholder: 'E.G. 15000', type: 'number' },
+                { label: 'Category', key: 'category', placeholder: 'E.G. FORMAL', type: 'text' },
+              ].map(field => (
+                <div key={field.key} className="space-y-4">
+                  <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">{field.label}</label>
+                  <input type={field.type} placeholder={field.placeholder}
+                    className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-all text-sm"
+                    value={(formData as any)[field.key] || ''}
+                    onChange={e => setFormData({ ...formData, [field.key]: field.type === 'number' ? parseFloat(e.target.value) : e.target.value })} />
+                </div>
+              ))}
+
+              {/* Image Upload */}
+              <div className="space-y-4">
+                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Product Image</label>
+                <label
+                  htmlFor="product-image-upload"
+                  className="flex flex-col items-center justify-center w-full border border-dashed border-white/10 hover:border-gold cursor-pointer transition-all overflow-hidden relative group"
+                  style={{ minHeight: '160px' }}
+                >
+                  {imagePreview ? (
+                    <>
+                      <img src={imagePreview} alt="Preview" className="w-full h-40 object-cover opacity-80 group-hover:opacity-60 transition-opacity" />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/50">
+                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold">Change Image</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center gap-3 py-10 text-white/20">
+                      <svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Click to upload image</span>
+                      <span className="text-[9px] text-white/10">JPG, PNG, WEBP supported</span>
                     </div>
-                  </>
-                ) : (
-                  <div className="flex flex-col items-center justify-center gap-3 py-10 text-white/20">
-                    <svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Click to upload image</span>
-                    <span className="text-[9px] text-white/10">JPG, PNG, WEBP supported</span>
+                  )}
+                  <input
+                    id="product-image-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageChange}
+                  />
+                </label>
+                {imageUploading && (
+                  <div className="flex items-center gap-2 text-gold text-[10px] font-bold uppercase tracking-[0.2em]">
+                    <div className="w-3 h-3 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+                    Uploading...
                   </div>
                 )}
-                <input
-                  id="product-image-upload"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageChange}
-                />
-              </label>
-              {imageUploading && (
-                <div className="flex items-center gap-2 text-gold text-[10px] font-bold uppercase tracking-[0.2em]">
-                  <div className="w-3 h-3 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
-                  Uploading...
-                </div>
-              )}
-            </div>
-            <div className="space-y-4 md:col-span-2">
-              <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Description</label>
-              <textarea className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-all text-sm resize-none"
-                placeholder="PRODUCT DETAILS..." rows={3}
-                value={formData.description || ''}
-                onChange={e => setFormData({ ...formData, description: e.target.value })} />
-            </div>
-            <label className="flex items-center gap-4 cursor-pointer group">
-              <div className={`w-6 h-6 border flex items-center justify-center transition-all ${formData.featured ? 'bg-gold border-gold' : 'border-white/20 group-hover:border-gold'}`}>
-                {formData.featured ? <Save size={12} className="text-black" /> : null}
               </div>
-              <input type="checkbox" className="hidden" checked={!!formData.featured}
-                onChange={e => setFormData({ ...formData, featured: e.target.checked ? 1 : 0 })} />
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50 group-hover:text-white transition-colors">Featured on Homepage</span>
-            </label>
+              <div className="space-y-4 md:col-span-2">
+                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Description</label>
+                <textarea className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-all text-sm resize-none"
+                  placeholder="PRODUCT DETAILS..." rows={3}
+                  value={formData.description || ''}
+                  onChange={e => setFormData({ ...formData, description: e.target.value })} />
+              </div>
+              <label className="flex items-center gap-4 cursor-pointer group">
+                <div className={`w-6 h-6 border flex items-center justify-center transition-all ${formData.featured ? 'bg-gold border-gold' : 'border-white/20 group-hover:border-gold'}`}>
+                  {formData.featured ? <Save size={12} className="text-black" /> : null}
+                </div>
+                <input type="checkbox" className="hidden" checked={!!formData.featured}
+                  onChange={e => setFormData({ ...formData, featured: e.target.checked ? 1 : 0 })} />
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50 group-hover:text-white transition-colors">Featured on Homepage</span>
+              </label>
+            </div>
+            <div className="flex gap-6">
+              <button onClick={handleSave} disabled={saving} className="btn-luxury px-12 flex items-center gap-2 disabled:opacity-50">
+                {saving ? <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> : null}
+                Save Changes
+              </button>
+              <button onClick={() => setEditingId(null)} className="text-xs font-bold uppercase tracking-[0.2em] text-white/30 hover:text-white transition-colors">Discard</button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Products Table */}
+        <div className="border border-white/5 overflow-hidden">
+          <table className="w-full text-left">
+            <thead className="bg-[#050505] border-b border-white/5">
+              <tr>
+                <th className="px-8 py-6 text-[10px] font-bold text-gold uppercase tracking-[0.3em]">Product</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-gold uppercase tracking-[0.3em]">Category</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-gold uppercase tracking-[0.3em]">Price</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-gold uppercase tracking-[0.3em] text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {products.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-8 py-16 text-center text-white/20 text-sm">No products yet. Add your first product above.</td>
+                </tr>
+              ) : (
+                products.map(product => (
+                  <tr key={product.id} className="hover:bg-white/[0.02] transition-colors group">
+                    <td className="px-8 py-6">
+                      <div className="flex items-center gap-6">
+                        <div className="w-16 h-16 overflow-hidden bg-[#111] border border-white/5">
+                          <img src={product.image} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" referrerPolicy="no-referrer" />
+                        </div>
+                        <div>
+                          <div className="font-serif font-bold text-lg">{product.name}</div>
+                          <div className="text-[8px] font-bold text-gold uppercase tracking-[0.2em]">{product.featured ? '★ Featured' : ''}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-8 py-6 text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">{product.category}</td>
+                    <td className="px-8 py-6 font-bold text-gold">RS. {product.price.toLocaleString()}</td>
+                    <td className="px-8 py-6 text-right">
+                      <div className="flex justify-end gap-4">
+                        <button onClick={() => handleEdit(product)} className="w-10 h-10 flex items-center justify-center border border-white/5 text-white/30 hover:border-gold hover:text-gold transition-all">
+                          <Edit size={16} />
+                        </button>
+                        <button onClick={() => handleDelete(product.id)} disabled={deleting === product.id}
+                          className="w-10 h-10 flex items-center justify-center border border-white/5 text-white/30 hover:border-red-500 hover:text-red-500 transition-all disabled:opacity-50">
+                          {deleting === product.id ? <div className="w-4 h-4 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin" /> : <Trash2 size={16} />}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </>)}
+
+      {activeTab === 'delivery' && (
+        <DeliveryChargesTab charges={deliveryCharges} refresh={refreshCharges} showToast={showToast} />
+      )}
+    </div>
+  );
+}
+
+function DeliveryChargesTab({
+  charges, refresh, showToast
+}: {
+  charges: DeliveryCharge[];
+  refresh: () => void;
+  showToast: (msg: string, type?: 'success' | 'error') => void;
+}) {
+  const empty = { min_order: 0, max_order: null as number | null, charge: 0, label: '' };
+  const [form, setForm] = useState(empty);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      if (editingId === 0) {
+        const { error } = await supabase.from('delivery_charges').insert([form]);
+        if (error) throw error;
+        showToast('Delivery rule added!');
+      } else {
+        const { error } = await supabase.from('delivery_charges').update(form).eq('id', editingId);
+        if (error) throw error;
+        showToast('Delivery rule updated!');
+      }
+      setEditingId(null);
+      setForm(empty);
+      refresh();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to save', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Delete this delivery rule?')) return;
+    const { error } = await supabase.from('delivery_charges').delete().eq('id', id);
+    if (error) showToast(error.message, 'error');
+    else { showToast('Rule deleted.'); refresh(); }
+  };
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-12">
+        <div>
+          <p className="text-white/40 text-sm max-w-lg">
+            Set delivery charges for different order value ranges. These rules are displayed live on the homepage banner.
+          </p>
+        </div>
+        {editingId === null && (
+          <button onClick={() => { setEditingId(0); setForm(empty); }} className="btn-luxury flex items-center gap-2">
+            <Plus size={16} /> Add Rule
+          </button>
+        )}
+      </div>
+
+      {editingId !== null && (
+        <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }}
+          className="bg-[#050505] border border-white/5 p-10 mb-12">
+          <h3 className="text-xl font-serif font-bold mb-10 text-gold">{editingId === 0 ? 'New Rule' : 'Edit Rule'}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
+            <div className="space-y-3">
+              <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Custom Label (optional)</label>
+              <input type="text" placeholder="E.G. FREE SHIPPING ABOVE RS. 5,000"
+                className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-all text-sm"
+                value={form.label}
+                onChange={e => setForm({ ...form, label: e.target.value })} />
+            </div>
+            <div className="space-y-3">
+              <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Min Order (RS.)</label>
+              <input type="number" placeholder="0"
+                className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-all text-sm"
+                value={form.min_order}
+                onChange={e => setForm({ ...form, min_order: parseFloat(e.target.value) || 0 })} />
+            </div>
+            <div className="space-y-3">
+              <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Max Order (RS.) — leave blank for no limit</label>
+              <input type="number" placeholder="Leave blank for no upper limit"
+                className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-all text-sm"
+                value={form.max_order ?? ''}
+                onChange={e => setForm({ ...form, max_order: e.target.value === '' ? null : parseFloat(e.target.value) })} />
+            </div>
+            <div className="space-y-3">
+              <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Delivery Charge (RS.) — set 0 for free</label>
+              <input type="number" placeholder="0 = Free delivery"
+                className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-all text-sm"
+                value={form.charge}
+                onChange={e => setForm({ ...form, charge: parseFloat(e.target.value) || 0 })} />
+            </div>
           </div>
           <div className="flex gap-6">
-            <button onClick={handleSave} disabled={saving} className="btn-luxury px-12 flex items-center gap-2 disabled:opacity-50">
+            <button onClick={handleSave} disabled={saving}
+              className="btn-luxury px-10 flex items-center gap-2 disabled:opacity-50">
               {saving ? <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> : null}
-              Save Changes
+              Save Rule
             </button>
-            <button onClick={() => setEditingId(null)} className="text-xs font-bold uppercase tracking-[0.2em] text-white/30 hover:text-white transition-colors">Discard</button>
+            <button onClick={() => { setEditingId(null); setForm(empty); }}
+              className="text-xs font-bold uppercase tracking-[0.2em] text-white/30 hover:text-white transition-colors">Discard</button>
           </div>
         </motion.div>
       )}
 
-      {/* Products Table */}
       <div className="border border-white/5 overflow-hidden">
         <table className="w-full text-left">
           <thead className="bg-[#050505] border-b border-white/5">
             <tr>
-              <th className="px-8 py-6 text-[10px] font-bold text-gold uppercase tracking-[0.3em]">Product</th>
-              <th className="px-8 py-6 text-[10px] font-bold text-gold uppercase tracking-[0.3em]">Category</th>
-              <th className="px-8 py-6 text-[10px] font-bold text-gold uppercase tracking-[0.3em]">Price</th>
-              <th className="px-8 py-6 text-[10px] font-bold text-gold uppercase tracking-[0.3em] text-right">Actions</th>
+              <th className="px-8 py-5 text-[10px] font-bold text-gold uppercase tracking-[0.3em]">Label / Rule</th>
+              <th className="px-8 py-5 text-[10px] font-bold text-gold uppercase tracking-[0.3em]">Order Range</th>
+              <th className="px-8 py-5 text-[10px] font-bold text-gold uppercase tracking-[0.3em]">Charge</th>
+              <th className="px-8 py-5 text-[10px] font-bold text-gold uppercase tracking-[0.3em] text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
-            {products.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="px-8 py-16 text-center text-white/20 text-sm">No products yet. Add your first product above.</td>
+            {charges.length === 0 ? (
+              <tr><td colSpan={4} className="px-8 py-14 text-center text-white/20 text-sm">No delivery rules yet. Add your first rule above.</td></tr>
+            ) : charges.map(dc => (
+              <tr key={dc.id} className="hover:bg-white/[0.02] transition-colors">
+                <td className="px-8 py-5 font-serif font-bold">{dc.label || '—'}</td>
+                <td className="px-8 py-5 text-sm text-white/50">
+                  RS. {dc.min_order.toLocaleString()} – {dc.max_order != null ? `RS. ${dc.max_order.toLocaleString()}` : 'No limit'}
+                </td>
+                <td className="px-8 py-5 font-bold">
+                  {dc.charge === 0
+                    ? <span className="text-gold">FREE</span>
+                    : <span>RS. {dc.charge.toLocaleString()}</span>}
+                </td>
+                <td className="px-8 py-5 text-right">
+                  <div className="flex justify-end gap-4">
+                    <button onClick={() => { setEditingId(dc.id); setForm({ min_order: dc.min_order, max_order: dc.max_order, charge: dc.charge, label: dc.label }); }}
+                      className="w-10 h-10 flex items-center justify-center border border-white/5 text-white/30 hover:border-gold hover:text-gold transition-all">
+                      <Edit size={16} />
+                    </button>
+                    <button onClick={() => handleDelete(dc.id)}
+                      className="w-10 h-10 flex items-center justify-center border border-white/5 text-white/30 hover:border-red-500 hover:text-red-500 transition-all">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </td>
               </tr>
-            ) : (
-              products.map(product => (
-                <tr key={product.id} className="hover:bg-white/[0.02] transition-colors group">
-                  <td className="px-8 py-6">
-                    <div className="flex items-center gap-6">
-                      <div className="w-16 h-16 overflow-hidden bg-[#111] border border-white/5">
-                        <img src={product.image} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" referrerPolicy="no-referrer" />
-                      </div>
-                      <div>
-                        <div className="font-serif font-bold text-lg">{product.name}</div>
-                        <div className="text-[8px] font-bold text-gold uppercase tracking-[0.2em]">{product.featured ? '★ Featured' : ''}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-8 py-6 text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">{product.category}</td>
-                  <td className="px-8 py-6 font-bold text-gold">RS. {product.price.toLocaleString()}</td>
-                  <td className="px-8 py-6 text-right">
-                    <div className="flex justify-end gap-4">
-                      <button onClick={() => handleEdit(product)} className="w-10 h-10 flex items-center justify-center border border-white/5 text-white/30 hover:border-gold hover:text-gold transition-all">
-                        <Edit size={16} />
-                      </button>
-                      <button onClick={() => handleDelete(product.id)} disabled={deleting === product.id}
-                        className="w-10 h-10 flex items-center justify-center border border-white/5 text-white/30 hover:border-red-500 hover:text-red-500 transition-all disabled:opacity-50">
-                        {deleting === product.id ? <div className="w-4 h-4 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin" /> : <Trash2 size={16} />}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
+            ))}
           </tbody>
         </table>
       </div>
