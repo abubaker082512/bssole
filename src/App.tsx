@@ -29,9 +29,12 @@ export default function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
     });
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    // Listen for auth changes — redirect away from admin if session expires
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
+      if (event === 'SIGNED_OUT') {
+        setCurrentPage('home');
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -659,6 +662,15 @@ function AdminPage({ products, refresh, deliveryCharges, refreshCharges, onLogou
 
       // Upload new image file if selected
       if (imageFile) {
+        // Verify session is still valid before attempting upload
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError || !session) {
+          showToast('Session expired. Please log in again.', 'error');
+          await supabase.auth.signOut();
+          setSaving(false);
+          return;
+        }
+
         setImageUploading(true);
         const ext = imageFile.name.split('.').pop();
         const fileName = `product-${Date.now()}.${ext}`;
@@ -666,7 +678,21 @@ function AdminPage({ products, refresh, deliveryCharges, refreshCharges, onLogou
           .from('product-images')
           .upload(fileName, imageFile, { upsert: true });
         setImageUploading(false);
-        if (uploadError) throw new Error('Image upload failed: ' + uploadError.message);
+        if (uploadError) {
+          // Distinguish auth errors from bucket errors
+          if (uploadError.message.includes('469') || uploadError.message.includes('401') || uploadError.message.toLowerCase().includes('auth') || uploadError.message.toLowerCase().includes('jwt')) {
+            showToast('Session expired. Please log in again.', 'error');
+            await supabase.auth.signOut();
+            setSaving(false);
+            return;
+          }
+          if (uploadError.message.includes('Bucket not found') || uploadError.message.includes('404')) {
+            showToast('Storage bucket not found. Please create \'product-images\' bucket in Supabase Dashboard → Storage.', 'error');
+            setSaving(false);
+            return;
+          }
+          throw new Error('Image upload failed: ' + uploadError.message);
+        }
         const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(uploadData.path);
         imageUrl = urlData.publicUrl;
       }
