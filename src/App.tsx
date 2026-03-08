@@ -634,7 +634,9 @@ function AdminPage({ products, refresh, deliveryCharges, refreshCharges, onLogou
   const [imagePreview, setImagePreview] = useState<string>('');
   const [imageUploading, setImageUploading] = useState(false);
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
-  const [formData, setFormData] = useState<Partial<Product>>({ name: '', description: '', price: 0, image: '', category: '', featured: 0 });
+  const [formData, setFormData] = useState<Partial<Product>>({ name: '', description: '', price: 0, image: '', category: '', featured: 0, stock: 0, colors: [], sizes: [] });
+  const [colorInput, setColorInput] = useState('');
+  const [sizeInput, setSizeInput] = useState('');
 
   const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
     setToast({ msg, type });
@@ -646,6 +648,8 @@ function AdminPage({ products, refresh, deliveryCharges, refreshCharges, onLogou
     setFormData(product);
     setImageFile(null);
     setImagePreview(product.image || '');
+    setColorInput('');
+    setSizeInput('');
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -702,6 +706,9 @@ function AdminPage({ products, refresh, deliveryCharges, refreshCharges, onLogou
           name: formData.name, description: formData.description,
           price: formData.price, image: imageUrl,
           category: formData.category, featured: formData.featured ? 1 : 0,
+          stock: formData.stock ?? 0,
+          colors: formData.colors ?? [],
+          sizes: formData.sizes ?? [],
         }]);
         if (error) throw error;
         showToast('Product added successfully!');
@@ -711,14 +718,19 @@ function AdminPage({ products, refresh, deliveryCharges, refreshCharges, onLogou
           name: formData.name, description: formData.description,
           price: formData.price, image: imageUrl,
           category: formData.category, featured: formData.featured ? 1 : 0,
+          stock: formData.stock ?? 0,
+          colors: formData.colors ?? [],
+          sizes: formData.sizes ?? [],
         }).eq('id', editingId);
         if (error) throw error;
         showToast('Product updated!');
       }
       setEditingId(null);
-      setFormData({ name: '', description: '', price: 0, image: '', category: '', featured: 0 });
+      setFormData({ name: '', description: '', price: 0, image: '', category: '', featured: 0, stock: 0, colors: [], sizes: [] });
       setImageFile(null);
       setImagePreview('');
+      setColorInput('');
+      setSizeInput('');
       refresh();
     } catch (err: any) {
       showToast(err.message || 'Failed to save product', 'error');
@@ -757,7 +769,7 @@ function AdminPage({ products, refresh, deliveryCharges, refreshCharges, onLogou
         </div>
         <div className="flex gap-4">
           {!editingId && (
-            <button onClick={() => { setEditingId(0); setFormData({ name: '', description: '', price: 0, image: '', category: '', featured: 0 }); }}
+            <button onClick={() => { setEditingId(0); setFormData({ name: '', description: '', price: 0, image: '', category: '', featured: 0, stock: 0, colors: [], sizes: [] }); setColorInput(''); setSizeInput(''); }}
               className="btn-luxury flex items-center gap-2">
               <Plus size={16} /> Add Product
             </button>
@@ -857,6 +869,7 @@ function AdminPage({ products, refresh, deliveryCharges, refreshCharges, onLogou
                   </div>
                 )}
               </div>
+              {/* Description */}
               <div className="space-y-4 md:col-span-2">
                 <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Description</label>
                 <textarea className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-all text-sm resize-none"
@@ -864,6 +877,73 @@ function AdminPage({ products, refresh, deliveryCharges, refreshCharges, onLogou
                   value={formData.description || ''}
                   onChange={e => setFormData({ ...formData, description: e.target.value })} />
               </div>
+
+              {/* Stock */}
+              <div className="space-y-4">
+                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Stock (Units)</label>
+                <input type="number" min={0} placeholder="0"
+                  className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-all text-sm"
+                  value={formData.stock ?? 0}
+                  onChange={e => setFormData({ ...formData, stock: parseInt(e.target.value) || 0 })} />
+              </div>
+
+              {/* Colors Tag Input */}
+              <div className="space-y-4">
+                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Colors</label>
+                <div className="flex flex-wrap gap-2 min-h-[32px]">
+                  {(formData.colors ?? []).map(color => (
+                    <span key={color} className="flex items-center gap-1 px-3 py-1 bg-white/5 border border-white/10 text-xs font-bold uppercase tracking-wider">
+                      {color}
+                      <button type="button" onClick={() => setFormData({ ...formData, colors: (formData.colors ?? []).filter(c => c !== color) })} className="text-white/30 hover:text-red-400 ml-1">×</button>
+                    </span>
+                  ))}
+                </div>
+                <input type="text" placeholder="TYPE A COLOUR + PRESS ENTER"
+                  className="w-full bg-transparent border-b border-white/10 py-3 outline-none focus:border-gold transition-all text-sm"
+                  value={colorInput}
+                  onChange={e => setColorInput(e.target.value)}
+                  onKeyDown={e => {
+                    if ((e.key === 'Enter' || e.key === ',') && colorInput.trim()) {
+                      e.preventDefault();
+                      const val = colorInput.trim().replace(/,$/, '');
+                      if (val && !(formData.colors ?? []).includes(val)) {
+                        setFormData({ ...formData, colors: [...(formData.colors ?? []), val] });
+                      }
+                      setColorInput('');
+                    }
+                  }} />
+                <p className="text-[9px] text-white/20">Press Enter or comma to add each colour</p>
+              </div>
+
+              {/* Sizes Tag Input */}
+              <div className="space-y-4 md:col-span-2">
+                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Sizes</label>
+                <div className="flex flex-wrap gap-2 min-h-[32px]">
+                  {(formData.sizes ?? []).map(size => (
+                    <span key={size} className="flex items-center gap-1 px-3 py-1 bg-gold/10 border border-gold/20 text-xs font-bold uppercase tracking-wider text-gold">
+                      {size}
+                      <button type="button" onClick={() => setFormData({ ...formData, sizes: (formData.sizes ?? []).filter(s => s !== size) })} className="text-gold/50 hover:text-red-400 ml-1">×</button>
+                    </span>
+                  ))}
+                </div>
+                <input type="text" placeholder="E.G. 40, 41, 42 — TYPE A SIZE + PRESS ENTER"
+                  className="w-full bg-transparent border-b border-white/10 py-3 outline-none focus:border-gold transition-all text-sm"
+                  value={sizeInput}
+                  onChange={e => setSizeInput(e.target.value)}
+                  onKeyDown={e => {
+                    if ((e.key === 'Enter' || e.key === ',') && sizeInput.trim()) {
+                      e.preventDefault();
+                      const val = sizeInput.trim().replace(/,$/, '');
+                      if (val && !(formData.sizes ?? []).includes(val)) {
+                        setFormData({ ...formData, sizes: [...(formData.sizes ?? []), val] });
+                      }
+                      setSizeInput('');
+                    }
+                  }} />
+                <p className="text-[9px] text-white/20">Press Enter or comma to add each size</p>
+              </div>
+
+              {/* Featured */}
               <label className="flex items-center gap-4 cursor-pointer group">
                 <div className={`w-6 h-6 border flex items-center justify-center transition-all ${formData.featured ? 'bg-gold border-gold' : 'border-white/20 group-hover:border-gold'}`}>
                   {formData.featured ? <Save size={12} className="text-black" /> : null}
@@ -932,12 +1012,15 @@ function AdminPage({ products, refresh, deliveryCharges, refreshCharges, onLogou
             </tbody>
           </table>
         </div>
-      </>)}
+      </>)
+      }
 
-      {activeTab === 'delivery' && (
-        <DeliveryChargesTab charges={deliveryCharges} refresh={refreshCharges} showToast={showToast} />
-      )}
-    </div>
+      {
+        activeTab === 'delivery' && (
+          <DeliveryChargesTab charges={deliveryCharges} refresh={refreshCharges} showToast={showToast} />
+        )
+      }
+    </div >
   );
 }
 
