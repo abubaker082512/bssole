@@ -4,6 +4,7 @@ import { ShoppingBag, Menu, X, Instagram, Facebook, Trash2, Edit, Plus, Save, Ar
 import { Product, Page, CartItem, DeliveryCharge } from './types';
 import { supabase } from './lib/supabase';
 import AdminLogin from './components/AdminLogin';
+import AdminDashboard from './components/admin/AdminDashboard';
 import type { Session } from '@supabase/supabase-js';
 import logo from './assets/logo.png';
 
@@ -99,7 +100,7 @@ export default function App() {
       case 'contact': return <ContactPage />;
       case 'admin':
         if (!session) return <AdminLogin onLoginSuccess={() => setCurrentPage('admin')} />;
-        return <AdminPage products={products} refresh={loadProducts} deliveryCharges={deliveryCharges} refreshCharges={loadDeliveryCharges} onLogout={handleLogout} />;
+        return <AdminDashboard onLogout={handleLogout} />;
       case 'returns': return <ReturnPolicyPage setPage={setCurrentPage} />;
       default: return <HomePage products={products.filter(p => p.featured)} setPage={setCurrentPage} addToCart={addToCart} />;
     }

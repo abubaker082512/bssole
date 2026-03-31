@@ -3,6 +3,10 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
 
+import productsRouter from "./server/routes/products.js";
+import categoriesRouter from "./server/routes/categories.js";
+import variantsRouter from "./server/routes/variants.js";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -11,6 +15,11 @@ async function startServer() {
   const PORT = 3000;
 
   app.use(express.json());
+
+  // API Routes
+  app.use('/api/products', productsRouter);
+  app.use('/api/categories', categoriesRouter);
+  app.use('/api/variants', variantsRouter);
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
