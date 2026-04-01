@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { supabaseAdmin } from '../supabase.js';
+import { ProductSchema } from '../validation/productSchema.js';
 
 const router = Router();
 
@@ -24,10 +25,14 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Create product
+// Create product with input validation (Zod)
 router.post('/', async (req, res) => {
     try {
-        const product = req.body;
+        const result = ProductSchema.safeParse(req.body);
+        if (!result.success) {
+            return res.status(400).json({ error: result.error.flatten() });
+        }
+        const product = result.data;
         const { data, error } = await supabaseAdmin
             .from('products')
             .insert([product])

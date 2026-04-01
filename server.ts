@@ -14,20 +14,20 @@ import settingsRouter from "./server/routes/settings.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+export const app = express();
+app.use(express.json());
 
-  app.use(express.json());
+// API Routes
+app.use('/api/products', productsRouter);
+app.use('/api/categories', categoriesRouter);
+app.use('/api/variants', variantsRouter);
+app.use('/api/attributes', attributesRouter);
+app.use('/api/orders', ordersRouter);
+app.use('/api/customers', customersRouter);
+app.use('/api/settings', settingsRouter);
 
-  // API Routes
-  app.use('/api/products', productsRouter);
-  app.use('/api/categories', categoriesRouter);
-  app.use('/api/variants', variantsRouter);
-  app.use('/api/attributes', attributesRouter);
-  app.use('/api/orders', ordersRouter);
-  app.use('/api/customers', customersRouter);
-  app.use('/api/settings', settingsRouter);
+export async function startServer() {
+  const PORT = process.env.PORT || 3000;
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
@@ -43,9 +43,25 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
+  app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
 }
 
-startServer();
+// Only start the server if not running inside Vercel Serverless Functions
+if (!process.env.VERCEL) {
+  startServer();
+}
+
+export default app;
+
+// Basic 404 for API routes and a global error handler to keep API responses consistent
+// Note: This is intentionally lightweight to avoid masking route-specific errors above.
+app.use('/api', (req: any, res: any) => {
+  res.status(404).json({ error: 'API endpoint not found' });
+});
+
+app.use((err: any, req: any, res: any, _next: any) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ error: err?.message ?? 'Internal Server Error' });
+});
