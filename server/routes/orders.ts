@@ -1,25 +1,10 @@
 import { Router } from 'express';
 import { supabaseAdmin } from '../supabase.js';
+import { OrderPayloadSchema } from '../validation/orderSchema.js';
 
 const router = Router();
 
-// Lightweight validation helper (acts as a placeholder for a proper Zod schema)
-function validateOrderPayload(payload: any): { ok: boolean; errors: string[] } {
-  const errors: string[] = [];
-  if (!payload) {
-    errors.push('payload missing');
-  }
-  if (!Array.isArray(payload?.items) || payload.items.length === 0) {
-    errors.push('items must be a non-empty array');
-  }
-  if (typeof payload?.total !== 'number') {
-    errors.push('total must be a number');
-  }
-  if (!payload?.address) {
-    errors.push('address is required');
-  }
-  return { ok: errors.length === 0, errors };
-}
+// Validation is now performed with Zod schema (OrderPayloadSchema)
 
 // GET all orders
 router.get('/', async (req, res) => {
@@ -59,19 +44,20 @@ router.put('/:id', async (req, res) => {
 // CREATE new order
 router.post('/', async (req, res) => {
   try {
-    const validation = validateOrderPayload(req.body);
-    if (!validation.ok) {
-      return res.status(400).json({ error: validation.errors.join('; ') });
+    const result = OrderPayloadSchema.safeParse(req.body);
+    if (!result.success) {
+      return res.status(400).json({ error: result.error.flatten() });
     }
-    const { customer_id, customer_email, items, total, address } = req.body;
+    const payload = result.data as any;
+    const { customer_id, customer_email, items, total, address } = payload;
     if (!Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ error: 'Invalid order payload' });
     }
 
     // Resolve customer_id: prefer provided, otherwise create/find by email
-    let cid: number | undefined = customer_id;
+    let cid: number | undefined = payload.customer_id;
     if (!cid) {
-      const email = customer_email ?? (address?.email ?? '');
+      const email = payload.customer_email ?? (payload.address?.email ?? '');
       if (email) {
         const { data: existing, error: existErr } = await supabaseAdmin.from('customers').select('id').eq('email', email).single();
         if (!existErr && (existing as any)?.id) {
@@ -85,7 +71,6 @@ router.post('/', async (req, res) => {
     if (!cid) {
       return res.status(400).json({ error: 'Missing customer_id or customer_email' });
     }
-
     // Create the order
     const { data: orderData, error: orderError } = await supabaseAdmin
       .from('orders')
