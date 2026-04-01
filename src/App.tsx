@@ -101,7 +101,11 @@ export default function App() {
       case 'shop': return <ShopPage products={products} addToCart={addToCart} />;
       case 'contact': return <ContactPage />;
       case 'admin':
+        // Protect admin area: require admin email from env var and valid session
         if (!session) return <AdminLogin onLoginSuccess={() => setCurrentPage('admin')} />;
+        if (!isAdmin) {
+          return <div className="p-6 text-red-400">Access denied. Admins only.</div>;
+        }
         return <AdminDashboard onLogout={handleLogout} />;
       case 'returns': return <ReturnPolicyPage setPage={setCurrentPage} />;
       case 'checkout': return <CheckoutPage cart={cart} onBack={() => setCurrentPage('shop')} onSuccess={(id) => { setOrderId(id); setCart([]); setCurrentPage('order-success'); }} session={session} />;

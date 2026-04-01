@@ -33,16 +33,27 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ error: result.error.flatten() });
         }
         const product = result.data;
-        const { data, error } = await supabaseAdmin
+        // Simple retry on transient DB errors to improve resiliency
+        let data: any = null;
+        let error: any = null;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          const res = await supabaseAdmin
             .from('products')
             .insert([product])
             .select()
             .single();
-
+          data = res.data;
+          error = (res as any).error;
+          if (!error) break;
+          // brief delay before retry
+          await new Promise(r => setTimeout(r, 200));
+        }
         if (error) throw error;
         res.status(201).json(data);
     } catch (error: any) {
-        res.status(400).json({ error: error.message });
+        // Distinguish validation errors vs server errors
+        const status = error?.name === 'ZodError' ? 400 : 500;
+        res.status(status).json({ error: error?.message ?? 'Failed to save product' });
     }
 });
 
