@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
+    "test:validation": "tsx test/validation/productValidationTest.ts && tsx test/validation/orderValidationTest.ts"
     "start": "node server.ts"
   },
   "dependencies": {
