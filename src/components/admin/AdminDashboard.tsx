@@ -3,6 +3,10 @@ import { Package, Grid, Tags, ShoppingCart, Users, Settings, LogOut, LayoutDashb
 import ProductList from './products/ProductList';
 import ProductForm from './products/ProductForm';
 import CategoryManager from './categories/CategoryManager';
+import AttributeManager from './attributes/AttributeManager';
+import OrderList from './orders/OrderList';
+import CustomerList from './customers/CustomerList';
+import SettingsManager from './settings/SettingsManager';
 
 export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     const [currentView, setCurrentView] = useState('dashboard');
@@ -34,9 +38,11 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
             }
             return <ProductList onEdit={(id) => setEditingProductId(id)} onAdd={() => setEditingProductId(0)} />
         }
-        if (currentView === 'categories') {
-            return <CategoryManager />
-        }
+        if (currentView === 'categories') return <CategoryManager />
+        if (currentView === 'attributes') return <AttributeManager />
+        if (currentView === 'orders') return <OrderList />
+        if (currentView === 'customers') return <CustomerList />
+        if (currentView === 'settings') return <SettingsManager />
         return (
             <div className="p-8">
                 <div className="flex justify-between items-center mb-8">
