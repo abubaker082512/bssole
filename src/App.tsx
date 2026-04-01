@@ -4,6 +4,7 @@ import { ShoppingBag, Menu, X, Instagram, Facebook, Trash2, Edit, Plus, Save, Ar
 import { Product, Page, CartItem, DeliveryCharge } from './types';
 import { supabase } from './lib/supabase';
 import AdminLogin from './components/AdminLogin';
+import CheckoutPage from './components/CheckoutPage';
 import AdminDashboard from './components/admin/AdminDashboard';
 import type { Session } from '@supabase/supabase-js';
 import logo from './assets/logo.png';
@@ -18,6 +19,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
   const [deliveryCharges, setDeliveryCharges] = useState<DeliveryCharge[]>([]);
+  const [orderId, setOrderId] = useState<number | string | null>(null);
 
   useEffect(() => {
     loadProducts();
@@ -102,11 +104,24 @@ export default function App() {
         if (!session) return <AdminLogin onLoginSuccess={() => setCurrentPage('admin')} />;
         return <AdminDashboard onLogout={handleLogout} />;
       case 'returns': return <ReturnPolicyPage setPage={setCurrentPage} />;
+      case 'checkout': return <CheckoutPage cart={cart} onBack={() => setCurrentPage('shop')} onSuccess={(id) => { setOrderId(id); setCart([]); setCurrentPage('order-success'); }} session={session} />;
+      case 'order-success': return (
+        <div className="max-w-4xl mx-auto py-12 px-6">
+          <h2 className="text-3xl font-serif font-bold mb-4">Order Confirmed</h2>
+          <p className="text-white/60 mb-6">Thank you! Your order has been placed.</p>
+          <p className="text-white/60 mb-6">Order ID: {orderId ?? 'N/A'}</p>
+          <button className="btn-luxury" onClick={() => setCurrentPage('shop')}>Continue Shopping</button>
+        </div>
+      );
       default: return <HomePage products={products.filter(p => p.featured)} setPage={setCurrentPage} addToCart={addToCart} />;
     }
   };
 
-  const isAdmin = session?.user?.email === 'adminbssole@gmail.com';
+  // Admin check: prefer a list loaded from environment (VITE_ADMIN_EMAILS)
+  // This avoids hard-coding a single admin email in the frontend.
+  const rawEmails = ((import.meta as any).env?.VITE_ADMIN_EMAILS ?? '') as string;
+  const ADMIN_EMAILS: string[] = rawEmails.split(',').map(e => e.trim()).filter(e => e.length > 0);
+  const isAdmin = !!session && ADMIN_EMAILS.includes(session.user?.email ?? '');
 
 
   return (
@@ -264,7 +279,7 @@ export default function App() {
                     <span className="text-white/40 text-[10px] font-bold uppercase tracking-[0.3em]">Subtotal</span>
                     <span className="text-2xl font-serif font-bold text-gold">RS. {cartTotal.toLocaleString()}</span>
                   </div>
-                  <button className="btn-luxury w-full py-6 text-sm">Checkout Now</button>
+                  <button onClick={() => setCurrentPage('checkout')} className="btn-luxury w-full py-6 text-sm">Checkout Now</button>
                   <p className="text-center text-[8px] text-white/20 uppercase tracking-[0.2em] mt-6">Shipping & taxes calculated at checkout</p>
                 </div>
               )}
