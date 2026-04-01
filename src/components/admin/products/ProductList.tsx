@@ -42,22 +42,22 @@ export default function ProductList({ onEdit, onAdd }: { onEdit: (id: number) =>
 
             <div className="flex gap-4 mb-8">
                 <div className="relative flex-grow">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={18} />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/30" size={18} />
                     <input 
                         type="text" 
                         placeholder="Search products..."
-                        className="w-full bg-[#111] border border-white/10 pl-12 pr-4 py-3 outline-none focus:border-gold text-white text-sm"
+                        className="w-full bg-gray-100 dark:bg-[#111] border border-black/10 dark:border-white/10 pl-12 pr-4 py-3 outline-none focus:border-gold transition-colors text-black dark:text-white text-sm"
                     />
                 </div>
-                <button className="px-6 py-3 border border-white/10 hover:border-gold text-white/50 hover:text-white transition-all flex items-center gap-2 text-sm uppercase tracking-widest font-bold">
+                <button className="px-6 py-3 border border-black/10 dark:border-white/10 hover:border-gold dark:hover:border-gold text-gray-500 dark:text-white/50 hover:text-black dark:hover:text-white transition-all flex items-center gap-2 text-sm uppercase tracking-widest font-bold">
                     <Filter size={16} /> Filter
                 </button>
             </div>
 
-            {loading ? <p className="text-white/30">Loading...</p> : (
-                <div className="bg-[#050505] border border-white/5 overflow-hidden">
+            {loading ? <p className="text-gray-500 dark:text-white/30">Loading...</p> : (
+                <div className="bg-white dark:bg-[#050505] border border-black/5 dark:border-white/5 overflow-hidden">
                     <table className="w-full text-left text-sm">
-                        <thead className="bg-[#111] text-white/50 uppercase tracking-widest text-xs">
+                        <thead className="bg-gray-100 dark:bg-[#111] text-gray-500 dark:text-white/50 uppercase tracking-widest text-xs">
                             <tr>
                                 <th className="p-4 font-normal">Product</th>
                                 <th className="p-4 font-normal">SKU</th>
@@ -67,38 +67,38 @@ export default function ProductList({ onEdit, onAdd }: { onEdit: (id: number) =>
                                 <th className="p-4 font-normal text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/5 text-white/80">
+                        <tbody className="divide-y divide-black/5 dark:divide-white/5 text-gray-700 dark:text-white/80">
                             {products.map(p => (
-                                <tr key={p.id} className="hover:bg-white/5 transition-colors">
+                                <tr key={p.id} className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                                     <td className="p-4">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-16 bg-[#111] border border-white/10 overflow-hidden flex-shrink-0">
+                                            <div className="w-12 h-16 bg-gray-100 dark:bg-[#111] border border-black/10 dark:border-white/10 overflow-hidden flex-shrink-0">
                                                 {p.product_images?.[0] ? 
                                                     <img src={p.product_images[0].image_url} alt="" className="w-full h-full object-cover" /> 
-                                                    : <div className="w-full h-full flex items-center justify-center text-white/10">No Img</div>}
+                                                    : <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-white/10">No Img</div>}
                                             </div>
                                             <div>
-                                                <div className="font-bold text-base text-white hover:text-gold cursor-pointer" onClick={() => onEdit(p.id)}>{p.name}</div>
-                                                <div className="text-xs text-white/30 mt-1">{p.categories?.name || 'Uncategorized'}</div>
+                                                <div className="font-bold text-base text-black dark:text-white hover:text-gold dark:hover:text-gold cursor-pointer transition-colors" onClick={() => onEdit(p.id)}>{p.name}</div>
+                                                <div className="text-xs text-gray-500 dark:text-white/30 mt-1">{p.categories?.name || 'Uncategorized'}</div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="p-4 font-mono text-white/50">{p.sku || '-'}</td>
+                                    <td className="p-4 font-mono text-gray-500 dark:text-white/50">{p.sku || '-'}</td>
                                     <td className="p-4">
-                                        <span className={`px-2 py-1 text-xs font-bold ${p.stock_quantity > 10 ? 'text-green-500 bg-green-500/10' : p.stock_quantity > 0 ? 'text-orange-500 bg-orange-500/10' : 'text-red-500 bg-red-500/10'}`}>
+                                        <span className={`px-2 py-1 text-xs font-bold ${p.stock_quantity > 10 ? 'text-green-600 dark:text-green-500 bg-green-500/10' : p.stock_quantity > 0 ? 'text-orange-600 dark:text-orange-500 bg-orange-500/10' : 'text-red-600 dark:text-red-500 bg-red-500/10'}`}>
                                             {p.stock_quantity} IN STOCK
                                         </span>
                                     </td>
                                     <td className="p-4 text-gold font-bold">RS. {p.regular_price}</td>
                                     <td className="p-4">
-                                        <span className={`px-2 py-1 text-xs font-bold uppercase tracking-widest border ${p.status === 'published' ? 'border-gold text-gold' : 'border-white/20 text-white/40'}`}>
+                                        <span className={`px-2 py-1 text-xs font-bold uppercase tracking-widest border ${p.status === 'published' ? 'border-gold text-gold' : 'border-black/20 dark:border-white/20 text-gray-400 dark:text-white/40'}`}>
                                             {p.status}
                                         </span>
                                     </td>
                                     <td className="p-4 text-right">
                                         <div className="flex justify-end gap-3">
-                                            <button onClick={() => onEdit(p.id)} className="text-white/30 hover:text-white transition-colors"><Edit size={16} /></button>
-                                            <button onClick={() => handleDelete(p.id)} className="text-white/30 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
+                                            <button onClick={() => onEdit(p.id)} className="text-gray-400 dark:text-white/30 hover:text-black dark:hover:text-white transition-colors"><Edit size={16} /></button>
+                                            <button onClick={() => handleDelete(p.id)} className="text-gray-400 dark:text-white/30 hover:text-red-500 dark:hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
                                         </div>
                                     </td>
                                 </tr>

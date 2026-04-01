@@ -52,26 +52,26 @@ export default function CategoryManager() {
                     value={newCategoryName} 
                     onChange={e => setNewCategoryName(e.target.value)}
                     placeholder="New Category Name"
-                    className="flex-grow bg-[#111] border border-white/10 px-4 py-3 outline-none focus:border-gold transition-colors text-white text-sm"
+                    className="flex-grow bg-gray-100 dark:bg-[#111] border border-black/10 dark:border-white/10 px-4 py-3 outline-none focus:border-gold transition-colors text-black dark:text-white text-sm"
                 />
                 <button onClick={handleCreate} className="btn-luxury flex items-center gap-2">
                     <Plus size={16} /> Add Category
                 </button>
             </div>
             
-            {loading ? <p className="text-white/30">Loading...</p> : (
-                <div className="bg-[#050505] border border-white/5 divide-y divide-white/5">
+            {loading ? <p className="text-gray-500 dark:text-white/30">Loading...</p> : (
+                <div className="bg-white dark:bg-[#050505] border border-black/5 dark:border-white/5 divide-y divide-black/5 dark:divide-white/5">
                     {categories.length === 0 ? (
-                        <p className="p-6 text-white/30">No categories found.</p>
+                        <p className="p-6 text-gray-500 dark:text-white/30">No categories found.</p>
                     ) : categories.map(cat => (
-                        <div key={cat.id} className="p-6 flex justify-between items-center group hover:bg-white/5 transition-colors">
+                        <div key={cat.id} className="p-6 flex justify-between items-center group hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                             <div>
-                                <h3 className="font-bold text-lg">{cat.name}</h3>
-                                <p className="text-xs text-white/40 font-mono mt-1">/{cat.slug}</p>
+                                <h3 className="font-bold text-lg text-black dark:text-white">{cat.name}</h3>
+                                <p className="text-xs text-gray-500 dark:text-white/40 font-mono mt-1">/{cat.slug}</p>
                             </div>
                             <div className="flex gap-3">
-                                <button className="text-white/20 hover:text-gold transition-colors"><Edit size={16} /></button>
-                                <button onClick={() => handleDelete(cat.id)} className="text-white/20 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
+                                <button className="text-gray-400 dark:text-white/20 hover:text-gold dark:hover:text-gold transition-colors"><Edit size={16} /></button>
+                                <button onClick={() => handleDelete(cat.id)} className="text-gray-400 dark:text-white/20 hover:text-red-500 dark:hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
                             </div>
                         </div>
                     ))}

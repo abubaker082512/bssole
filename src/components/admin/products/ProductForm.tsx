@@ -65,19 +65,19 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
         { id: 'advanced', label: 'Advanced', icon: <Settings size={16} /> },
     ];
 
-    if (loading) return <div className="p-8 text-white/50">Loading Product...</div>
+    if (loading) return <div className="p-8 text-gray-500 dark:text-white/50">Loading Product...</div>
 
     return (
         <div className="p-8">
-            <div className="flex justify-between items-center mb-8 pb-8 border-b border-white/5">
+            <div className="flex justify-between items-center mb-8 pb-8 border-b border-black/5 dark:border-white/5">
                 <div>
-                    <button onClick={onBack} className="text-white/30 hover:text-gold text-xs font-bold uppercase tracking-widest mb-4 block group">
+                    <button onClick={onBack} className="text-gray-400 dark:text-white/30 hover:text-gold dark:hover:text-gold text-xs font-bold uppercase tracking-widest mb-4 block group">
                         <span className="group-hover:-translate-x-1 inline-block transition-transform">←</span> Back to Products
                     </button>
                     <h2 className="text-4xl font-serif font-bold gold-text-gradient">{productId ? `Edit Product: ${product.name}` : 'Add New Product'}</h2>
                 </div>
                 <div className="flex gap-4">
-                    <button onClick={onBack} className="px-8 py-3 border border-white/10 hover:border-white/30 text-xs font-bold uppercase tracking-widest text-white/50 hover:text-white transition-all">Cancel</button>
+                    <button onClick={onBack} className="px-8 py-3 border border-black/10 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-white/50 hover:text-black dark:hover:text-white transition-all">Cancel</button>
                     <button onClick={handleSave} className="btn-luxury px-10 py-3 text-xs">Save Product</button>
                 </div>
             </div>
@@ -89,7 +89,7 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
                         <button 
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center gap-3 px-6 py-4 text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-[#111] border-l-2 border-gold text-gold' : 'text-white/40 border-l-2 border-transparent hover:text-white hover:bg-white/5'}`}
+                            className={`flex items-center gap-3 px-6 py-4 text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-gray-100 dark:bg-[#111] border-l-2 border-gold text-gold' : 'text-gray-500 dark:text-white/40 border-l-2 border-transparent hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'}`}
                         >
                             {tab.icon} {tab.label}
                         </button>
@@ -97,27 +97,27 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
                 </div>
 
                 {/* Tab Content */}
-                <div className="flex-grow bg-[#050505] border border-white/5 p-8 md:p-12">
+                <div className="flex-grow bg-white dark:bg-[#050505] border border-black/5 dark:border-white/5 p-8 md:p-12">
                     {activeTab === 'general' && (
                         <div className="space-y-8 max-w-2xl">
-                            <h3 className="text-xl font-serif font-bold border-b border-white/5 pb-4 gold-text-gradient">General Information</h3>
+                            <h3 className="text-xl font-serif font-bold border-b border-black/5 dark:border-white/5 pb-4 gold-text-gradient">General Information</h3>
                             <div className="space-y-4">
-                                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Product Name</label>
-                                <input type="text" value={product.name} onChange={e => setProduct({...product, name: e.target.value, slug: e.target.value.toLowerCase().replace(/ /g, '-')})} className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-colors text-sm" placeholder="e.g. Oxford Classic" />
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-white/30 uppercase tracking-[0.3em]">Product Name</label>
+                                <input type="text" value={product.name} onChange={e => setProduct({...product, name: e.target.value, slug: e.target.value.toLowerCase().replace(/ /g, '-')})} className="w-full bg-transparent border-b border-black/10 dark:border-white/10 py-4 outline-none focus:border-gold transition-colors text-black dark:text-white text-sm" placeholder="e.g. Oxford Classic" />
                             </div>
                             <div className="grid grid-cols-2 gap-8">
                                 <div className="space-y-4">
-                                    <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Regular Price (RS)</label>
-                                    <input type="number" value={product.regular_price} onChange={e => setProduct({...product, regular_price: parseFloat(e.target.value)})} className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-colors text-sm font-mono" />
+                                    <label className="text-[10px] font-bold text-gray-400 dark:text-white/30 uppercase tracking-[0.3em]">Regular Price (RS)</label>
+                                    <input type="number" value={product.regular_price} onChange={e => setProduct({...product, regular_price: parseFloat(e.target.value)})} className="w-full bg-transparent border-b border-black/10 dark:border-white/10 py-4 outline-none focus:border-gold transition-colors text-black dark:text-white text-sm font-mono" />
                                 </div>
                                 <div className="space-y-4">
-                                    <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Sale Price (RS)</label>
-                                    <input type="number" value={product.sale_price} onChange={e => setProduct({...product, sale_price: parseFloat(e.target.value)})} className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-colors text-sm font-mono" />
+                                    <label className="text-[10px] font-bold text-gray-400 dark:text-white/30 uppercase tracking-[0.3em]">Sale Price (RS)</label>
+                                    <input type="number" value={product.sale_price} onChange={e => setProduct({...product, sale_price: parseFloat(e.target.value)})} className="w-full bg-transparent border-b border-black/10 dark:border-white/10 py-4 outline-none focus:border-gold transition-colors text-black dark:text-white text-sm font-mono" />
                                 </div>
                             </div>
                             <div className="space-y-4">
-                                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Category</label>
-                                <select value={product.category_id || ''} onChange={e => setProduct({...product, category_id: parseInt(e.target.value)})} className="w-full bg-[#111] border border-white/10 py-4 px-4 outline-none focus:border-gold transition-colors text-sm text-white/80">
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-white/30 uppercase tracking-[0.3em]">Category</label>
+                                <select value={product.category_id || ''} onChange={e => setProduct({...product, category_id: parseInt(e.target.value)})} className="w-full bg-gray-100 dark:bg-[#111] border border-black/10 dark:border-white/10 py-4 px-4 outline-none focus:border-gold transition-colors text-sm text-gray-800 dark:text-white/80">
                                     <option value="">Select a category</option>
                                     {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                 </select>
@@ -127,15 +127,15 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
 
                     {activeTab === 'inventory' && (
                         <div className="space-y-8 max-w-2xl">
-                             <h3 className="text-xl font-serif font-bold border-b border-white/5 pb-4 gold-text-gradient">Inventory Tracking</h3>
+                             <h3 className="text-xl font-serif font-bold border-b border-black/5 dark:border-white/5 pb-4 gold-text-gradient">Inventory Tracking</h3>
                              <div className="grid grid-cols-2 gap-8">
                                 <div className="space-y-4">
-                                    <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">SKU</label>
-                                    <input type="text" value={product.sku} onChange={e => setProduct({...product, sku: e.target.value})} className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-colors text-sm font-mono" placeholder="BSS-001" />
+                                    <label className="text-[10px] font-bold text-gray-400 dark:text-white/30 uppercase tracking-[0.3em]">SKU</label>
+                                    <input type="text" value={product.sku} onChange={e => setProduct({...product, sku: e.target.value})} className="w-full bg-transparent border-b border-black/10 dark:border-white/10 py-4 outline-none focus:border-gold transition-colors text-black dark:text-white text-sm font-mono" placeholder="BSS-001" />
                                 </div>
                                 <div className="space-y-4">
-                                    <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Stock Quantity</label>
-                                    <input type="number" value={product.stock_quantity} onChange={e => setProduct({...product, stock_quantity: parseInt(e.target.value)})} className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-colors text-sm font-mono" />
+                                    <label className="text-[10px] font-bold text-gray-400 dark:text-white/30 uppercase tracking-[0.3em]">Stock Quantity</label>
+                                    <input type="number" value={product.stock_quantity} onChange={e => setProduct({...product, stock_quantity: parseInt(e.target.value)})} className="w-full bg-transparent border-b border-black/10 dark:border-white/10 py-4 outline-none focus:border-gold transition-colors text-black dark:text-white text-sm font-mono" />
                                 </div>
                             </div>
                         </div>
@@ -143,20 +143,20 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
                     
                     {activeTab === 'variations' && (
                         <div className="space-y-8 text-center py-20">
-                            <Layers className="mx-auto text-white/10 mb-6" size={48} />
+                            <Layers className="mx-auto text-gray-300 dark:text-white/10 mb-6" size={48} />
                             <h3 className="text-xl font-serif font-bold gold-text-gradient mb-4">Product Variations</h3>
-                            <p className="text-white/40 text-sm max-w-md mx-auto mb-8 leading-relaxed">Before you can add a variation you need to add some variation attributes on the Attributes tab. Currently, this product is saved as a <strong>Simple Product</strong>.</p>
-                            <button className="btn-luxury inline-flex items-center justify-center">Generate Variants</button>
+                            <p className="text-gray-500 dark:text-white/40 text-sm max-w-md mx-auto mb-8 leading-relaxed">Before you can add a variation you need to add some variation attributes on the Attributes tab. Currently, this product is saved as a <strong>Simple Product</strong>.</p>
+                            <button className="btn-luxury inline-flex items-center justify-center text-sm px-6 py-3 border border-gray-200 dark:border-white/10">Generate Variants</button>
                         </div>
                     )}
 
                     {activeTab === 'media' && (
                         <div className="space-y-8">
-                            <h3 className="text-xl font-serif font-bold border-b border-white/5 pb-4 gold-text-gradient">Product Gallery</h3>
-                            <div className="border-2 border-dashed border-white/10 p-20 flex flex-col items-center justify-center bg-[#111] text-center hover:border-gold/50 transition-colors cursor-pointer group">
-                                <ImageIcon className="text-white/20 group-hover:text-gold mb-6 transition-colors" size={48} />
-                                <h4 className="text-sm font-bold uppercase tracking-widest text-white/80 mb-2">Drag and drop images here</h4>
-                                <p className="text-xs text-white/40">or click to browse from your computer</p>
+                            <h3 className="text-xl font-serif font-bold border-b border-black/5 dark:border-white/5 pb-4 gold-text-gradient">Product Gallery</h3>
+                            <div className="border-2 border-dashed border-black/10 dark:border-white/10 p-20 flex flex-col items-center justify-center bg-gray-50 dark:bg-[#111] text-center hover:border-gold/50 dark:hover:border-gold/50 transition-colors cursor-pointer group">
+                                <ImageIcon className="text-gray-400 dark:text-white/20 group-hover:text-gold dark:group-hover:text-gold mb-6 transition-colors" size={48} />
+                                <h4 className="text-sm font-bold uppercase tracking-widest text-gray-700 dark:text-white/80 mb-2">Drag and drop images here</h4>
+                                <p className="text-xs text-gray-500 dark:text-white/40">or click to browse from your computer</p>
                             </div>
                         </div>
                     )}
