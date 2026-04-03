@@ -6,6 +6,7 @@ import { supabase } from './lib/supabase';
 import AdminLogin from './components/AdminLogin';
 import CheckoutPage from './components/CheckoutPage';
 import AdminDashboard from './components/admin/AdminDashboard';
+import Home2Page from './pages/Home2Page';
 import type { Session } from '@supabase/supabase-js';
 import logo from './assets/logo.png';
 
@@ -98,6 +99,7 @@ export default function App() {
   const renderPage = () => {
     switch (currentPage) {
       case 'home': return <HomePage products={products.filter(p => p.featured)} setPage={setCurrentPage} addToCart={addToCart} />;
+      case 'home2': return <Home2Page />;
       case 'shop': return <ShopPage products={products} addToCart={addToCart} />;
       case 'contact': return <ContactPage />;
       case 'admin':
