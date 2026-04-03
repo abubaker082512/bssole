@@ -99,7 +99,7 @@ export default function App() {
   const renderPage = () => {
     switch (currentPage) {
       case 'home': return <HomePage products={products.filter(p => p.featured)} setPage={setCurrentPage} addToCart={addToCart} />;
-      case 'home2': return <Home2Page />;
+      case 'home2': return <Home2Page setPage={setCurrentPage} addToCart={addToCart} />;
       case 'shop': return <ShopPage products={products} addToCart={addToCart} />;
       case 'contact': return <ContactPage />;
       case 'admin':
@@ -168,10 +168,10 @@ export default function App() {
           {/* Right */}
           <div className="flex items-center gap-6">
             <div className="hidden md:flex items-center gap-8 mr-6">
-              {['shop', 'contact'].map((page) => (
+              {['shop', 'home2', 'contact'].map((page) => (
                 <button key={page} onClick={() => setCurrentPage(page as Page)}
                   className={`uppercase text-[10px] tracking-[0.3em] font-bold transition-colors ${currentPage === page ? 'text-gold' : 'text-white/50 hover:text-gold'}`}>
-                  {page}
+                  {page === 'home2' ? 'New' : page}
                 </button>
               ))}
             </div>
@@ -207,11 +207,11 @@ export default function App() {
                 <button onClick={() => setIsMenuOpen(false)} className="text-gold hover:rotate-90 transition-transform duration-500"><X size={32} /></button>
               </div>
               <div className="flex flex-col gap-6">
-                {['home', 'shop', 'contact'].map((page, i) => (
+                {['home', 'home2', 'shop', 'contact'].map((page, i) => (
                   <motion.button key={page} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }}
                     onClick={() => { setCurrentPage(page as Page); setIsMenuOpen(false); }}
                     className="text-5xl md:text-7xl font-serif font-bold text-left hover:italic hover:pl-4 transition-all duration-500 group">
-                    <span className={currentPage === page ? 'gold-text-gradient' : 'text-white/20 group-hover:text-white'}>{page.toUpperCase()}</span>
+                    <span className={currentPage === page ? 'gold-text-gradient' : 'text-white/20 group-hover:text-white'}>{page === 'home2' ? 'NEW' : page.toUpperCase()}</span>
                   </motion.button>
                 ))}
               </div>

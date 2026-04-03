@@ -1,64 +1,210 @@
 import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import { supabase } from '../lib/supabase';
+import { ArrowRight, Truck, Shield, RefreshCw, Star } from 'lucide-react';
 
-type Product = { id: number; name: string; image: string; price: number; category: string };
+type Product = { id: number; name: string; image: string; price: number; category: string; featured?: number };
 
-export default function Home2Page() {
+type Props = {
+  setPage: (page: any) => void;
+  addToCart?: (p: Product) => void;
+};
+
+export default function Home2Page({ setPage, addToCart }: Props) {
   const [products, setProducts] = useState<Product[]>([]);
   const [slide, setSlide] = useState(0);
+  const [loading, setLoading] = useState(true);
+
   const slides = [
-    { id: 1, image: 'https://images.unsplash.com/photo-1528701800487-2f8a8b9a0f0a?q=80&w=1600&auto=format&fit=crop', title: 'Step into Luxury', subtitle: 'Premium footwear for every step' },
-    { id: 2, image: 'https://images.unsplash.com/photo-1521335629791-ce4aec67dd1d?q=80&w=1600&auto=format&fit=crop', title: 'Urban Classics', subtitle: 'Lightweight and comfortable' },
+    { id: 1, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1600&q=80&fit=crop', title: 'Step Into Style', subtitle: 'Premium footwear crafted for every occasion', cta: 'Shop Now', ctaPage: 'shop' as const },
+    { id: 2, image: 'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=1600&q=80&fit=crop', title: 'New Arrivals', subtitle: 'Fresh drops you don\'t want to miss', cta: 'Explore', ctaPage: 'shop' as const },
+    { id: 3, image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=1600&q=80&fit=crop', title: 'Casual Comfort', subtitle: 'Everyday shoes that feel as good as they look', cta: 'View Collection', ctaPage: 'shop' as const },
   ];
 
   useEffect(() => {
-    // fetch a few products for the grid (fallback if no data)
     const fetchProducts = async () => {
       try {
-        const { data } = await supabase.from('products').select('id, name, image, price, category').limit(8);
+        const { data } = await supabase.from('products').select('id, name, image, price, category, featured').limit(8);
         setProducts(data ?? []);
       } catch {
-        // fallback to mock data
-        setProducts([
-          { id: 101, name: 'Formality Runner', image: 'https://images.unsplash.com/photo-1526178616788-6a0b3a10b0f1', price: 1200, category: 'Formal' },
-          { id: 102, name: 'City Glide', image: 'https://images.unsplash.com/photo-1519741497674-14e90a89c1a8', price: 999, category: 'Casual' },
-          { id: 103, name: 'Trail Master', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff', price: 1499, category: 'Outdoor' },
-        ]);
+        setProducts([]);
+      } finally {
+        setLoading(false);
       }
     };
     fetchProducts();
   }, []);
 
+  useEffect(() => {
+    const timer = setInterval(() => setSlide((s) => (s + 1) % slides.length), 5000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
-    <div>
-      <Header onMenu={() => {}} onSearch={() => {}} onLogin={() => {}} cartCount={0} />
-      <section className="py-12 bg-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="relative h-72 bg-gray-100 rounded-lg overflow-hidden mb-8">
-            {/* Simple hero carousel */}
-            {slides.map((s, idx) => (
-              <img key={s.id} src={s.image} alt={s.title} className={`w-full h-full object-cover absolute inset-0 transition-opacity ${idx === slide ? 'opacity-100' : 'opacity-0'}`} style={{ transition: 'opacity 0.6s ease' }} />
-            ))}
-            <button className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 text-white px-3 py-2" onClick={() => setSlide((slide + slides.length - 1) % slides.length)}>
-              ‹
-            </button>
-            <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 text-white px-3 py-2" onClick={() => setSlide((slide + 1) % slides.length)}>
-              ›
-            </button>
+    <div className="min-h-screen bg-white">
+      <Header
+        onMenu={() => {}}
+        onSearch={() => {}}
+        onLogin={() => {}}
+        onCart={() => {}}
+        cartCount={0}
+        setPage={setPage}
+        currentPage="home2"
+      />
+
+      {/* Hero Carousel */}
+      <section className="relative h-[500px] md:h-[600px] overflow-hidden bg-gray-100">
+        {slides.map((s, idx) => (
+          <div
+            key={s.id}
+            className={`absolute inset-0 transition-opacity duration-700 ${idx === slide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+          >
+            <img src={s.image} alt={s.title} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
+            <div className="absolute inset-0 flex items-center">
+              <div className="max-w-6xl mx-auto px-6 md:px-8 w-full">
+                <div className="max-w-lg">
+                  <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">{s.title}</h1>
+                  <p className="text-lg text-white/80 mb-8">{s.subtitle}</p>
+                  <button
+                    onClick={() => setPage(s.ctaPage)}
+                    className="inline-flex items-center gap-2 bg-white text-black px-8 py-3 font-semibold text-sm uppercase tracking-wider hover:bg-gray-100 transition-colors"
+                  >
+                    {s.cta} <ArrowRight size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
+        ))}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+          {slides.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setSlide(idx)}
+              className={`w-3 h-3 rounded-full transition-colors ${idx === slide ? 'bg-white' : 'bg-white/40'}`}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* Features Strip */}
+      <section className="bg-gray-50 border-b">
+        <div className="max-w-6xl mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[
+            { icon: <Truck size={24} />, title: 'Free Shipping', desc: 'On orders above Rs. 10,000' },
+            { icon: <Shield size={24} />, title: 'Secure Payment', desc: '100% secure checkout' },
+            { icon: <RefreshCw size={24} />, title: 'Easy Returns', desc: '7-day return policy' },
+          ].map((f) => (
+            <div key={f.title} className="flex items-center gap-4">
+              <div className="text-gray-700">{f.icon}</div>
+              <div>
+                <div className="font-semibold text-gray-900">{f.title}</div>
+                <div className="text-sm text-gray-500">{f.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Featured Products */}
+      <section className="max-w-6xl mx-auto px-6 py-16">
+        <div className="flex justify-between items-end mb-10">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Curated For You</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2">Featured Products</h2>
+          </div>
+          <button onClick={() => setPage('shop')} className="text-sm font-semibold text-gray-600 hover:text-black flex items-center gap-1">
+            View All <ArrowRight size={14} />
+          </button>
+        </div>
+
+        {loading ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {products.map(p => (
-              <div key={p.id} className="border rounded p-4 text-center">
-                <img src={p.image} alt={p.name} className="w-full h-40 object-cover mb-2" />
-                <div className="text-sm font-semibold">{p.name}</div>
-                <div className="text-xs text-gray-600">{p.category}</div>
-                <div className="mt-2 font-bold">RS. {p.price?.toLocaleString?.() ?? ''}</div>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="bg-gray-100 rounded-lg h-72 animate-pulse" />
+            ))}
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-16 text-gray-400">
+            <p>No products available yet.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {products.map((p) => (
+              <div
+                key={p.id}
+                className="group cursor-pointer"
+                onClick={() => setPage('shop')}
+              >
+                <div className="relative aspect-[3/4] bg-gray-100 rounded-lg overflow-hidden mb-3">
+                  <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  {p.featured === 1 && (
+                    <span className="absolute top-3 left-3 bg-black text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1">Featured</span>
+                  )}
+                  {addToCart && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); addToCart(p); }}
+                      className="absolute bottom-0 left-0 w-full bg-black text-white py-3 text-xs font-bold uppercase tracking-wider translate-y-full group-hover:translate-y-0 transition-transform duration-300"
+                    >
+                      Add to Cart
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-start gap-1">
+                  <div className="flex text-yellow-400">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} size={12} fill="currentColor" />
+                    ))}
+                  </div>
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 mt-1 truncate">{p.name}</h3>
+                <p className="text-xs text-gray-500">{p.category}</p>
+                <p className="text-sm font-bold text-gray-900 mt-1">Rs. {p.price?.toLocaleString()}</p>
               </div>
             ))}
           </div>
+        )}
+      </section>
+
+      {/* CTA Banner */}
+      <section className="bg-gray-900 text-white">
+        <div className="max-w-6xl mx-auto px-6 py-20 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Join the BSSOLE Club</h2>
+          <p className="text-gray-400 mb-8 max-w-md mx-auto">Be the first to know about new drops, exclusive deals, and member-only discounts.</p>
+          <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <input type="email" placeholder="Enter your email" className="flex-1 bg-white/10 border border-white/20 rounded px-4 py-3 text-sm outline-none focus:border-white/40 placeholder:text-gray-500" />
+            <button className="bg-white text-black px-8 py-3 font-semibold text-sm uppercase tracking-wider hover:bg-gray-100 transition-colors rounded">Subscribe</button>
+          </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="bg-white border-t">
+        <div className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-10">
+          <div className="md:col-span-2">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">BSSOLE</h3>
+            <p className="text-gray-500 text-sm max-w-sm leading-relaxed">Premium footwear for the modern individual. Crafted with care, designed for comfort.</p>
+          </div>
+          <div>
+            <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Quick Links</h4>
+            <ul className="space-y-2 text-sm text-gray-600">
+              <li><button onClick={() => setPage('shop')} className="hover:text-black">Shop</button></li>
+              <li><button onClick={() => setPage('contact')} className="hover:text-black">Contact</button></li>
+              <li><button onClick={() => setPage('returns')} className="hover:text-black">Returns Policy</button></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Follow Us</h4>
+            <ul className="space-y-2 text-sm text-gray-600">
+              <li><a href="https://www.instagram.com/bssoleofficial/?hl=en" target="_blank" rel="noreferrer" className="hover:text-black">Instagram</a></li>
+              <li><a href="https://www.facebook.com/bssoleofficial" target="_blank" rel="noreferrer" className="hover:text-black">Facebook</a></li>
+              <li><a href="https://tiktok.com/@bssoleofficial" target="_blank" rel="noreferrer" className="hover:text-black">TikTok</a></li>
+            </ul>
+          </div>
+        </div>
+        <div className="border-t text-center py-6 text-xs text-gray-400">© 2026 BSSOLE. All rights reserved.</div>
+      </footer>
     </div>
   );
 }
