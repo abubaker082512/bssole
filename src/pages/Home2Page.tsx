@@ -134,7 +134,7 @@ export default function Home2Page({ setPage, addToCart }: Props) {
                   {addToCart && (
                     <button
                       onClick={(e) => { e.stopPropagation(); addToCart(p); }}
-                      className="absolute bottom-0 left-0 w-full bg-black text-white py-3 text-xs font-bold uppercase tracking-wider translate-y-full group-hover:translate-y-0 transition-transform duration-300"
+                      className="absolute bottom-0 left-0 w-full bg-[#1a2744] text-white py-3 text-xs font-bold uppercase tracking-wider translate-y-full group-hover:translate-y-0 transition-transform duration-300"
                     >
                       Add to Cart
                     </button>
@@ -157,13 +157,13 @@ export default function Home2Page({ setPage, addToCart }: Props) {
       </section>
 
       {/* CTA Banner */}
-      <section className="bg-gray-900 text-white">
+      <section className="bg-[#1a2744] text-white">
         <div className="max-w-6xl mx-auto px-6 py-20 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Join the BSSOLE Club</h2>
-          <p className="text-gray-400 mb-8 max-w-md mx-auto">Be the first to know about new drops, exclusive deals, and member-only discounts.</p>
+          <p className="text-gray-300 mb-8 max-w-md mx-auto">Be the first to know about new drops, exclusive deals, and member-only discounts.</p>
           <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <input type="email" placeholder="Enter your email" className="flex-1 bg-white/10 border border-white/20 rounded px-4 py-3 text-sm outline-none focus:border-white/40 placeholder:text-gray-500" />
-            <button className="bg-white text-black px-8 py-3 font-semibold text-sm uppercase tracking-wider hover:bg-gray-100 transition-colors rounded">Subscribe</button>
+            <input type="email" placeholder="Enter your email" className="flex-1 bg-white/10 border border-white/20 rounded px-4 py-3 text-sm outline-none focus:border-white/40 placeholder:text-gray-400" />
+            <button className="bg-white text-[#1a2744] px-8 py-3 font-semibold text-sm uppercase tracking-wider hover:bg-gray-100 transition-colors rounded">Subscribe</button>
           </div>
         </div>
       </section>
@@ -172,23 +172,23 @@ export default function Home2Page({ setPage, addToCart }: Props) {
       <footer className="bg-white border-t">
         <div className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="md:col-span-2">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">BSSOLE</h3>
+            <h3 className="text-xl font-bold text-[#1a2744] mb-4">BSSOLE</h3>
             <p className="text-gray-500 text-sm max-w-sm leading-relaxed">Premium footwear for the modern individual. Crafted with care, designed for comfort.</p>
           </div>
           <div>
             <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Quick Links</h4>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li><button onClick={() => setPage('shop')} className="hover:text-black">Shop</button></li>
-              <li><button onClick={() => setPage('contact')} className="hover:text-black">Contact</button></li>
-              <li><button onClick={() => setPage('returns')} className="hover:text-black">Returns Policy</button></li>
+              <li><button onClick={() => setPage('shop')} className="hover:text-[#1a2744]">Shop</button></li>
+              <li><button onClick={() => setPage('contact')} className="hover:text-[#1a2744]">Contact</button></li>
+              <li><button onClick={() => setPage('returns')} className="hover:text-[#1a2744]">Returns Policy</button></li>
             </ul>
           </div>
           <div>
             <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Follow Us</h4>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li><a href="https://www.instagram.com/bssoleofficial/?hl=en" target="_blank" rel="noreferrer" className="hover:text-black">Instagram</a></li>
-              <li><a href="https://www.facebook.com/bssoleofficial" target="_blank" rel="noreferrer" className="hover:text-black">Facebook</a></li>
-              <li><a href="https://tiktok.com/@bssoleofficial" target="_blank" rel="noreferrer" className="hover:text-black">TikTok</a></li>
+              <li><a href="https://www.instagram.com/bssoleofficial/?hl=en" target="_blank" rel="noreferrer" className="hover:text-[#1a2744]">Instagram</a></li>
+              <li><a href="https://www.facebook.com/bssoleofficial" target="_blank" rel="noreferrer" className="hover:text-[#1a2744]">Facebook</a></li>
+              <li><a href="https://tiktok.com/@bssoleofficial" target="_blank" rel="noreferrer" className="hover:text-[#1a2744]">TikTok</a></li>
             </ul>
           </div>
         </div>

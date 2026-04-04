@@ -61,43 +61,43 @@ export default function CheckoutPage({ cart, onBack, onSuccess }: Props) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-12 px-6">
-      <h2 className="text-3xl font-serif font-bold mb-6">Checkout</h2>
+    <div className="max-w-4xl mx-auto py-12 px-6 bg-white min-h-screen">
+      <h2 className="text-3xl font-serif font-bold mb-6 text-[#1a2744]">Checkout</h2>
       {step === 1 && (
-        <section className="bg-[#050505] border border-white/5 p-6 md:p-12 mb-8">
-          <h3 className="text-xl mb-4">Shipping Address</h3>
+        <section className="bg-gray-50 border border-gray-200 rounded-xl p-6 md:p-12 mb-8">
+          <h3 className="text-xl mb-4 text-[#1a2744]">Shipping Address</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <input className="bg-transparent border-b border-white/10 py-3" placeholder="Full Name" value={name} onChange={e => setName(e.target.value)} />
-            <input className="bg-transparent border-b border-white/10 py-3" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
-            <input className="bg-transparent border-b border-white/10 py-3" placeholder="Phone" value={phone} onChange={e => setPhone(e.target.value)} />
-            <input className="bg-transparent border-b border-white/10 py-3" placeholder="Address Line 1" value={line1} onChange={e => setLine1(e.target.value)} />
-            <input className="bg-transparent border-b border-white/10 py-3" placeholder="City" value={city} onChange={e => setCity(e.target.value)} />
-            <input className="bg-transparent border-b border-white/10 py-3" placeholder="Postal Code" value={postalCode} onChange={e => setPostalCode(e.target.value)} />
+            <input className="bg-white border border-gray-200 rounded px-4 py-3 outline-none focus:border-[#1a2744] transition-colors text-sm text-[#1a2744]" placeholder="Full Name" value={name} onChange={e => setName(e.target.value)} />
+            <input className="bg-white border border-gray-200 rounded px-4 py-3 outline-none focus:border-[#1a2744] transition-colors text-sm text-[#1a2744]" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
+            <input className="bg-white border border-gray-200 rounded px-4 py-3 outline-none focus:border-[#1a2744] transition-colors text-sm text-[#1a2744]" placeholder="Phone" value={phone} onChange={e => setPhone(e.target.value)} />
+            <input className="bg-white border border-gray-200 rounded px-4 py-3 outline-none focus:border-[#1a2744] transition-colors text-sm text-[#1a2744]" placeholder="Address Line 1" value={line1} onChange={e => setLine1(e.target.value)} />
+            <input className="bg-white border border-gray-200 rounded px-4 py-3 outline-none focus:border-[#1a2744] transition-colors text-sm text-[#1a2744]" placeholder="City" value={city} onChange={e => setCity(e.target.value)} />
+            <input className="bg-white border border-gray-200 rounded px-4 py-3 outline-none focus:border-[#1a2744] transition-colors text-sm text-[#1a2744]" placeholder="Postal Code" value={postalCode} onChange={e => setPostalCode(e.target.value)} />
           </div>
           <div className="mt-6 flex justify-end">
-            <button disabled={!canProceedAddress} onClick={() => setStep(2)} className="btn-luxury">Continue to Review</button>
+            <button disabled={!canProceedAddress} onClick={() => setStep(2)} className="px-10 py-4 bg-[#1a2744] text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#15203a] transition-colors rounded disabled:opacity-50 disabled:cursor-not-allowed">Continue to Review</button>
           </div>
         </section>
       )}
       {step >= 2 && (
-        <section className="bg-[#050505] border border-white/5 p-6 md:p-12 mb-8">
-          <h3 className="text-xl mb-4">Review Order</h3>
+        <section className="bg-gray-50 border border-gray-200 rounded-xl p-6 md:p-12 mb-8">
+          <h3 className="text-xl mb-4 text-[#1a2744]">Review Order</h3>
           <div className="space-y-4 max-h-48 overflow-auto">
             {cart.map((it) => (
-              <div key={it.id} className="flex justify-between">
+              <div key={it.id} className="flex justify-between text-[#1a2744]">
                 <span>{it.name} x{it.quantity}</span>
                 <span>RS. {(it.price * it.quantity).toLocaleString()}</span>
               </div>
             ))}
           </div>
-          <div className="flex justify-between mt-4">
+          <div className="flex justify-between mt-4 text-[#1a2744]">
             <strong>Total</strong>
             <strong>RS. {cartTotal.toLocaleString()}</strong>
           </div>
           {error && <div className="text-red-500 mt-2 text-sm">{error}</div>}
-          <div className="mt-6 flex justify-between">
-            <button onClick={onBack} className="btn-luxury">Back</button>
-            <button onClick={placeOrder} className="btn-luxury">Place Order (COD)</button>
+          <div className="mt-6 flex justify-between gap-4">
+            <button onClick={onBack} className="px-8 py-4 border-2 border-[#1a2744] text-[#1a2744] text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#1a2744] hover:text-white transition-colors rounded">Back</button>
+            <button onClick={placeOrder} className="px-8 py-4 bg-[#1a2744] text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#15203a] transition-colors rounded">Place Order (COD)</button>
           </div>
         </section>
       )}

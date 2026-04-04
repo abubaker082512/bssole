@@ -16,7 +16,7 @@ export default function Header({ onMenu, onSearch, onLogin, onCart, cartCount = 
   return (
     <header className="sticky top-0 z-50">
       {/* Top marquee bar */}
-      <div className="w-full bg-gray-900 text-white text-xs overflow-hidden" style={{ height: 36 }}>
+      <div className="w-full bg-[#1a2744] text-white text-xs overflow-hidden" style={{ height: 36 }}>
         <div
           className="flex items-center h-full"
           style={{ whiteSpace: 'nowrap', display: 'inline-block', paddingLeft: '100%', animation: 'marquee 20s linear infinite' }}
@@ -36,11 +36,11 @@ export default function Header({ onMenu, onSearch, onLogin, onCart, cartCount = 
       </div>
 
       {/* Main dark header */}
-      <div className="bg-gray-900 border-b border-gray-800">
+      <div className="bg-[#1a2744] border-b border-[#243352]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 h-16 flex items-center justify-between">
           {/* Left: Menu + Nav */}
           <div className="flex items-center gap-4">
-            <button onClick={onMenu} aria-label="Open menu" className="p-2 rounded hover:bg-gray-800 lg:hidden">
+            <button onClick={onMenu} aria-label="Open menu" className="p-2 rounded hover:bg-[#243352] lg:hidden">
               <Menu size={20} className="text-gray-300" />
             </button>
             <nav className="hidden lg:flex items-center gap-8">
@@ -70,16 +70,16 @@ export default function Header({ onMenu, onSearch, onLogin, onCart, cartCount = 
 
           {/* Right: Icons */}
           <div className="flex items-center gap-2">
-            <button onClick={onSearch} aria-label="Search" className="p-2 rounded hover:bg-gray-800">
+            <button onClick={onSearch} aria-label="Search" className="p-2 rounded hover:bg-[#243352]">
               <Search size={20} className="text-gray-300" />
             </button>
-            <button onClick={onCart} aria-label="Cart" className="relative p-2 rounded hover:bg-gray-800">
+            <button onClick={onCart} aria-label="Cart" className="relative p-2 rounded hover:bg-[#243352]">
               <ShoppingBag size={20} className="text-gray-300" />
               {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 text-[10px] w-4 h-4 rounded-full bg-white text-gray-900 flex items-center justify-center font-bold">{cartCount}</span>
+                <span className="absolute -top-0.5 -right-0.5 text-[10px] w-4 h-4 rounded-full bg-white text-[#1a2744] flex items-center justify-center font-bold">{cartCount}</span>
               )}
             </button>
-            <button onClick={onLogin} aria-label="Login" className="p-2 rounded hover:bg-gray-800">
+            <button onClick={onLogin} aria-label="Login" className="p-2 rounded hover:bg-[#243352]">
               <User size={20} className="text-gray-300" />
             </button>
           </div>

@@ -113,11 +113,16 @@ export default function App() {
       case 'returns': return <ReturnPolicyPage setPage={setCurrentPage} />;
       case 'checkout': return <CheckoutPage cart={cart} onBack={() => setCurrentPage('shop')} onSuccess={(id) => { setOrderId(id); setCart([]); setCurrentPage('order-success'); }} session={session} />;
       case 'order-success': return (
-        <div className="max-w-4xl mx-auto py-12 px-6">
-          <h2 className="text-3xl font-serif font-bold mb-4">Order Confirmed</h2>
-          <p className="text-white/60 mb-6">Thank you! Your order has been placed.</p>
-          <p className="text-white/60 mb-6">Order ID: {orderId ?? 'N/A'}</p>
-          <button className="btn-luxury" onClick={() => setCurrentPage('shop')}>Continue Shopping</button>
+        <div className="max-w-4xl mx-auto py-12 px-6 bg-white min-h-[60vh] flex flex-col items-center justify-center">
+          <div className="text-center">
+            <div className="w-20 h-20 rounded-full bg-[#1a2744]/10 flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-[#1a2744]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+            </div>
+            <h2 className="text-3xl font-serif font-bold mb-4 text-[#1a2744]">Order Confirmed</h2>
+            <p className="text-gray-500 mb-6">Thank you! Your order has been placed successfully.</p>
+            <p className="text-gray-400 mb-8">Order ID: <span className="font-mono font-bold text-[#1a2744]">{orderId ?? 'N/A'}</span></p>
+            <button className="px-10 py-4 bg-[#1a2744] text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#15203a] transition-colors rounded" onClick={() => setCurrentPage('shop')}>Continue Shopping</button>
+          </div>
         </div>
       );
       default: return <HomePage products={products.filter(p => p.featured)} setPage={setCurrentPage} addToCart={addToCart} />;
@@ -152,21 +157,21 @@ export default function App() {
             <div className="flex-1 p-12 flex flex-col justify-between border-r border-gray-100">
               <div className="flex justify-between items-center">
                 <img src={logo} alt="BSSOLE" className="h-36 w-auto object-contain" />
-                <button onClick={() => setIsMenuOpen(false)} className="text-gray-700 hover:rotate-90 transition-transform duration-500"><X size={32} /></button>
+                <button onClick={() => setIsMenuOpen(false)} className="text-[#1a2744] hover:rotate-90 transition-transform duration-500"><X size={32} /></button>
               </div>
               <div className="flex flex-col gap-6">
                 {['home', 'home2', 'shop', 'contact'].map((page, i) => (
                   <motion.button key={page} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }}
                     onClick={() => { setCurrentPage(page as Page); setIsMenuOpen(false); }}
                     className="text-5xl md:text-7xl font-serif font-bold text-left hover:italic hover:pl-4 transition-all duration-500 group">
-                    <span className={currentPage === page ? 'text-gray-900' : 'text-gray-300 group-hover:text-gray-900'}>{page === 'home2' ? 'NEW' : page.toUpperCase()}</span>
+                    <span className={currentPage === page ? 'text-[#1a2744]' : 'text-gray-300 group-hover:text-[#1a2744]'}>{page === 'home2' ? 'NEW' : page.toUpperCase()}</span>
                   </motion.button>
                 ))}
               </div>
               <div className="flex gap-8 text-gray-400 text-xs tracking-[0.2em] uppercase font-bold">
-                <a href="https://www.instagram.com/bssoleofficial/?hl=en" target="_blank" rel="noreferrer" className="hover:text-gray-900">Instagram</a>
-                <a href="https://www.facebook.com/bssoleofficial" target="_blank" rel="noreferrer" className="hover:text-gray-900">Facebook</a>
-                <a href="https://tiktok.com/@bssoleofficial" target="_blank" rel="noreferrer" className="hover:text-gray-900">TikTok</a>
+                <a href="https://www.instagram.com/bssoleofficial/?hl=en" target="_blank" rel="noreferrer" className="hover:text-[#1a2744]">Instagram</a>
+                <a href="https://www.facebook.com/bssoleofficial" target="_blank" rel="noreferrer" className="hover:text-[#1a2744]">Facebook</a>
+                <a href="https://tiktok.com/@bssoleofficial" target="_blank" rel="noreferrer" className="hover:text-[#1a2744]">TikTok</a>
               </div>
             </div>
             <div className="hidden md:block flex-1 relative overflow-hidden">
@@ -187,8 +192,8 @@ export default function App() {
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="fixed top-0 right-0 h-full w-full max-w-md bg-white z-[200] border-l border-gray-100 flex flex-col">
               <div className="p-8 border-b border-gray-100 flex justify-between items-center">
-                <h2 className="text-2xl font-serif font-bold text-gray-900">YOUR BAG</h2>
-                <button onClick={() => setIsCartOpen(false)} className="text-gray-400 hover:text-gray-900 transition-colors"><X size={24} /></button>
+                <h2 className="text-2xl font-serif font-bold text-[#1a2744]">YOUR BAG</h2>
+                <button onClick={() => setIsCartOpen(false)} className="text-gray-400 hover:text-[#1a2744] transition-colors"><X size={24} /></button>
               </div>
               <div className="flex-grow overflow-y-auto p-8 space-y-8">
                 {cart.length === 0 ? (
@@ -196,7 +201,7 @@ export default function App() {
                     <ShoppingBag size={48} className="text-gray-200 mb-6" />
                     <p className="text-gray-400 uppercase tracking-[0.2em] text-xs font-bold">Your bag is empty</p>
                     <button onClick={() => { setIsCartOpen(false); setCurrentPage('shop'); }}
-                      className="mt-8 text-gray-900 text-[10px] font-bold tracking-[0.3em] uppercase border-b-2 border-gray-900 pb-1">
+                      className="mt-8 text-[#1a2744] text-[10px] font-bold tracking-[0.3em] uppercase border-b-2 border-[#1a2744] pb-1">
                       Start Shopping
                     </button>
                   </div>
@@ -209,18 +214,18 @@ export default function App() {
                       <div className="flex-grow flex flex-col justify-between py-1">
                         <div>
                           <div className="flex justify-between items-start mb-1">
-                            <h4 className="font-serif font-bold text-lg text-gray-900">{item.name}</h4>
+                            <h4 className="font-serif font-bold text-lg text-[#1a2744]">{item.name}</h4>
                             <button onClick={() => removeFromCart(item.id)} className="text-gray-300 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
                           </div>
                           <p className="text-[10px] text-gray-400 uppercase tracking-[0.2em]">{item.category}</p>
                         </div>
                         <div className="flex justify-between items-end">
                           <div className="flex items-center border border-gray-200 rounded-sm">
-                            <button onClick={() => updateQuantity(item.id, -1)} className="px-3 py-1 text-gray-400 hover:text-gray-900 transition-colors">-</button>
+                            <button onClick={() => updateQuantity(item.id, -1)} className="px-3 py-1 text-gray-400 hover:text-[#1a2744] transition-colors">-</button>
                             <span className="px-3 py-1 text-xs font-bold">{item.quantity}</span>
-                            <button onClick={() => updateQuantity(item.id, 1)} className="px-3 py-1 text-gray-400 hover:text-gray-900 transition-colors">+</button>
+                            <button onClick={() => updateQuantity(item.id, 1)} className="px-3 py-1 text-gray-400 hover:text-[#1a2744] transition-colors">+</button>
                           </div>
-                          <div className="text-gray-900 font-bold text-sm">RS. {(item.price * item.quantity).toLocaleString()}</div>
+                          <div className="text-[#1a2744] font-bold text-sm">RS. {(item.price * item.quantity).toLocaleString()}</div>
                         </div>
                       </div>
                     </div>
@@ -231,9 +236,9 @@ export default function App() {
                 <div className="p-8 border-t border-gray-100 bg-gray-50">
                   <div className="flex justify-between items-center mb-8">
                     <span className="text-gray-400 text-[10px] font-bold uppercase tracking-[0.3em]">Subtotal</span>
-                    <span className="text-2xl font-serif font-bold text-gray-900">RS. {cartTotal.toLocaleString()}</span>
+                    <span className="text-2xl font-serif font-bold text-[#1a2744]">RS. {cartTotal.toLocaleString()}</span>
                   </div>
-                  <button onClick={() => setCurrentPage('checkout')} className="w-full py-4 bg-gray-900 text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-gray-800 transition-colors">Checkout Now</button>
+                  <button onClick={() => setCurrentPage('checkout')} className="w-full py-4 bg-[#1a2744] text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#15203a] transition-colors">Checkout Now</button>
                   <p className="text-center text-[8px] text-gray-400 uppercase tracking-[0.2em] mt-6">Shipping & taxes calculated at checkout</p>
                 </div>
               )}
@@ -263,41 +268,41 @@ export default function App() {
 
       {/* Footer — hidden on admin pages */}
       {currentPage !== 'admin' && (
-        <footer className="bg-white border-t border-gray-100 pt-24 pb-12 px-6 md:px-12">
+        <footer className="bg-[#1a2744] text-white pt-24 pb-12 px-6 md:px-12">
           <div className="max-w-[1600px] mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-24">
               <div className="col-span-1 md:col-span-2">
-                <img src={logo} alt="BSSOLE" className="h-32 w-auto object-contain mb-8" />
-                <p className="text-gray-500 text-lg max-w-md leading-relaxed mb-8">
+                <img src={logo} alt="BSSOLE" className="h-32 w-auto object-contain mb-8 brightness-200" />
+                <p className="text-gray-300 text-lg max-w-md leading-relaxed mb-8">
                   Redefining everyday luxury with handcrafted footwear and accessories. Experience the soul of premium craftsmanship at BSSOLE.COM.
                 </p>
                 <div className="flex gap-6">
-                  <a href="https://www.instagram.com/bssoleofficial/?hl=en" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-900 hover:text-gray-900 transition-all"><Instagram size={18} /></a>
-                  <a href="https://www.facebook.com/bssoleofficial" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-900 hover:text-gray-900 transition-all"><Facebook size={18} /></a>
-                  <a href="https://tiktok.com/@bssoleofficial" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-900 hover:text-gray-900 transition-all">
+                  <a href="https://www.instagram.com/bssoleofficial/?hl=en" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 hover:border-white hover:text-white transition-all"><Instagram size={18} /></a>
+                  <a href="https://www.facebook.com/bssoleofficial" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 hover:border-white hover:text-white transition-all"><Facebook size={18} /></a>
+                  <a href="https://tiktok.com/@bssoleofficial" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 hover:border-white hover:text-white transition-all">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.78a8.18 8.18 0 004.78 1.52V6.85a4.85 4.85 0 01-1.01-.16z" /></svg>
                   </a>
                 </div>
               </div>
               <div>
                 <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em] mb-8">Collections</h4>
-                <ul className="space-y-4 text-sm text-gray-500">
-                  <li><button onClick={() => setCurrentPage('shop')} className="hover:text-gray-900 transition-colors">Formal Collection</button></li>
-                  <li><button onClick={() => setCurrentPage('shop')} className="hover:text-gray-900 transition-colors">Casual Soles</button></li>
-                  <li><button onClick={() => setCurrentPage('shop')} className="hover:text-gray-900 transition-colors">Sport Performance</button></li>
-                  <li><button onClick={() => setCurrentPage('shop')} className="hover:text-gray-900 transition-colors">Limited Editions</button></li>
+                <ul className="space-y-4 text-sm text-gray-300">
+                  <li><button onClick={() => setCurrentPage('shop')} className="hover:text-white transition-colors">Formal Collection</button></li>
+                  <li><button onClick={() => setCurrentPage('shop')} className="hover:text-white transition-colors">Casual Soles</button></li>
+                  <li><button onClick={() => setCurrentPage('shop')} className="hover:text-white transition-colors">Sport Performance</button></li>
+                  <li><button onClick={() => setCurrentPage('shop')} className="hover:text-white transition-colors">Limited Editions</button></li>
                 </ul>
               </div>
               <div>
                 <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em] mb-8">Company</h4>
-                <ul className="space-y-4 text-sm text-gray-500">
-                  <li><button onClick={() => setCurrentPage('contact')} className="hover:text-gray-900 transition-colors">Contact Us</button></li>
-                  <li><button onClick={() => setCurrentPage('returns')} className="hover:text-gray-900 transition-colors">Returns Policy</button></li>
-                  <li><a href="#" className="hover:text-gray-900 transition-colors">Privacy Policy</a></li>
+                <ul className="space-y-4 text-sm text-gray-300">
+                  <li><button onClick={() => setCurrentPage('contact')} className="hover:text-white transition-colors">Contact Us</button></li>
+                  <li><button onClick={() => setCurrentPage('returns')} className="hover:text-white transition-colors">Returns Policy</button></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
                 </ul>
               </div>
             </div>
-            <div className="pt-12 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase">
+            <div className="pt-12 border-t border-gray-700 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase">
               <div>© 2026 BSSOLE. ALL RIGHTS RESERVED.</div>
               <div className="flex gap-8"><span>Handcrafted in Pakistan</span><span>Global Shipping</span></div>
             </div>
@@ -320,19 +325,19 @@ function HomePage({ products, setPage, addToCart }: { products: Product[], setPa
         </div>
         <div className="relative z-10 px-6 md:px-24 max-w-4xl">
           <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 1, ease: "easeOut" }}>
-            <span className="text-gray-500 text-xs font-bold tracking-[0.5em] uppercase mb-6 block">Est. 2026</span>
-            <h1 className="text-6xl md:text-[100px] font-serif font-black leading-[0.9] mb-8 tracking-tighter text-gray-900">
+            <span className="text-[#1a2744] text-xs font-bold tracking-[0.5em] uppercase mb-6 block">Est. 2026</span>
+            <h1 className="text-6xl md:text-[100px] font-serif font-black leading-[0.9] mb-8 tracking-tighter text-[#1a2744]">
               BEYOND <br />
-              <span className="italic text-gray-600">LUXURY.</span>
+              <span className="italic text-[#2a3f6e]">LUXURY.</span>
             </h1>
             <p className="text-gray-600 text-lg md:text-xl font-light max-w-lg mb-12 leading-relaxed">
               Redefining the essence of men's footwear. Handcrafted soles designed for those who command presence in every step.
             </p>
             <div className="flex flex-wrap gap-6">
-              <button onClick={() => setPage('shop')} className="bg-gray-900 text-white px-10 py-4 text-xs font-bold uppercase tracking-[0.2em] hover:bg-gray-800 transition-colors">
+              <button onClick={() => setPage('shop')} className="bg-[#1a2744] text-white px-10 py-4 text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#15203a] transition-colors">
                 Explore Shop
               </button>
-              <button onClick={() => setPage('contact')} className="px-10 py-4 text-xs font-bold uppercase tracking-[0.2em] text-gray-700 hover:text-gray-900 transition-colors flex items-center gap-2 group border border-gray-300 hover:border-gray-900">
+              <button onClick={() => setPage('contact')} className="px-10 py-4 text-xs font-bold uppercase tracking-[0.2em] text-[#1a2744] hover:text-[#15203a] transition-colors flex items-center gap-2 group border-2 border-[#1a2744] hover:border-[#15203a]">
                 Contact Us <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
               </button>
             </div>
@@ -355,7 +360,7 @@ function HomePage({ products, setPage, addToCart }: { products: Product[], setPa
             <div key={f.title} className="flex items-center gap-4">
               <span className="text-2xl">{f.icon}</span>
               <div>
-                <div className="font-semibold text-gray-900 text-sm">{f.title}</div>
+                <div className="font-semibold text-[#1a2744] text-sm">{f.title}</div>
                 <div className="text-xs text-gray-500">{f.desc}</div>
               </div>
             </div>
@@ -368,12 +373,12 @@ function HomePage({ products, setPage, addToCart }: { products: Product[], setPa
         <div className="max-w-[1600px] mx-auto">
           <div className="text-center mb-16">
             <span className="text-gray-400 text-[10px] font-bold tracking-[0.5em] uppercase mb-4 block">Explore</span>
-            <h2 className="text-5xl md:text-6xl font-serif font-bold tracking-tighter text-gray-900">OUR COLLECTIONS</h2>
+            <h2 className="text-5xl md:text-6xl font-serif font-bold tracking-tighter text-[#1a2744]">OUR COLLECTIONS</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 h-[700px]">
             <div className="md:col-span-8 relative group overflow-hidden cursor-pointer rounded-xl" onClick={() => setPage('shop')}>
               <img src="https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=1200&q=80&fit=crop" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Formal collection" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent group-hover:from-black/70 transition-colors"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#1a2744]/70 via-transparent to-transparent group-hover:from-[#1a2744]/80 transition-colors"></div>
               <div className="absolute bottom-12 left-12">
                 <h3 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">THE FORMAL <br /> COLLECTION</h3>
                 <span className="text-xs font-bold tracking-[0.2em] uppercase text-white border-b-2 border-white pb-1">Shop Now</span>
@@ -382,7 +387,7 @@ function HomePage({ products, setPage, addToCart }: { products: Product[], setPa
             <div className="md:col-span-4 grid grid-rows-2 gap-6">
               <div className="relative group overflow-hidden cursor-pointer rounded-xl" onClick={() => setPage('shop')}>
                 <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80&fit=crop" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Casual soles" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent group-hover:from-black/70 transition-colors"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1a2744]/70 via-transparent to-transparent group-hover:from-[#1a2744]/80 transition-colors"></div>
                 <div className="absolute bottom-8 left-8">
                   <h3 className="text-2xl md:text-3xl font-serif font-bold text-white mb-2">CASUAL SOLES</h3>
                   <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white">Explore</span>
@@ -390,7 +395,7 @@ function HomePage({ products, setPage, addToCart }: { products: Product[], setPa
               </div>
               <div className="relative group overflow-hidden cursor-pointer rounded-xl" onClick={() => setPage('shop')}>
                 <img src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&q=80&fit=crop" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Accessories" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent group-hover:from-black/70 transition-colors"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1a2744]/70 via-transparent to-transparent group-hover:from-[#1a2744]/80 transition-colors"></div>
                 <div className="absolute bottom-8 left-8">
                   <h3 className="text-2xl md:text-3xl font-serif font-bold text-white mb-2">ACCESSORIES</h3>
                   <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white">Explore</span>
@@ -407,9 +412,9 @@ function HomePage({ products, setPage, addToCart }: { products: Product[], setPa
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
             <div className="max-w-xl">
               <span className="text-gray-400 text-[10px] font-bold tracking-[0.5em] uppercase mb-4 block">Curated Selection</span>
-              <h2 className="text-5xl md:text-6xl font-serif font-bold tracking-tighter text-gray-900">FEATURED DROPS</h2>
+              <h2 className="text-5xl md:text-6xl font-serif font-bold tracking-tighter text-[#1a2744]">FEATURED DROPS</h2>
             </div>
-            <button onClick={() => setPage('shop')} className="text-xs font-bold tracking-[0.2em] uppercase border-b-2 border-gray-300 pb-2 text-gray-600 hover:border-gray-900 hover:text-gray-900 transition-all">View All Products</button>
+            <button onClick={() => setPage('shop')} className="text-xs font-bold tracking-[0.2em] uppercase border-b-2 border-gray-300 pb-2 text-gray-600 hover:border-[#1a2744] hover:text-[#1a2744] transition-all">View All Products</button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
             {products.map((product) => (
@@ -417,17 +422,17 @@ function HomePage({ products, setPage, addToCart }: { products: Product[], setPa
                 <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
                   <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" referrerPolicy="no-referrer" />
                   <button onClick={() => addToCart(product)}
-                    className="absolute bottom-0 left-0 w-full bg-gray-900 text-white py-4 text-[10px] font-bold tracking-[0.3em] uppercase translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                    className="absolute bottom-0 left-0 w-full bg-[#1a2744] text-white py-4 text-[10px] font-bold tracking-[0.3em] uppercase translate-y-full group-hover:translate-y-0 transition-transform duration-500">
                     Quick Add
                   </button>
                   {product.featured ? (
-                    <div className="absolute top-6 left-6 text-[8px] font-bold tracking-[0.3em] uppercase bg-gray-900 text-white px-3 py-1">Featured</div>
+                    <div className="absolute top-6 left-6 text-[8px] font-bold tracking-[0.3em] uppercase bg-[#1a2744] text-white px-3 py-1">Featured</div>
                   ) : null}
                 </div>
                 <div className="p-5">
-                  <h4 className="text-lg font-serif font-bold text-gray-900 mb-1 group-hover:text-gray-600 transition-colors">{product.name}</h4>
+                  <h4 className="text-lg font-serif font-bold text-[#1a2744] mb-1 group-hover:text-[#2a3f6e] transition-colors">{product.name}</h4>
                   <p className="text-[10px] text-gray-400 uppercase tracking-[0.2em] mb-3">{product.category}</p>
-                  <div className="text-gray-900 font-bold text-sm">RS. {product.price.toLocaleString()}</div>
+                  <div className="text-[#1a2744] font-bold text-sm">RS. {product.price.toLocaleString()}</div>
                 </div>
               </motion.div>
             ))}
@@ -439,12 +444,12 @@ function HomePage({ products, setPage, addToCart }: { products: Product[], setPa
       <section className="py-32 px-6 text-center bg-white">
         <div className="max-w-2xl mx-auto">
           <span className="text-gray-400 text-[10px] font-bold tracking-[0.5em] uppercase mb-4 block">Stay Updated</span>
-          <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-6">JOIN THE <span className="italic text-gray-500">CLUB</span></h2>
+          <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#1a2744] mb-6">JOIN THE <span className="italic text-[#2a3f6e]">CLUB</span></h2>
           <p className="text-gray-500 mb-12 text-lg">Be the first to know about our limited edition drops and exclusive events.</p>
           <form className="flex flex-col md:flex-row gap-4" onSubmit={e => e.preventDefault()}>
             <input type="email" placeholder="YOUR EMAIL ADDRESS"
-              className="flex-grow bg-gray-50 border border-gray-200 rounded px-6 py-4 outline-none focus:border-gray-900 transition-colors text-sm tracking-[0.1em] text-gray-900 placeholder:text-gray-400" />
-            <button className="bg-gray-900 text-white px-10 py-4 text-xs font-bold uppercase tracking-[0.2em] hover:bg-gray-800 transition-colors rounded whitespace-nowrap">Subscribe</button>
+              className="flex-grow bg-gray-50 border border-gray-200 rounded px-6 py-4 outline-none focus:border-[#1a2744] transition-colors text-sm tracking-[0.1em] text-[#1a2744] placeholder:text-gray-400" />
+            <button className="bg-[#1a2744] text-white px-10 py-4 text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#15203a] transition-colors rounded whitespace-nowrap">Subscribe</button>
           </form>
         </div>
       </section>
@@ -461,12 +466,12 @@ function ShopPage({ products, addToCart }: { products: Product[], addToCart: (p:
     <div className="max-w-[1600px] mx-auto py-32 px-6 md:px-12 bg-white">
       <div className="mb-24">
         <span className="text-gray-400 text-[10px] font-bold tracking-[0.5em] uppercase mb-4 block">Collections</span>
-        <h1 className="text-7xl font-serif font-bold tracking-tighter text-gray-900">THE <span className="text-gray-500 italic">SOUL</span> STORE</h1>
+        <h1 className="text-7xl font-serif font-bold tracking-tighter text-[#1a2744]">THE <span className="text-[#2a3f6e] italic">SOUL</span> STORE</h1>
       </div>
       <div className="flex flex-wrap gap-8 mb-20 border-b border-gray-200 pb-8">
         {categories.map(cat => (
           <button key={cat} onClick={() => setFilter(cat)}
-            className={`text-xs font-bold tracking-[0.2em] uppercase transition-all relative pb-2 ${filter === cat ? 'text-gray-900 after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-gray-900' : 'text-gray-400 hover:text-gray-900'}`}>
+            className={`text-xs font-bold tracking-[0.2em] uppercase transition-all relative pb-2 ${filter === cat ? 'text-[#1a2744] after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#1a2744]' : 'text-gray-400 hover:text-[#1a2744]'}`}>
             {cat}
           </button>
         ))}
@@ -477,17 +482,17 @@ function ShopPage({ products, addToCart }: { products: Product[], addToCart: (p:
             <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
               <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" referrerPolicy="no-referrer" />
               <button onClick={() => addToCart(product)}
-                className="absolute bottom-0 left-0 w-full bg-gray-900 text-white py-4 text-[10px] font-bold tracking-[0.3em] uppercase translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                className="absolute bottom-0 left-0 w-full bg-[#1a2744] text-white py-4 text-[10px] font-bold tracking-[0.3em] uppercase translate-y-full group-hover:translate-y-0 transition-transform duration-500">
                 Quick Add
               </button>
               {product.featured ? (
-                <div className="absolute top-6 left-6 text-[8px] font-bold tracking-[0.3em] uppercase bg-gray-900 text-white px-3 py-1">Featured</div>
+                <div className="absolute top-6 left-6 text-[8px] font-bold tracking-[0.3em] uppercase bg-[#1a2744] text-white px-3 py-1">Featured</div>
               ) : null}
             </div>
             <div className="p-5">
-              <h4 className="text-lg font-serif font-bold text-gray-900 mb-1 group-hover:text-gray-600 transition-colors">{product.name}</h4>
+              <h4 className="text-lg font-serif font-bold text-[#1a2744] mb-1 group-hover:text-[#2a3f6e] transition-colors">{product.name}</h4>
               <p className="text-[10px] text-gray-400 uppercase tracking-[0.2em] mb-3">{product.category}</p>
-              <div className="text-gray-900 font-bold text-sm">RS. {product.price.toLocaleString()}</div>
+              <div className="text-[#1a2744] font-bold text-sm">RS. {product.price.toLocaleString()}</div>
             </div>
           </motion.div>
         ))}
@@ -520,12 +525,12 @@ function ProductCard({ product, addToCart }: { product: Product, addToCart: (p: 
 
 function ContactPage() {
   return (
-    <div className="max-w-[1600px] mx-auto py-32 px-6 md:px-12">
+    <div className="max-w-[1600px] mx-auto py-32 px-6 md:px-12 bg-white">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-32">
         <div>
-          <span className="text-gold text-[10px] font-bold tracking-[0.5em] uppercase mb-4 block">Concierge</span>
-          <h1 className="text-7xl font-serif font-bold tracking-tighter mb-12 leading-[0.9]">GET IN <br /><span className="gold-text-gradient italic">TOUCH.</span></h1>
-          <p className="text-white/40 text-xl font-light mb-20 leading-relaxed max-w-md">
+          <span className="text-[#1a2744] text-[10px] font-bold tracking-[0.5em] uppercase mb-4 block">Concierge</span>
+          <h1 className="text-7xl font-serif font-bold tracking-tighter mb-12 leading-[0.9] text-[#1a2744]">GET IN <br /><span className="italic text-[#2a3f6e]">TOUCH.</span></h1>
+          <p className="text-gray-500 text-xl font-light mb-20 leading-relaxed max-w-md">
             Our luxury concierge team is dedicated to providing an unparalleled experience. Reach out for bespoke orders or sizing consultations.
           </p>
           <div className="space-y-12">
@@ -535,36 +540,36 @@ function ContactPage() {
               { label: 'Studio', value: 'Gulberg III, Lahore, Pakistan' },
             ].map(item => (
               <div key={item.label} className="flex items-start gap-8">
-                <div className="w-[1px] h-12 bg-gold/30"></div>
+                <div className="w-[1px] h-12 bg-[#1a2744]/30"></div>
                 <div>
-                  <div className="text-[10px] text-gold font-bold uppercase tracking-[0.3em] mb-2">{item.label}</div>
-                  <div className="text-2xl font-serif">{item.value}</div>
+                  <div className="text-[10px] text-[#1a2744] font-bold uppercase tracking-[0.3em] mb-2">{item.label}</div>
+                  <div className="text-2xl font-serif text-[#1a2744]">{item.value}</div>
                 </div>
               </div>
             ))}
           </div>
         </div>
-        <div className="bg-[#050505] border border-white/5 p-12 md:p-20">
+        <div className="bg-gray-50 border border-gray-200 p-12 md:p-20 rounded-xl">
           <form className="space-y-12" onSubmit={(e) => e.preventDefault()}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
               <div className="space-y-4">
-                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">First Name</label>
-                <input type="text" className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-all text-sm" placeholder="BILAL" />
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">First Name</label>
+                <input type="text" className="w-full bg-white border border-gray-200 rounded px-4 py-3 outline-none focus:border-[#1a2744] transition-all text-sm text-[#1a2744]" placeholder="BILAL" />
               </div>
               <div className="space-y-4">
-                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Last Name</label>
-                <input type="text" className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-all text-sm" placeholder="MARTH" />
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">Last Name</label>
+                <input type="text" className="w-full bg-white border border-gray-200 rounded px-4 py-3 outline-none focus:border-[#1a2744] transition-all text-sm text-[#1a2744]" placeholder="MARTH" />
               </div>
             </div>
             <div className="space-y-4">
-              <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Email Address</label>
-              <input type="email" className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-all text-sm" placeholder="HELLO@BSSOLE.COM" />
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">Email Address</label>
+              <input type="email" className="w-full bg-white border border-gray-200 rounded px-4 py-3 outline-none focus:border-[#1a2744] transition-all text-sm text-[#1a2744]" placeholder="HELLO@BSSOLE.COM" />
             </div>
             <div className="space-y-4">
-              <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Message</label>
-              <textarea rows={4} className="w-full bg-transparent border-b border-white/10 py-4 outline-none focus:border-gold transition-all text-sm resize-none" placeholder="HOW CAN WE ASSIST YOU?"></textarea>
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">Message</label>
+              <textarea rows={4} className="w-full bg-white border border-gray-200 rounded px-4 py-3 outline-none focus:border-[#1a2744] transition-all text-sm resize-none text-[#1a2744]" placeholder="HOW CAN WE ASSIST YOU?"></textarea>
             </div>
-            <button className="btn-luxury w-full">Send Inquiry</button>
+            <button className="w-full py-4 bg-[#1a2744] text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#15203a] transition-colors rounded">Send Inquiry</button>
           </form>
         </div>
       </div>
@@ -597,15 +602,15 @@ function ReturnPolicyPage({ setPage }: { setPage: (p: Page) => void }) {
   ];
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       {/* Hero */}
-      <div className="relative py-40 px-6 md:px-12 border-b border-white/5">
+      <div className="relative py-40 px-6 md:px-12 border-b border-gray-100 bg-gray-50">
         <div className="max-w-[1600px] mx-auto">
-          <span className="text-gold text-[10px] font-bold tracking-[0.5em] uppercase mb-6 block">Policy</span>
-          <h1 className="text-6xl md:text-8xl font-serif font-bold tracking-tighter mb-6">
-            RETURN <span className="gold-text-gradient italic">POLICY</span>
+          <span className="text-[#1a2744] text-[10px] font-bold tracking-[0.5em] uppercase mb-6 block">Policy</span>
+          <h1 className="text-6xl md:text-8xl font-serif font-bold tracking-tighter mb-6 text-[#1a2744]">
+            RETURN <span className="italic text-[#2a3f6e]">POLICY</span>
           </h1>
-          <p className="text-white/40 text-lg max-w-xl leading-relaxed">
+          <p className="text-gray-500 text-lg max-w-xl leading-relaxed">
             At BSSOLE, we stand behind the quality of every product. Please read our return policy carefully before making a purchase.
           </p>
         </div>
@@ -620,30 +625,30 @@ function ReturnPolicyPage({ setPage }: { setPage: (p: Page) => void }) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              className="bg-[#050505] border border-white/5 p-10 hover:border-gold/20 transition-all duration-500 group"
+              className="bg-white border border-gray-200 p-10 hover:border-[#1a2744]/30 transition-all duration-500 group rounded-xl shadow-sm"
             >
               <div className="text-3xl mb-6">{policy.icon}</div>
-              <h3 className="text-lg font-serif font-bold gold-text-gradient mb-4">{policy.title}</h3>
-              <p className="text-white/50 text-sm leading-relaxed">{policy.detail}</p>
+              <h3 className="text-lg font-serif font-bold text-[#1a2744] mb-4">{policy.title}</h3>
+              <p className="text-gray-500 text-sm leading-relaxed">{policy.detail}</p>
             </motion.div>
           ))}
         </div>
 
         {/* Summary Banner */}
-        <div className="border border-gold/20 bg-gold/5 p-10 md:p-16 text-center mb-16">
-          <div className="text-gold text-[10px] font-bold tracking-[0.5em] uppercase mb-4">In Short</div>
-          <p className="text-2xl md:text-3xl font-serif font-bold leading-snug max-w-2xl mx-auto">
-            Returns accepted within <span className="gold-text-gradient">7 days</span> of delivery.<br />
-            Return delivery charges are paid by the <span className="gold-text-gradient">customer</span>.
+        <div className="border-2 border-[#1a2744]/20 bg-[#1a2744]/5 p-10 md:p-16 text-center mb-16 rounded-xl">
+          <div className="text-[#1a2744] text-[10px] font-bold tracking-[0.5em] uppercase mb-4">In Short</div>
+          <p className="text-2xl md:text-3xl font-serif font-bold leading-snug max-w-2xl mx-auto text-[#1a2744]">
+            Returns accepted within <span className="text-[#2a3f6e]">7 days</span> of delivery.<br />
+            Return delivery charges are paid by the <span className="text-[#2a3f6e]">customer</span>.
           </p>
         </div>
 
         {/* Contact CTA */}
         <div className="text-center">
-          <p className="text-white/40 mb-8 text-sm">Have questions about your return?</p>
+          <p className="text-gray-400 mb-8 text-sm">Have questions about your return?</p>
           <button
             onClick={() => setPage('contact')}
-            className="btn-luxury flex items-center gap-3 mx-auto"
+            className="inline-flex items-center gap-3 px-10 py-4 bg-[#1a2744] text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#15203a] transition-colors rounded"
           >
             Contact Us <ArrowRight size={16} />
           </button>
