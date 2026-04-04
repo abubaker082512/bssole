@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Grid, Tags, ShoppingCart, Users, Settings, LogOut, LayoutDashboard, Sun, Moon } from 'lucide-react';
+import { Package, Grid, Tags, ShoppingCart, Users, Settings, LogOut, LayoutDashboard, Sun, Moon, Image, FileText } from 'lucide-react';
 import ProductList from './products/ProductList';
 import ProductForm from './products/ProductForm';
 import CategoryManager from './categories/CategoryManager';
@@ -7,6 +7,8 @@ import AttributeManager from './attributes/AttributeManager';
 import OrderList from './orders/OrderList';
 import CustomerList from './customers/CustomerList';
 import SettingsManager from './settings/SettingsManager';
+import HeroSlideManager from './hero/HeroSlideManager';
+import SiteContentManager from './content/SiteContentManager';
 
 export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     const [currentView, setCurrentView] = useState('dashboard');
@@ -28,6 +30,8 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
         { id: 'attributes', label: 'Attributes', icon: <Tags size={18} /> },
         { id: 'orders', label: 'Orders', icon: <ShoppingCart size={18} /> },
         { id: 'customers', label: 'Customers', icon: <Users size={18} /> },
+        { id: 'hero-slides', label: 'Hero Slides', icon: <Image size={18} /> },
+        { id: 'site-content', label: 'Site Content', icon: <FileText size={18} /> },
         { id: 'settings', label: 'Settings', icon: <Settings size={18} /> },
     ];
 
@@ -42,6 +46,8 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
         if (currentView === 'attributes') return <AttributeManager />
         if (currentView === 'orders') return <OrderList />
         if (currentView === 'customers') return <CustomerList />
+        if (currentView === 'hero-slides') return <HeroSlideManager />
+        if (currentView === 'site-content') return <SiteContentManager />
         if (currentView === 'settings') return <SettingsManager />
         return (
             <div className="p-8">

@@ -10,6 +10,8 @@ import attributesRouter from "./server/routes/attributes.js";
 import ordersRouter from "./server/routes/orders.js";
 import customersRouter from "./server/routes/customers.js";
 import settingsRouter from "./server/routes/settings.js";
+import heroSlidesRouter from "./server/routes/heroSlides.js";
+import siteContentRouter from "./server/routes/siteContent.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,6 +27,8 @@ app.use('/api/attributes', attributesRouter);
 app.use('/api/orders', ordersRouter);
 app.use('/api/customers', customersRouter);
 app.use('/api/settings', settingsRouter);
+app.use('/api/hero-slides', heroSlidesRouter);
+app.use('/api/site-content', siteContentRouter);
 
 export async function startServer() {
   const PORT = process.env.PORT || 3000;
