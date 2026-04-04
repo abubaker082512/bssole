@@ -22,10 +22,15 @@ export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [deliveryCharges, setDeliveryCharges] = useState<DeliveryCharge[]>([]);
   const [orderId, setOrderId] = useState<number | string | null>(null);
+  const [marqueeText, setMarqueeText] = useState<string>('');
+  const [heroSlides, setHeroSlides] = useState<any[]>([]);
+  const [siteContent, setSiteContent] = useState<any>({});
 
   useEffect(() => {
     loadProducts();
     loadDeliveryCharges();
+    loadSiteContent();
+    loadHeroSlides();
     const savedCart = localStorage.getItem('bss_cart');
     if (savedCart) {
       try { setCart(JSON.parse(savedCart)); } catch (e) { console.error("Failed to parse cart", e); }
@@ -38,11 +43,32 @@ export default function App() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       if (event === 'SIGNED_OUT') {
-        setCurrentPage('home');
+        setCurrentPage('home2');
       }
     });
     return () => subscription.unsubscribe();
   }, []);
+
+  const loadSiteContent = async () => {
+    try {
+      const res = await fetch('/api/site-content');
+      if (res.ok) {
+        const data = await res.json();
+        setSiteContent(data);
+        if (data?.marquee?.text) setMarqueeText(data.marquee.text);
+      }
+    } catch (e) { /* use defaults */ }
+  };
+
+  const loadHeroSlides = async () => {
+    try {
+      const res = await fetch('/api/hero-slides');
+      if (res.ok) {
+        const data = await res.json();
+        setHeroSlides(data?.filter((s: any) => s.is_active) ?? []);
+      }
+    } catch (e) { /* use defaults */ }
+  };
 
   useEffect(() => {
     localStorage.setItem('bss_cart', JSON.stringify(cart));

@@ -10,9 +10,11 @@ type Props = {
   cartCount?: number;
   setPage?: (page: string) => void;
   currentPage?: string;
+  marqueeText?: string;
 };
 
-export default function Header({ onMenu, onSearch, onLogin, onCart, cartCount = 0, setPage, currentPage = '' }: Props) {
+export default function Header({ onMenu, onSearch, onLogin, onCart, cartCount = 0, setPage, currentPage = '', marqueeText }: Props) {
+  const displayText = marqueeText || '🎉 FREE SHIPPING ON ORDERS ABOVE RS. 10,000! | USE CODE #BSSOLE7 – EXTRA DISCOUNT!';
   return (
     <header className="sticky top-0 z-50">
       {/* Top marquee bar */}
@@ -21,17 +23,7 @@ export default function Header({ onMenu, onSearch, onLogin, onCart, cartCount = 
           className="flex items-center h-full"
           style={{ whiteSpace: 'nowrap', display: 'inline-block', paddingLeft: '100%', animation: 'marquee 20s linear infinite' }}
         >
-          <span className="mx-8">🚚 FREE SHIPPING ON ORDERS ABOVE RS. 10,000</span>
-          <span className="mx-8">•</span>
-          <span className="mx-8">🔄 7-DAY EASY RETURNS</span>
-          <span className="mx-8">•</span>
-          <span className="mx-8">💳 CASH ON DELIVERY AVAILABLE</span>
-          <span className="mx-8">•</span>
-          <span className="mx-8">📞 WhatsApp: 0325 528 1122</span>
-          <span className="mx-8">•</span>
-          <span className="mx-8">🚚 FREE SHIPPING ON ORDERS ABOVE RS. 10,000</span>
-          <span className="mx-8">•</span>
-          <span className="mx-8">🔄 7-DAY EASY RETURNS</span>
+          <span className="mx-8">{displayText}</span>
         </div>
       </div>
 
