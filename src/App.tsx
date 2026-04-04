@@ -125,8 +125,8 @@ export default function App() {
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'home': return <HomePage products={products.filter(p => p.featured)} setPage={setCurrentPage} addToCart={addToCart} />;
-      case 'home2': return <Home2Page setPage={setCurrentPage} addToCart={addToCart} />;
+      case 'home': return <HomePage products={products.filter(p => p.featured)} setPage={setCurrentPage} addToCart={addToCart} heroSlides={heroSlides} />;
+      case 'home2': return <Home2Page setPage={setCurrentPage} addToCart={addToCart} heroSlides={heroSlides} />;
       case 'shop': return <ShopPage products={products} addToCart={addToCart} />;
       case 'contact': return <ContactPage />;
       case 'admin':
@@ -151,7 +151,7 @@ export default function App() {
           </div>
         </div>
       );
-      default: return <HomePage products={products.filter(p => p.featured)} setPage={setCurrentPage} addToCart={addToCart} />;
+      default: return <Home2Page setPage={setCurrentPage} addToCart={addToCart} heroSlides={heroSlides} />;
     }
   };
 
@@ -173,6 +173,7 @@ export default function App() {
         cartCount={cartCount}
         setPage={(p) => setCurrentPage(p as Page)}
         currentPage={currentPage}
+        marqueeText={marqueeText}
       />
 
       {/* Full Screen Menu Overlay */}
@@ -339,7 +340,7 @@ export default function App() {
   );
 }
 
-function HomePage({ products, setPage, addToCart }: { products: Product[], setPage: (p: Page) => void, addToCart: (p: Product) => void }) {
+function HomePage({ products, setPage, addToCart, heroSlides }: { products: Product[], setPage: (p: Page) => void, addToCart: (p: Product) => void, heroSlides?: any[] }) {
   return (
     <div className="bg-white">
       {/* Hero Section */}

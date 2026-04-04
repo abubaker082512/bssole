@@ -7,18 +7,23 @@ type Product = { id: number; name: string; image: string; price: number; categor
 type Props = {
   setPage: (page: any) => void;
   addToCart?: (p: Product) => void;
+  heroSlides?: any[];
 };
 
-export default function Home2Page({ setPage, addToCart }: Props) {
+const defaultSlides = [
+  { id: 1, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1600&q=80&fit=crop', title: 'Step Into Style', subtitle: 'Premium footwear crafted for every occasion', cta_text: 'Shop Now', cta_link: 'shop', video_url: '' },
+  { id: 2, image: 'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=1600&q=80&fit=crop', title: 'New Arrivals', subtitle: 'Fresh drops you don\'t want to miss', cta_text: 'Explore', cta_link: 'shop', video_url: '' },
+  { id: 3, image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=1600&q=80&fit=crop', title: 'Casual Comfort', subtitle: 'Everyday shoes that feel as good as they look', cta_text: 'View Collection', cta_link: 'shop', video_url: '' },
+];
+
+export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
   const [products, setProducts] = useState<Product[]>([]);
   const [slide, setSlide] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const slides = [
-    { id: 1, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1600&q=80&fit=crop', title: 'Step Into Style', subtitle: 'Premium footwear crafted for every occasion', cta: 'Shop Now', ctaPage: 'shop' as const },
-    { id: 2, image: 'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=1600&q=80&fit=crop', title: 'New Arrivals', subtitle: 'Fresh drops you don\'t want to miss', cta: 'Explore', ctaPage: 'shop' as const },
-    { id: 3, image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=1600&q=80&fit=crop', title: 'Casual Comfort', subtitle: 'Everyday shoes that feel as good as they look', cta: 'View Collection', ctaPage: 'shop' as const },
-  ];
+  const slides = heroSlides && heroSlides.length > 0
+    ? heroSlides.map((s: any, i: number) => ({ ...s, idx: i }))
+    : defaultSlides;
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -45,22 +50,28 @@ export default function Home2Page({ setPage, addToCart }: Props) {
       <section className="relative h-[500px] md:h-[600px] overflow-hidden bg-gray-100">
         {slides.map((s, idx) => (
           <div
-            key={s.id}
+            key={s.id ?? idx}
             className={`absolute inset-0 transition-opacity duration-700 ${idx === slide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
           >
-            <img src={s.image} alt={s.title} className="w-full h-full object-cover" />
+            {s.video_url ? (
+              <video src={s.video_url} autoPlay muted loop playsInline className="w-full h-full object-cover" />
+            ) : (
+              <img src={s.image_url ?? s.image} alt={s.title} className="w-full h-full object-cover" />
+            )}
             <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
             <div className="absolute inset-0 flex items-center">
               <div className="max-w-6xl mx-auto px-6 md:px-8 w-full">
                 <div className="max-w-lg">
                   <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">{s.title}</h1>
                   <p className="text-lg text-white/80 mb-8">{s.subtitle}</p>
-                  <button
-                    onClick={() => setPage(s.ctaPage)}
-                    className="inline-flex items-center gap-2 bg-white text-black px-8 py-3 font-semibold text-sm uppercase tracking-wider hover:bg-gray-100 transition-colors"
-                  >
-                    {s.cta} <ArrowRight size={16} />
-                  </button>
+                  {s.cta_text && (
+                    <button
+                      onClick={() => setPage(s.cta_link ?? s.ctaPage ?? 'shop')}
+                      className="inline-flex items-center gap-2 bg-white text-black px-8 py-3 font-semibold text-sm uppercase tracking-wider hover:bg-gray-100 transition-colors"
+                    >
+                      {s.cta_text} <ArrowRight size={16} />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
