@@ -268,25 +268,25 @@ export default function App() {
 
       {/* Footer — hidden on admin pages */}
       {currentPage !== 'admin' && (
-        <footer className="bg-[gold] text-white pt-24 pb-12 px-6 md:px-12">
+        <footer className="bg-black border-t border-white/5 pt-24 pb-12 px-6 md:px-12">
           <div className="max-w-[1600px] mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-24">
               <div className="col-span-1 md:col-span-2">
-                <img src={logo} alt="BSSOLE" className="h-32 w-auto object-contain mb-8 brightness-200" />
-                <p className="text-gray-300 text-lg max-w-md leading-relaxed mb-8">
+                <img src={logo} alt="BSSOLE" className="h-40 w-auto object-contain mb-8" />
+                <p className="text-white/40 text-lg max-w-md leading-relaxed mb-8">
                   Redefining everyday luxury with handcrafted footwear and accessories. Experience the soul of premium craftsmanship at BSSOLE.COM.
                 </p>
                 <div className="flex gap-6">
-                  <a href="https://www.instagram.com/bssoleofficial/?hl=en" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 hover:border-white hover:text-white transition-all"><Instagram size={18} /></a>
-                  <a href="https://www.facebook.com/bssoleofficial" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 hover:border-white hover:text-white transition-all"><Facebook size={18} /></a>
-                  <a href="https://tiktok.com/@bssoleofficial" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 hover:border-white hover:text-white transition-all">
+                  <a href="https://www.instagram.com/bssoleofficial/?hl=en" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-gold hover:text-gold transition-all"><Instagram size={18} /></a>
+                  <a href="https://www.facebook.com/bssoleofficial" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-gold hover:text-gold transition-all"><Facebook size={18} /></a>
+                  <a href="https://tiktok.com/@bssoleofficial" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-gold hover:text-gold transition-all">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.78a8.18 8.18 0 004.78 1.52V6.85a4.85 4.85 0 01-1.01-.16z" /></svg>
                   </a>
                 </div>
               </div>
               <div>
-                <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em] mb-8">Collections</h4>
-                <ul className="space-y-4 text-sm text-gray-300">
+                <h4 className="text-[10px] font-bold text-gold uppercase tracking-[0.3em] mb-8">Collections</h4>
+                <ul className="space-y-4 text-sm text-white/50">
                   <li><button onClick={() => setCurrentPage('shop')} className="hover:text-white transition-colors">Formal Collection</button></li>
                   <li><button onClick={() => setCurrentPage('shop')} className="hover:text-white transition-colors">Casual Soles</button></li>
                   <li><button onClick={() => setCurrentPage('shop')} className="hover:text-white transition-colors">Sport Performance</button></li>
@@ -294,15 +294,15 @@ export default function App() {
                 </ul>
               </div>
               <div>
-                <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em] mb-8">Company</h4>
-                <ul className="space-y-4 text-sm text-gray-300">
+                <h4 className="text-[10px] font-bold text-gold uppercase tracking-[0.3em] mb-8">Company</h4>
+                <ul className="space-y-4 text-sm text-white/50">
                   <li><button onClick={() => setCurrentPage('contact')} className="hover:text-white transition-colors">Contact Us</button></li>
                   <li><button onClick={() => setCurrentPage('returns')} className="hover:text-white transition-colors">Returns Policy</button></li>
                   <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
                 </ul>
               </div>
             </div>
-            <div className="pt-12 border-t border-gray-700 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase">
+            <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] font-bold tracking-[0.2em] text-white/20 uppercase">
               <div>© 2026 BSSOLE. ALL RIGHTS RESERVED.</div>
               <div className="flex gap-8"><span>Handcrafted in Pakistan</span><span>Global Shipping</span></div>
             </div>

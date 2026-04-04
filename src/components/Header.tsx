@@ -64,7 +64,7 @@ export default function Header({ onMenu, onSearch, onLogin, onCart, cartCount = 
 
           {/* Center: Logo */}
           <button onClick={() => setPage?.('home2')} className="flex items-center">
-            <img src={logo} alt="BSSOLE" className="h-14 w-auto object-contain" />
+            <img src={logo} alt="BSSOLE" className="h-20 w-auto object-contain" />
           </button>
 
           {/* Right: Icons */}
