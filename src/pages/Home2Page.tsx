@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import Header from '../components/Header';
 import { supabase } from '../lib/supabase';
 import { ArrowRight, Truck, Shield, RefreshCw, Star } from 'lucide-react';
 
@@ -42,16 +41,6 @@ export default function Home2Page({ setPage, addToCart }: Props) {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header
-        onMenu={() => {}}
-        onSearch={() => {}}
-        onLogin={() => {}}
-        onCart={() => {}}
-        cartCount={0}
-        setPage={setPage}
-        currentPage="home2"
-      />
-
       {/* Hero Carousel */}
       <section className="relative h-[500px] md:h-[600px] overflow-hidden bg-gray-100">
         {slides.map((s, idx) => (

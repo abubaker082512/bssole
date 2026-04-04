@@ -7,6 +7,7 @@ import AdminLogin from './components/AdminLogin';
 import CheckoutPage from './components/CheckoutPage';
 import AdminDashboard from './components/admin/AdminDashboard';
 import Home2Page from './pages/Home2Page';
+import Header from './components/Header';
 import type { Session } from '@supabase/supabase-js';
 import logo from './assets/logo.png';
 
@@ -132,69 +133,16 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col selection:bg-gray-900 selection:text-white bg-white">
-      {/* Announcement Bar */}
-      <div className="bg-gray-900 text-white text-[10px] font-bold tracking-[0.15em] uppercase py-2 text-center overflow-hidden">
-        {deliveryCharges.length > 0 ? (
-          <span>
-            🚚 {deliveryCharges.map((dc, i) => {
-              const isFree = dc.charge === 0;
-              const range = dc.max_order != null
-                ? `RS. ${dc.min_order.toLocaleString()}–${dc.max_order.toLocaleString()}`
-                : `above RS. ${dc.min_order.toLocaleString()}`;
-              const chargeText = isFree ? 'FREE DELIVERY' : `RS. ${dc.charge.toLocaleString()} delivery`;
-              return `${dc.label || `Orders ${range}`}: ${chargeText}`;
-            }).join('  |  ')}
-          </span>
-        ) : (
-          '🎉 FREE SHIPPING ON ORDERS ABOVE RS. 10,000! | USE CODE #BSSOLE7 – EXTRA DISCOUNT!'
-        )}
-      </div>
-
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-gray-100 py-4 px-6 md:px-12">
-        <div className="max-w-[1600px] mx-auto flex justify-between items-center">
-          {/* Left */}
-          <div className="hidden md:flex items-center gap-6">
-            <button className="text-gray-500 hover:text-gray-900 transition-colors"><Search size={20} /></button>
-            <div className="h-4 w-[1px] bg-gray-200"></div>
-            <button onClick={() => setIsMenuOpen(true)} className="text-xs font-bold tracking-[0.2em] uppercase text-gray-700 hover:text-gray-900 transition-colors">Menu</button>
-          </div>
-
-          {/* Center: Logo */}
-          <div className="cursor-pointer flex items-center" onClick={() => setCurrentPage('home')}>
-            <img src={logo} alt="BSSOLE" className="h-32 w-auto object-contain hover:opacity-80 transition-opacity" />
-          </div>
-
-          {/* Right */}
-          <div className="flex items-center gap-6">
-            <div className="hidden md:flex items-center gap-8 mr-6">
-              {['shop', 'home2', 'contact'].map((page) => (
-                <button key={page} onClick={() => setCurrentPage(page as Page)}
-                  className={`uppercase text-[10px] tracking-[0.3em] font-bold transition-colors ${currentPage === page ? 'text-gray-900' : 'text-gray-400 hover:text-gray-900'}`}>
-                  {page === 'home2' ? 'New' : page}
-                </button>
-              ))}
-            </div>
-            <button
-              onClick={() => setIsAuthOpen(true)}
-              className="text-gray-500 hover:text-gray-900 transition-colors relative"
-              title={session ? session.user.email : 'Login / Sign Up'}
-            >
-              <User size={20} />
-              {session && <span className="absolute -top-1 -right-1 w-2 h-2 bg-gray-900 rounded-full" />}
-            </button>
-            <button onClick={() => setIsCartOpen(true)} className="text-gray-500 hover:text-gray-900 transition-colors relative">
-              <ShoppingBag size={20} />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-gray-900 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{cartCount}</span>
-              )}
-            </button>
-            <button className="md:hidden text-gray-700" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-              {isMenuOpen ? <X /> : <Menu />}
-            </button>
-          </div>
-        </div>
-      </nav>
+      {/* Global Header (dark themed) */}
+      <Header
+        onMenu={() => setIsMenuOpen(true)}
+        onSearch={() => {}}
+        onLogin={() => setIsAuthOpen(true)}
+        onCart={() => setIsCartOpen(true)}
+        cartCount={cartCount}
+        setPage={(p) => setCurrentPage(p as Page)}
+        currentPage={currentPage}
+      />
 
       {/* Full Screen Menu Overlay */}
       <AnimatePresence>
