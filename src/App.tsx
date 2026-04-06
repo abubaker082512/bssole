@@ -139,15 +139,15 @@ export default function App() {
       case 'delivery': return <DeliveryPolicyPage setPage={setCurrentPage} />;
       case 'checkout': return <CheckoutPage cart={cart} onBack={() => setCurrentPage('shop')} onSuccess={(id) => { setOrderId(id); setCart([]); setCurrentPage('order-success'); }} session={session} />;
       case 'order-success': return (
-        <div className="max-w-4xl mx-auto py-12 px-6 bg-white min-h-[60vh] flex flex-col items-center justify-center">
+        <div className="max-w-4xl mx-auto py-12 px-6 bg-black min-h-[60vh] flex flex-col items-center justify-center">
           <div className="text-center">
-            <div className="w-20 h-20 rounded-full bg-[gold]/10 flex items-center justify-center mx-auto mb-6">
-              <svg className="w-10 h-10 text-[gold]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+            <div className="w-20 h-20 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
             </div>
-            <h2 className="text-3xl font-serif font-bold mb-4 text-[gold]">Order Confirmed</h2>
-            <p className="text-gray-500 mb-6">Thank you! Your order has been placed successfully.</p>
-            <p className="text-gray-400 mb-8">Order ID: <span className="font-mono font-bold text-[gold]">{orderId ?? 'N/A'}</span></p>
-            <button className="px-10 py-4 bg-[gold] text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-[black] transition-colors rounded" onClick={() => setCurrentPage('shop')}>Continue Shopping</button>
+            <h2 className="text-3xl font-serif font-bold mb-4 text-gold">Order Confirmed</h2>
+            <p className="text-white/40 mb-6">Thank you! Your order has been placed successfully.</p>
+            <p className="text-white/30 mb-8">Order ID: <span className="font-mono font-bold text-gold">{orderId ?? 'N/A'}</span></p>
+            <button className="px-10 py-4 bg-gold text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-colors rounded" onClick={() => setCurrentPage('shop')}>Continue Shopping</button>
           </div>
         </div>
       );
@@ -502,37 +502,37 @@ function ShopPage({ products, addToCart }: { products: Product[], addToCart: (p:
   const filteredProducts = filter === 'All' ? products : products.filter(p => p.category === filter);
 
   return (
-    <div className="max-w-[1600px] mx-auto py-32 px-6 md:px-12 bg-white">
+    <div className="max-w-[1600px] mx-auto py-32 px-6 md:px-12 bg-black">
       <div className="mb-24">
-        <span className="text-gray-400 text-[10px] font-bold tracking-[0.5em] uppercase mb-4 block">Collections</span>
-        <h1 className="text-7xl font-serif font-bold tracking-tighter text-[gold]">THE <span className="text-[gold] italic">SOUL</span> STORE</h1>
+        <span className="text-white/30 text-[10px] font-bold tracking-[0.5em] uppercase mb-4 block">Collections</span>
+        <h1 className="text-7xl font-serif font-bold tracking-tighter text-white">THE <span className="italic text-gold">SOUL</span> STORE</h1>
       </div>
-      <div className="flex flex-wrap gap-8 mb-20 border-b border-gray-200 pb-8">
+      <div className="flex flex-wrap gap-8 mb-20 border-b border-white/10 pb-8">
         {categories.map(cat => (
           <button key={cat} onClick={() => setFilter(cat)}
-            className={`text-xs font-bold tracking-[0.2em] uppercase transition-all relative pb-2 ${filter === cat ? 'text-[gold] after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[gold]' : 'text-gray-400 hover:text-[gold]'}`}>
+            className={`text-xs font-bold tracking-[0.2em] uppercase transition-all relative pb-2 ${filter === cat ? 'text-gold after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-gold' : 'text-white/30 hover:text-gold'}`}>
             {cat}
           </button>
         ))}
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
         {filteredProducts.map((product) => (
-          <motion.div key={product.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
-            <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
+          <motion.div key={product.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="group bg-white/5 border border-white/5 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:border-gold/30 transition-all">
+            <div className="relative aspect-[3/4] overflow-hidden bg-white/5">
               <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" referrerPolicy="no-referrer" />
               <button onClick={() => addToCart(product)}
-                className="absolute bottom-0 left-0 w-full bg-[gold] text-white py-4 text-[10px] font-bold tracking-[0.3em] uppercase translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                className="absolute bottom-0 left-0 w-full bg-gold text-white py-4 text-[10px] font-bold tracking-[0.3em] uppercase translate-y-full group-hover:translate-y-0 transition-transform duration-500">
                 Quick Add
               </button>
               {product.featured ? (
-                <div className="absolute top-6 left-6 text-[8px] font-bold tracking-[0.3em] uppercase bg-[gold] text-white px-3 py-1">Featured</div>
+                <div className="absolute top-6 left-6 text-[8px] font-bold tracking-[0.3em] uppercase bg-gold text-white px-3 py-1">Featured</div>
               ) : null}
             </div>
             <div className="p-5">
-              <h4 className="text-lg font-serif font-bold text-[gold] mb-1 group-hover:text-[gold] transition-colors">{product.name}</h4>
-              <p className="text-[10px] text-gray-400 uppercase tracking-[0.2em] mb-3">{product.category}</p>
-              <div className="text-[gold] font-bold text-sm">RS. {product.price.toLocaleString()}</div>
-              <p className="text-[10px] text-gray-400 mt-2">Free delivery above Rs.3,000 | 7-day return</p>
+              <h4 className="text-lg font-serif font-bold text-white mb-1 group-hover:text-gold transition-colors">{product.name}</h4>
+              <p className="text-[10px] text-white/30 uppercase tracking-[0.2em] mb-3">{product.category}</p>
+              <div className="text-gold font-bold text-sm">RS. {product.price.toLocaleString()}</div>
+              <p className="text-[10px] text-white/30 mt-2">Free delivery above Rs.3,000 | 7-day return</p>
             </div>
           </motion.div>
         ))}
@@ -543,21 +543,21 @@ function ShopPage({ products, addToCart }: { products: Product[], addToCart: (p:
 
 function ProductCard({ product, addToCart }: { product: Product, addToCart: (p: Product) => void, key?: React.Key }) {
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
-      <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
+    <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="group bg-white/5 border border-white/5 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:border-gold/30 transition-all">
+      <div className="relative aspect-[3/4] overflow-hidden bg-white/5">
         <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" referrerPolicy="no-referrer" />
         <button onClick={() => addToCart(product)}
-          className="absolute bottom-0 left-0 w-full bg-gray-900 text-white py-4 text-[10px] font-bold tracking-[0.3em] uppercase translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+          className="absolute bottom-0 left-0 w-full bg-gold text-white py-4 text-[10px] font-bold tracking-[0.3em] uppercase translate-y-full group-hover:translate-y-0 transition-transform duration-500">
           Quick Add
         </button>
         {product.featured ? (
-          <div className="absolute top-6 left-6 text-[8px] font-bold tracking-[0.3em] uppercase bg-gray-900 text-white px-3 py-1">Featured</div>
+          <div className="absolute top-6 left-6 text-[8px] font-bold tracking-[0.3em] uppercase bg-gold text-white px-3 py-1">Featured</div>
         ) : null}
       </div>
       <div className="p-5">
-        <h4 className="text-lg font-serif font-bold text-gray-900 mb-1 group-hover:text-gray-600 transition-colors">{product.name}</h4>
-        <p className="text-[10px] text-gray-400 uppercase tracking-[0.2em] mb-3">{product.category}</p>
-        <div className="text-gray-900 font-bold text-sm">RS. {product.price.toLocaleString()}</div>
+        <h4 className="text-lg font-serif font-bold text-white mb-1 group-hover:text-gold transition-colors">{product.name}</h4>
+        <p className="text-[10px] text-white/30 uppercase tracking-[0.2em] mb-3">{product.category}</p>
+        <div className="text-gold font-bold text-sm">RS. {product.price.toLocaleString()}</div>
       </div>
     </motion.div>
   );
@@ -565,12 +565,12 @@ function ProductCard({ product, addToCart }: { product: Product, addToCart: (p: 
 
 function ContactPage() {
   return (
-    <div className="max-w-[1600px] mx-auto py-32 px-6 md:px-12 bg-white">
+    <div className="max-w-[1600px] mx-auto py-32 px-6 md:px-12 bg-black">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-32">
         <div>
-          <span className="text-[gold] text-[10px] font-bold tracking-[0.5em] uppercase mb-4 block">Concierge</span>
-          <h1 className="text-7xl font-serif font-bold tracking-tighter mb-12 leading-[0.9] text-[gold]">GET IN <br /><span className="italic text-[gold]">TOUCH.</span></h1>
-          <p className="text-gray-500 text-xl font-light mb-20 leading-relaxed max-w-md">
+          <span className="text-gold text-[10px] font-bold tracking-[0.5em] uppercase mb-4 block">Concierge</span>
+          <h1 className="text-7xl font-serif font-bold tracking-tighter mb-12 leading-[0.9] text-white">GET IN <br /><span className="italic text-gold">TOUCH.</span></h1>
+          <p className="text-white/40 text-xl font-light mb-20 leading-relaxed max-w-md">
             Our luxury concierge team is dedicated to providing an unparalleled experience. Reach out for bespoke orders or sizing consultations.
           </p>
           <div className="space-y-12">
@@ -580,36 +580,36 @@ function ContactPage() {
               { label: 'Studio', value: 'Gulberg III, Lahore, Pakistan' },
             ].map(item => (
               <div key={item.label} className="flex items-start gap-8">
-                <div className="w-[1px] h-12 bg-[gold]/30"></div>
+                <div className="w-[1px] h-12 bg-gold/30"></div>
                 <div>
-                  <div className="text-[10px] text-[gold] font-bold uppercase tracking-[0.3em] mb-2">{item.label}</div>
-                  <div className="text-2xl font-serif text-[gold]">{item.value}</div>
+                  <div className="text-[10px] text-gold font-bold uppercase tracking-[0.3em] mb-2">{item.label}</div>
+                  <div className="text-2xl font-serif text-white">{item.value}</div>
                 </div>
               </div>
             ))}
           </div>
         </div>
-        <div className="bg-gray-50 border border-gray-200 p-12 md:p-20 rounded-xl">
+        <div className="bg-white/5 border border-white/10 p-12 md:p-20 rounded-xl">
           <form className="space-y-12" onSubmit={(e) => e.preventDefault()}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
               <div className="space-y-4">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">First Name</label>
-                <input type="text" className="w-full bg-white border border-gray-200 rounded px-4 py-3 outline-none focus:border-[gold] transition-all text-sm text-[gold]" placeholder="BILAL" />
+                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">First Name</label>
+                <input type="text" className="w-full bg-white/5 border border-white/10 rounded px-4 py-3 outline-none focus:border-gold transition-all text-sm text-white" placeholder="BILAL" />
               </div>
               <div className="space-y-4">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">Last Name</label>
-                <input type="text" className="w-full bg-white border border-gray-200 rounded px-4 py-3 outline-none focus:border-[gold] transition-all text-sm text-[gold]" placeholder="MARTH" />
+                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Last Name</label>
+                <input type="text" className="w-full bg-white/5 border border-white/10 rounded px-4 py-3 outline-none focus:border-gold transition-all text-sm text-white" placeholder="MARTH" />
               </div>
             </div>
             <div className="space-y-4">
-              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">Email Address</label>
-              <input type="email" className="w-full bg-white border border-gray-200 rounded px-4 py-3 outline-none focus:border-[gold] transition-all text-sm text-[gold]" placeholder="HELLO@BSSOLE.COM" />
+              <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Email Address</label>
+              <input type="email" className="w-full bg-white/5 border border-white/10 rounded px-4 py-3 outline-none focus:border-gold transition-all text-sm text-white" placeholder="HELLO@BSSOLE.COM" />
             </div>
             <div className="space-y-4">
-              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">Message</label>
-              <textarea rows={4} className="w-full bg-white border border-gray-200 rounded px-4 py-3 outline-none focus:border-[gold] transition-all text-sm resize-none text-[gold]" placeholder="HOW CAN WE ASSIST YOU?"></textarea>
+              <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Message</label>
+              <textarea rows={4} className="w-full bg-white/5 border border-white/10 rounded px-4 py-3 outline-none focus:border-gold transition-all text-sm resize-none text-white" placeholder="HOW CAN WE ASSIST YOU?"></textarea>
             </div>
-            <button className="w-full py-4 bg-[gold] text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-[black] transition-colors rounded">Send Inquiry</button>
+            <button className="w-full py-4 bg-gold text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-colors rounded">Send Inquiry</button>
           </form>
         </div>
       </div>
@@ -662,15 +662,15 @@ function ReturnPolicyPage({ setPage }: { setPage: (p: Page) => void }) {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-black">
       {/* Hero */}
-      <div className="relative py-40 px-6 md:px-12 border-b border-gray-100 bg-gray-50">
+      <div className="relative py-40 px-6 md:px-12 border-b border-white/5 bg-black">
         <div className="max-w-[1600px] mx-auto">
-          <span className="text-[gold] text-[10px] font-bold tracking-[0.5em] uppercase mb-6 block">Policy</span>
-          <h1 className="text-6xl md:text-8xl font-serif font-bold tracking-tighter mb-6 text-[gold]">
-            RETURN <span className="italic text-[gold]">POLICY</span>
+          <span className="text-gold text-[10px] font-bold tracking-[0.5em] uppercase mb-6 block">Policy</span>
+          <h1 className="text-6xl md:text-8xl font-serif font-bold tracking-tighter mb-6 text-white">
+            RETURN <span className="italic text-gold">POLICY</span>
           </h1>
-          <p className="text-gray-500 text-lg max-w-xl leading-relaxed">
+          <p className="text-white/40 text-lg max-w-xl leading-relaxed">
             At BSSOLE, we stand behind the quality of every product. Please read our return policy carefully before making a purchase.
           </p>
         </div>
@@ -685,31 +685,31 @@ function ReturnPolicyPage({ setPage }: { setPage: (p: Page) => void }) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              className="bg-white border border-gray-200 p-10 hover:border-[gold]/30 transition-all duration-500 group rounded-xl shadow-sm"
+              className="bg-white/5 border border-white/10 p-10 hover:border-gold/30 transition-all duration-500 group rounded-xl"
             >
               <div className="text-3xl mb-6">{policy.icon}</div>
-              <h3 className="text-lg font-serif font-bold text-[gold] mb-4">{policy.title}</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">{policy.detail}</p>
+              <h3 className="text-lg font-serif font-bold text-gold mb-4">{policy.title}</h3>
+              <p className="text-white/40 text-sm leading-relaxed">{policy.detail}</p>
             </motion.div>
           ))}
         </div>
 
         {/* Summary Banner */}
-        <div className="border-2 border-[gold]/20 bg-[gold]/5 p-10 md:p-16 text-center mb-16 rounded-xl">
-          <div className="text-[gold] text-[10px] font-bold tracking-[0.5em] uppercase mb-4">In Short</div>
-          <p className="text-2xl md:text-3xl font-serif font-bold leading-snug max-w-2xl mx-auto text-[gold]">
-            Returns accepted within <span className="text-[gold]">7 days</span> of delivery.<br />
-            Return delivery charges are paid by the <span className="text-[gold]">customer</span>.<br />
-            Refund processed within <span className="text-[gold]">5-7 business days</span>.
+        <div className="border-2 border-gold/20 bg-gold/5 p-10 md:p-16 text-center mb-16 rounded-xl">
+          <div className="text-gold text-[10px] font-bold tracking-[0.5em] uppercase mb-4">In Short</div>
+          <p className="text-2xl md:text-3xl font-serif font-bold leading-snug max-w-2xl mx-auto text-white">
+            Returns accepted within <span className="text-gold">7 days</span> of delivery.<br />
+            Return delivery charges are paid by the <span className="text-gold">customer</span>.<br />
+            Refund processed within <span className="text-gold">5-7 business days</span>.
           </p>
         </div>
 
         {/* Contact CTA */}
         <div className="text-center">
-          <p className="text-gray-400 mb-8 text-sm">Have questions about your return?</p>
+          <p className="text-white/30 mb-8 text-sm">Have questions about your return?</p>
           <button
             onClick={() => setPage('contact')}
-            className="inline-flex items-center gap-3 px-10 py-4 bg-[gold] text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-[black] transition-colors rounded"
+            className="inline-flex items-center gap-3 px-10 py-4 bg-gold text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-colors rounded"
           >
             Contact Us <ArrowRight size={16} />
           </button>
@@ -721,15 +721,15 @@ function ReturnPolicyPage({ setPage }: { setPage: (p: Page) => void }) {
 
 function DeliveryPolicyPage({ setPage }: { setPage: (p: Page) => void }) {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-black">
       {/* Hero */}
-      <div className="relative py-40 px-6 md:px-12 border-b border-gray-100 bg-gray-50">
+      <div className="relative py-40 px-6 md:px-12 border-b border-white/5 bg-black">
         <div className="max-w-[1600px] mx-auto">
-          <span className="text-[gold] text-[10px] font-bold tracking-[0.5em] uppercase mb-6 block">Policy</span>
-          <h1 className="text-6xl md:text-8xl font-serif font-bold tracking-tighter mb-6 text-[gold]">
-            DELIVERY <span className="italic text-[gold]">POLICY</span>
+          <span className="text-gold text-[10px] font-bold tracking-[0.5em] uppercase mb-6 block">Policy</span>
+          <h1 className="text-6xl md:text-8xl font-serif font-bold tracking-tighter mb-6 text-white">
+            DELIVERY <span className="italic text-gold">POLICY</span>
           </h1>
-          <p className="text-gray-500 text-lg max-w-xl leading-relaxed">
+          <p className="text-white/40 text-lg max-w-xl leading-relaxed">
             Learn about our delivery options, charges, and shipping timelines.
           </p>
         </div>
@@ -738,51 +738,51 @@ function DeliveryPolicyPage({ setPage }: { setPage: (p: Page) => void }) {
       {/* Delivery Info */}
       <div className="max-w-[1600px] mx-auto px-6 md:px-12 py-24">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-24">
-          <div className="bg-white border border-gray-200 p-10 hover:border-[gold]/30 transition-all duration-500 group rounded-xl shadow-sm">
+          <div className="bg-white/5 border border-white/10 p-10 hover:border-gold/30 transition-all duration-500 group rounded-xl">
             <div className="text-3xl mb-6">🚚</div>
-            <h3 className="text-lg font-serif font-bold text-[gold] mb-4">Free Shipping</h3>
-            <p className="text-gray-500 text-sm leading-relaxed">
-              Enjoy <strong>FREE delivery</strong> on all orders above <strong>Rs. 3,000</strong>. For orders below Rs. 3,000, a flat delivery charge of <strong>Rs. 300</strong> applies.
+            <h3 className="text-lg font-serif font-bold text-gold mb-4">Free Shipping</h3>
+            <p className="text-white/40 text-sm leading-relaxed">
+              Enjoy <strong className="text-white">FREE delivery</strong> on all orders above <strong className="text-white">Rs. 3,000</strong>. For orders below Rs. 3,000, a flat delivery charge of <strong className="text-white">Rs. 300</strong> applies.
             </p>
           </div>
-          <div className="bg-white border border-gray-200 p-10 hover:border-[gold]/30 transition-all duration-500 group rounded-xl shadow-sm">
+          <div className="bg-white/5 border border-white/10 p-10 hover:border-gold/30 transition-all duration-500 group rounded-xl">
             <div className="text-3xl mb-6">📍</div>
-            <h3 className="text-lg font-serif font-bold text-[gold] mb-4">Delivery Areas</h3>
-            <p className="text-gray-500 text-sm leading-relaxed">
+            <h3 className="text-lg font-serif font-bold text-gold mb-4">Delivery Areas</h3>
+            <p className="text-white/40 text-sm leading-relaxed">
               We deliver across Pakistan. For remote areas, additional delivery time may be required. We'll contact you if any issues arise with your delivery address.
             </p>
           </div>
-          <div className="bg-white border border-gray-200 p-10 hover:border-[gold]/30 transition-all duration-500 group rounded-xl shadow-sm">
+          <div className="bg-white/5 border border-white/10 p-10 hover:border-gold/30 transition-all duration-500 group rounded-xl">
             <div className="text-3xl mb-6">⏱️</div>
-            <h3 className="text-lg font-serif font-bold text-[gold] mb-4">Delivery Time</h3>
-            <p className="text-gray-500 text-sm leading-relaxed">
-              Standard delivery takes <strong>3-7 business days</strong> depending on your location. Express delivery options may be available for major cities.
+            <h3 className="text-lg font-serif font-bold text-gold mb-4">Delivery Time</h3>
+            <p className="text-white/40 text-sm leading-relaxed">
+              Standard delivery takes <strong className="text-white">3-7 business days</strong> depending on your location. Express delivery options may be available for major cities.
             </p>
           </div>
-          <div className="bg-white border border-gray-200 p-10 hover:border-[gold]/30 transition-all duration-500 group rounded-xl shadow-sm">
+          <div className="bg-white/5 border border-white/10 p-10 hover:border-gold/30 transition-all duration-500 group rounded-xl">
             <div className="text-3xl mb-6">📦</div>
-            <h3 className="text-lg font-serif font-bold text-[gold] mb-4">Order Tracking</h3>
-            <p className="text-gray-500 text-sm leading-relaxed">
+            <h3 className="text-lg font-serif font-bold text-gold mb-4">Order Tracking</h3>
+            <p className="text-white/40 text-sm leading-relaxed">
               Once your order is dispatched, you will receive a tracking number via SMS/Email to monitor your delivery status.
             </p>
           </div>
         </div>
 
         {/* Summary Banner */}
-        <div className="border-2 border-[gold]/20 bg-[gold]/5 p-10 md:p-16 text-center mb-16 rounded-xl">
-          <div className="text-[gold] text-[10px] font-bold tracking-[0.5em] uppercase mb-4">In Short</div>
-          <p className="text-2xl md:text-3xl font-serif font-bold leading-snug max-w-2xl mx-auto text-[gold]">
-            Free shipping on orders above <span className="text-[gold]">Rs. 3,000</span>.<br />
-            Flat Rs. 300 charge on orders below <span className="text-[gold]">Rs. 3,000</span>.
+        <div className="border-2 border-gold/20 bg-gold/5 p-10 md:p-16 text-center mb-16 rounded-xl">
+          <div className="text-gold text-[10px] font-bold tracking-[0.5em] uppercase mb-4">In Short</div>
+          <p className="text-2xl md:text-3xl font-serif font-bold leading-snug max-w-2xl mx-auto text-white">
+            Free shipping on orders above <span className="text-gold">Rs. 3,000</span>.<br />
+            Flat Rs. 300 charge on orders below <span className="text-gold">Rs. 3,000</span>.
           </p>
         </div>
 
         {/* Contact CTA */}
         <div className="text-center">
-          <p className="text-gray-400 mb-8 text-sm">Have questions about delivery?</p>
+          <p className="text-white/30 mb-8 text-sm">Have questions about delivery?</p>
           <button
             onClick={() => setPage('contact')}
-            className="inline-flex items-center gap-3 px-10 py-4 bg-[gold] text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-[black] transition-colors rounded"
+            className="inline-flex items-center gap-3 px-10 py-4 bg-gold text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-colors rounded"
           >
             Contact Us <ArrowRight size={16} />
           </button>
