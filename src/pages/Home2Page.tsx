@@ -192,6 +192,7 @@ export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
               <li><button onClick={() => setPage('shop')} className="hover:text-[black]">Shop</button></li>
               <li><button onClick={() => setPage('contact')} className="hover:text-[black]">Contact</button></li>
               <li><button onClick={() => setPage('returns')} className="hover:text-[black]">Returns Policy</button></li>
+              <li><button onClick={() => setPage('delivery')} className="hover:text-[black]">Delivery Policy</button></li>
             </ul>
           </div>
           <div>

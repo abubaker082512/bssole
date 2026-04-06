@@ -1,6 +1,5 @@
 import React from 'react';
 import { Menu, Search, User, ShoppingBag } from 'lucide-react';
-import logo from '../assets/logo.png';
 
 type Props = {
   onMenu?: () => void;
@@ -14,7 +13,7 @@ type Props = {
 };
 
 export default function Header({ onMenu, onSearch, onLogin, onCart, cartCount = 0, setPage, currentPage = '', marqueeText }: Props) {
-  const displayText = marqueeText || '🎉 FREE SHIPPING ON ORDERS ABOVE RS. 10,000! | USE CODE #BSSOLE7 – EXTRA DISCOUNT!';
+  const displayText = marqueeText || 'Get 10% Extra Discount on Every RS. 10,000 Purchase | Get 5% Extra Discount on Advance Payment';
   return (
     <header className="sticky top-0 z-50">
       {/* Top marquee bar */}
@@ -56,7 +55,7 @@ export default function Header({ onMenu, onSearch, onLogin, onCart, cartCount = 
 
           {/* Center: Logo */}
           <button onClick={() => setPage?.('home2')} className="flex items-center">
-            <img src={logo} alt="BSSOLE" className="h-20 w-auto object-contain" />
+            <span className="text-white text-2xl font-serif font-bold tracking-wider">BS Sole</span>
           </button>
 
           {/* Right: Icons */}

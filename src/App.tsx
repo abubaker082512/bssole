@@ -9,7 +9,6 @@ import AdminDashboard from './components/admin/AdminDashboard';
 import Home2Page from './pages/Home2Page';
 import Header from './components/Header';
 import type { Session } from '@supabase/supabase-js';
-import logo from './assets/logo.png';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home2');
@@ -137,6 +136,7 @@ export default function App() {
         }
         return <AdminDashboard onLogout={handleLogout} />;
       case 'returns': return <ReturnPolicyPage setPage={setCurrentPage} />;
+      case 'delivery': return <DeliveryPolicyPage setPage={setCurrentPage} />;
       case 'checkout': return <CheckoutPage cart={cart} onBack={() => setCurrentPage('shop')} onSuccess={(id) => { setOrderId(id); setCart([]); setCurrentPage('order-success'); }} session={session} />;
       case 'order-success': return (
         <div className="max-w-4xl mx-auto py-12 px-6 bg-white min-h-[60vh] flex flex-col items-center justify-center">
@@ -176,6 +176,16 @@ export default function App() {
         marqueeText={marqueeText}
       />
 
+      {/* Floating WhatsApp Button */}
+      <a
+        href="https://wa.me/923255281122"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+      >
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      </a>
+
       {/* Full Screen Menu Overlay */}
       <AnimatePresence>
         {isMenuOpen && (
@@ -183,7 +193,7 @@ export default function App() {
             className="fixed inset-0 z-[100] bg-black flex flex-col md:flex-row">
             <div className="flex-1 p-12 flex flex-col justify-between border-r border-white/5">
               <div className="flex justify-between items-center">
-                <img src={logo} alt="BSSOLE" className="h-36 w-auto object-contain" />
+                <span className="text-white text-4xl font-serif font-bold tracking-wider">BS Sole</span>
                 <button onClick={() => setIsMenuOpen(false)} className="text-gold hover:rotate-90 transition-transform duration-500"><X size={32} /></button>
               </div>
               <div className="flex flex-col gap-6">
@@ -267,6 +277,7 @@ export default function App() {
                   </div>
                   <button onClick={() => setCurrentPage('checkout')} className="btn-luxury w-full py-6 text-sm">Checkout Now</button>
                   <p className="text-center text-[8px] text-white/20 uppercase tracking-[0.2em] mt-6">Shipping & taxes calculated at checkout</p>
+                  <p className="text-center text-[10px] text-white/30 mt-3">Free shipping on orders above Rs. 3,000</p>
                 </div>
               )}
             </motion.div>
@@ -299,7 +310,7 @@ export default function App() {
           <div className="max-w-[1600px] mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-24">
               <div className="col-span-1 md:col-span-2">
-                <img src={logo} alt="BSSOLE" className="h-40 w-auto object-contain mb-8" />
+                <span className="text-white text-4xl font-serif font-bold tracking-wider block mb-8">BS Sole</span>
                 <p className="text-white/40 text-lg max-w-md leading-relaxed mb-8">
                   Redefining everyday luxury with handcrafted footwear and accessories. Experience the soul of premium craftsmanship at BSSOLE.COM.
                 </p>
@@ -325,6 +336,7 @@ export default function App() {
                 <ul className="space-y-4 text-sm text-white/50">
                   <li><button onClick={() => setCurrentPage('contact')} className="hover:text-white transition-colors">Contact Us</button></li>
                   <li><button onClick={() => setCurrentPage('returns')} className="hover:text-white transition-colors">Returns Policy</button></li>
+                  <li><button onClick={() => setCurrentPage('delivery')} className="hover:text-white transition-colors">Delivery Policy</button></li>
                   <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
                 </ul>
               </div>
@@ -520,6 +532,7 @@ function ShopPage({ products, addToCart }: { products: Product[], addToCart: (p:
               <h4 className="text-lg font-serif font-bold text-[gold] mb-1 group-hover:text-[gold] transition-colors">{product.name}</h4>
               <p className="text-[10px] text-gray-400 uppercase tracking-[0.2em] mb-3">{product.category}</p>
               <div className="text-[gold] font-bold text-sm">RS. {product.price.toLocaleString()}</div>
+              <p className="text-[10px] text-gray-400 mt-2">Free delivery above Rs.3,000 | 7-day return</p>
             </div>
           </motion.div>
         ))}
@@ -609,22 +622,42 @@ function ReturnPolicyPage({ setPage }: { setPage: (p: Page) => void }) {
     {
       title: 'Return Window',
       icon: '📅',
-      detail: 'You may return any product within 7 days of delivery. Returns requested after 7 days will not be accepted under any circumstances.',
+      detail: 'You may return any product within 7 days of delivery. Returns requested after 7 days will not be accepted under any circumstances. To be eligible for a return, your item must be unused and in the same condition that you received it. It must also be in the original packaging.',
     },
     {
       title: 'Delivery Charges',
       icon: '🚚',
-      detail: 'All delivery charges incurred during the return process are the sole responsibility of the customer. BSSOLE does not cover return shipping costs.',
+      detail: 'All delivery charges incurred during the return process are the sole responsibility of the customer. BSSOLE does not cover return shipping costs. Please use a tracked shipping method to ensure your return is received.',
     },
     {
       title: 'Product Condition',
       icon: '📦',
-      detail: 'Items must be returned in their original, unworn condition with all original packaging, tags, and accessories intact. Worn or damaged items will not be accepted.',
+      detail: 'Items must be returned in their original, unworn condition with all original packaging, tags, and accessories intact. Worn or damaged items will not be accepted. Please try on shoes on a clean surface to avoid damage.',
     },
     {
       title: 'How to Initiate a Return',
       icon: '✉️',
-      detail: 'Contact us at bssoleofficial@gmail.com or WhatsApp 0325 528 1122 with your order details to initiate a return request within the 7-day window.',
+      detail: 'Contact us at bssoleofficial@gmail.com or WhatsApp 0325 528 1122 with your order details to initiate a return request within the 7-day window. Include your order number and photos of the item.',
+    },
+    {
+      title: 'Refund Process',
+      icon: '💰',
+      detail: 'Once we receive and inspect your return, we will notify you of the status of your refund. If approved, your refund will be processed within 5-7 business days and applied to your original payment method.',
+    },
+    {
+      title: 'Exchanges',
+      icon: '🔄',
+      detail: 'We only replace items if they are defective or damaged. If you need to exchange an item for the same product, contact us at bssoleofficial@gmail.com with your order details.',
+    },
+    {
+      title: 'Non-Returnable Items',
+      icon: '❌',
+      detail: 'Gift cards, downloadable software products, and sale items are non-refundable. Please note that certain types of items cannot be returned, such as perishable goods.',
+    },
+    {
+      title: 'Late or Missing Refunds',
+      icon: '⏰',
+      detail: 'If you have not received your refund within 7 business days after approval, please check your bank account again. Then contact your credit card company, as it may take some time before your refund is officially posted.',
     },
   ];
 
@@ -666,13 +699,87 @@ function ReturnPolicyPage({ setPage }: { setPage: (p: Page) => void }) {
           <div className="text-[gold] text-[10px] font-bold tracking-[0.5em] uppercase mb-4">In Short</div>
           <p className="text-2xl md:text-3xl font-serif font-bold leading-snug max-w-2xl mx-auto text-[gold]">
             Returns accepted within <span className="text-[gold]">7 days</span> of delivery.<br />
-            Return delivery charges are paid by the <span className="text-[gold]">customer</span>.
+            Return delivery charges are paid by the <span className="text-[gold]">customer</span>.<br />
+            Refund processed within <span className="text-[gold]">5-7 business days</span>.
           </p>
         </div>
 
         {/* Contact CTA */}
         <div className="text-center">
           <p className="text-gray-400 mb-8 text-sm">Have questions about your return?</p>
+          <button
+            onClick={() => setPage('contact')}
+            className="inline-flex items-center gap-3 px-10 py-4 bg-[gold] text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-[black] transition-colors rounded"
+          >
+            Contact Us <ArrowRight size={16} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DeliveryPolicyPage({ setPage }: { setPage: (p: Page) => void }) {
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Hero */}
+      <div className="relative py-40 px-6 md:px-12 border-b border-gray-100 bg-gray-50">
+        <div className="max-w-[1600px] mx-auto">
+          <span className="text-[gold] text-[10px] font-bold tracking-[0.5em] uppercase mb-6 block">Policy</span>
+          <h1 className="text-6xl md:text-8xl font-serif font-bold tracking-tighter mb-6 text-[gold]">
+            DELIVERY <span className="italic text-[gold]">POLICY</span>
+          </h1>
+          <p className="text-gray-500 text-lg max-w-xl leading-relaxed">
+            Learn about our delivery options, charges, and shipping timelines.
+          </p>
+        </div>
+      </div>
+
+      {/* Delivery Info */}
+      <div className="max-w-[1600px] mx-auto px-6 md:px-12 py-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-24">
+          <div className="bg-white border border-gray-200 p-10 hover:border-[gold]/30 transition-all duration-500 group rounded-xl shadow-sm">
+            <div className="text-3xl mb-6">🚚</div>
+            <h3 className="text-lg font-serif font-bold text-[gold] mb-4">Free Shipping</h3>
+            <p className="text-gray-500 text-sm leading-relaxed">
+              Enjoy <strong>FREE delivery</strong> on all orders above <strong>Rs. 3,000</strong>. For orders below Rs. 3,000, a flat delivery charge of <strong>Rs. 300</strong> applies.
+            </p>
+          </div>
+          <div className="bg-white border border-gray-200 p-10 hover:border-[gold]/30 transition-all duration-500 group rounded-xl shadow-sm">
+            <div className="text-3xl mb-6">📍</div>
+            <h3 className="text-lg font-serif font-bold text-[gold] mb-4">Delivery Areas</h3>
+            <p className="text-gray-500 text-sm leading-relaxed">
+              We deliver across Pakistan. For remote areas, additional delivery time may be required. We'll contact you if any issues arise with your delivery address.
+            </p>
+          </div>
+          <div className="bg-white border border-gray-200 p-10 hover:border-[gold]/30 transition-all duration-500 group rounded-xl shadow-sm">
+            <div className="text-3xl mb-6">⏱️</div>
+            <h3 className="text-lg font-serif font-bold text-[gold] mb-4">Delivery Time</h3>
+            <p className="text-gray-500 text-sm leading-relaxed">
+              Standard delivery takes <strong>3-7 business days</strong> depending on your location. Express delivery options may be available for major cities.
+            </p>
+          </div>
+          <div className="bg-white border border-gray-200 p-10 hover:border-[gold]/30 transition-all duration-500 group rounded-xl shadow-sm">
+            <div className="text-3xl mb-6">📦</div>
+            <h3 className="text-lg font-serif font-bold text-[gold] mb-4">Order Tracking</h3>
+            <p className="text-gray-500 text-sm leading-relaxed">
+              Once your order is dispatched, you will receive a tracking number via SMS/Email to monitor your delivery status.
+            </p>
+          </div>
+        </div>
+
+        {/* Summary Banner */}
+        <div className="border-2 border-[gold]/20 bg-[gold]/5 p-10 md:p-16 text-center mb-16 rounded-xl">
+          <div className="text-[gold] text-[10px] font-bold tracking-[0.5em] uppercase mb-4">In Short</div>
+          <p className="text-2xl md:text-3xl font-serif font-bold leading-snug max-w-2xl mx-auto text-[gold]">
+            Free shipping on orders above <span className="text-[gold]">Rs. 3,000</span>.<br />
+            Flat Rs. 300 charge on orders below <span className="text-[gold]">Rs. 3,000</span>.
+          </p>
+        </div>
+
+        {/* Contact CTA */}
+        <div className="text-center">
+          <p className="text-gray-400 mb-8 text-sm">Have questions about delivery?</p>
           <button
             onClick={() => setPage('contact')}
             className="inline-flex items-center gap-3 px-10 py-4 bg-[gold] text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-[black] transition-colors rounded"
