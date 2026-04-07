@@ -127,6 +127,8 @@ export default function App() {
       case 'home': return <HomePage products={products.filter(p => p.featured)} setPage={setCurrentPage} addToCart={addToCart} heroSlides={heroSlides} />;
       case 'home2': return <Home2Page setPage={setCurrentPage} addToCart={addToCart} heroSlides={heroSlides} />;
       case 'shop': return <ShopPage products={products} addToCart={addToCart} />;
+      case 'men-shoes': return <CategoryPage category="Men Shoes" products={products.filter(p => p.category?.toLowerCase().includes('men'))} addToCart={addToCart} setPage={setCurrentPage} />;
+      case 'women-shoes': return <CategoryPage category="Women Shoes" products={products.filter(p => p.category?.toLowerCase().includes('women'))} addToCart={addToCart} setPage={setCurrentPage} />;
       case 'contact': return <ContactPage />;
       case 'admin':
         // Protect admin area: require admin email from env var and valid session
@@ -197,11 +199,11 @@ export default function App() {
                 <button onClick={() => setIsMenuOpen(false)} className="text-gold hover:rotate-90 transition-transform duration-500"><X size={32} /></button>
               </div>
               <div className="flex flex-col gap-6">
-                {['home2', 'shop', 'contact'].map((page, i) => (
+                {['home2', 'men-shoes', 'women-shoes', 'shop', 'contact'].map((page, i) => (
                   <motion.button key={page} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }}
                     onClick={() => { setCurrentPage(page as Page); setIsMenuOpen(false); }}
                     className="text-5xl md:text-7xl font-serif font-bold text-left hover:italic hover:pl-4 transition-all duration-500 group">
-                    <span className={currentPage === page ? 'gold-text-gradient' : 'text-white/20 group-hover:text-white'}>{page === 'home2' ? 'HOME' : page.toUpperCase()}</span>
+                    <span className={currentPage === page ? 'gold-text-gradient' : 'text-white/20 group-hover:text-white'}>{page === 'home2' ? 'HOME' : page === 'men-shoes' ? 'MEN' : page === 'women-shoes' ? 'WOMEN' : page.toUpperCase()}</span>
                   </motion.button>
                 ))}
               </div>
@@ -560,6 +562,47 @@ function ProductCard({ product, addToCart }: { product: Product, addToCart: (p: 
         <div className="text-gold font-bold text-sm">RS. {product.price.toLocaleString()}</div>
       </div>
     </motion.div>
+  );
+}
+
+function CategoryPage({ category, products, addToCart, setPage }: { category: string, products: Product[], addToCart: (p: Product) => void, setPage: (p: Page) => void }) {
+  return (
+    <div className="max-w-[1600px] mx-auto py-32 px-6 md:px-12 bg-black min-h-screen">
+      <div className="mb-24">
+        <span className="text-white/30 text-[10px] font-bold tracking-[0.5em] uppercase mb-4 block">Collection</span>
+        <h1 className="text-7xl font-serif font-bold tracking-tighter text-white">{category.toUpperCase()}</h1>
+      </div>
+      
+      {products.length === 0 ? (
+        <div className="text-center py-20">
+          <p className="text-white/30 text-lg mb-8">No products available in this category yet.</p>
+          <button onClick={() => setPage('shop')} className="btn-luxury">View All Products</button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+          {products.map((product) => (
+            <motion.div key={product.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="group bg-white/5 border border-white/5 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:border-gold/30 transition-all">
+              <div className="relative aspect-[3/4] overflow-hidden bg-white/5">
+                <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" referrerPolicy="no-referrer" />
+                <button onClick={() => addToCart(product)}
+                  className="absolute bottom-0 left-0 w-full bg-gold text-white py-4 text-[10px] font-bold tracking-[0.3em] uppercase translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                  Quick Add
+                </button>
+                {product.featured ? (
+                  <div className="absolute top-6 left-6 text-[8px] font-bold tracking-[0.3em] uppercase bg-gold text-white px-3 py-1">Featured</div>
+                ) : null}
+              </div>
+              <div className="p-5">
+                <h4 className="text-lg font-serif font-bold text-white mb-1 group-hover:text-gold transition-colors">{product.name}</h4>
+                <p className="text-[10px] text-white/30 uppercase tracking-[0.2em] mb-3">{product.category}</p>
+                <div className="text-gold font-bold text-sm">RS. {product.price.toLocaleString()}</div>
+                <p className="text-[10px] text-white/30 mt-2">Free delivery above Rs.3,000 | 7-day return</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 

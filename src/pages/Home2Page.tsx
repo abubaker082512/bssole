@@ -167,6 +167,62 @@ export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
         )}
       </section>
 
+      {/* Category Cards */}
+      <section className="max-w-6xl mx-auto px-6 py-16">
+        <div className="flex justify-between items-end mb-10">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-[0.3em] text-gold">Shop By</span>
+            <h2 className="text-3xl md:text-4xl font-serif font-bold text-white mt-2">Collections</h2>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Men Shoes Card */}
+          <div 
+            onClick={() => setPage('men-shoes')}
+            className="group relative aspect-[16/10] overflow-hidden rounded-2xl cursor-pointer"
+          >
+            <img 
+              src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80&fit=crop" 
+              alt="Men Shoes" 
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center">
+                <span className="text-gold text-xs font-bold uppercase tracking-[0.3em] block mb-2">Premium Collection</span>
+                <h3 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">Men's Shoes</h3>
+                <span className="inline-flex items-center gap-2 text-white/80 text-sm font-bold uppercase tracking-widest group-hover:text-gold transition-colors">
+                  Shop Now <ArrowRight size={16} />
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Women Shoes Card */}
+          <div 
+            onClick={() => setPage('women-shoes')}
+            className="group relative aspect-[16/10] overflow-hidden rounded-2xl cursor-pointer"
+          >
+            <img 
+              src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=800&q=80&fit=crop" 
+              alt="Women Shoes" 
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center">
+                <span className="text-gold text-xs font-bold uppercase tracking-[0.3em] block mb-2">Elegant Collection</span>
+                <h3 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">Women's Shoes</h3>
+                <span className="inline-flex items-center gap-2 text-white/80 text-sm font-bold uppercase tracking-widest group-hover:text-gold transition-colors">
+                  Shop Now <ArrowRight size={16} />
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Banner */}
       <section className="bg-black border-t border-white/5">
         <div className="max-w-6xl mx-auto px-6 py-20 text-center">
@@ -189,7 +245,9 @@ export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
           <div>
             <h4 className="text-xs font-bold uppercase tracking-[0.3em] text-gold mb-4">Quick Links</h4>
             <ul className="space-y-2 text-sm text-white/40">
-              <li><button onClick={() => setPage('shop')} className="hover:text-gold">Shop</button></li>
+              <li><button onClick={() => setPage('men-shoes')} className="hover:text-gold">Men Shoes</button></li>
+              <li><button onClick={() => setPage('women-shoes')} className="hover:text-gold">Women Shoes</button></li>
+              <li><button onClick={() => setPage('shop')} className="hover:text-gold">Shop All</button></li>
               <li><button onClick={() => setPage('contact')} className="hover:text-gold">Contact</button></li>
               <li><button onClick={() => setPage('returns')} className="hover:text-gold">Returns Policy</button></li>
               <li><button onClick={() => setPage('delivery')} className="hover:text-gold">Delivery Policy</button></li>

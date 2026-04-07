@@ -23,4 +23,4 @@ export interface DeliveryCharge {
   label: string;
 }
 
-export type Page = 'home' | 'shop' | 'contact' | 'admin' | 'returns' | 'delivery' | 'checkout' | 'order-success' | 'home2';
+export type Page = 'home' | 'shop' | 'contact' | 'admin' | 'returns' | 'delivery' | 'checkout' | 'order-success' | 'home2' | 'men-shoes' | 'women-shoes';

@@ -37,6 +37,8 @@ export default function Header({ onMenu, onSearch, onLogin, onCart, cartCount = 
             <nav className="hidden lg:flex items-center gap-8">
               {[
                 { label: 'Home', page: 'home2' },
+                { label: 'Men', page: 'men-shoes' },
+                { label: 'Women', page: 'women-shoes' },
                 { label: 'Shop', page: 'shop' },
                 { label: 'Contact', page: 'contact' },
               ].map((link) => (
