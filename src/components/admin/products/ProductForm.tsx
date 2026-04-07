@@ -192,6 +192,14 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
                                 <label className="text-[10px] font-bold text-gray-400 dark:text-white/30 uppercase tracking-[0.3em]">Product Name</label>
                                 <input type="text" value={product.name} onChange={e => setProduct({...product, name: e.target.value, slug: e.target.value.toLowerCase().replace(/ /g, '-')})} className="w-full bg-transparent border-b border-black/10 dark:border-white/10 py-4 outline-none focus:border-gold transition-colors text-black dark:text-white text-sm" placeholder="e.g. Oxford Classic" />
                             </div>
+                            <div className="space-y-4">
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-white/30 uppercase tracking-[0.3em]">Short Description</label>
+                                <input type="text" value={product.short_description || ''} onChange={e => setProduct({...product, short_description: e.target.value})} className="w-full bg-transparent border-b border-black/10 dark:border-white/10 py-4 outline-none focus:border-gold transition-colors text-black dark:text-white text-sm" placeholder="Brief product tagline" />
+                            </div>
+                            <div className="space-y-4">
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-white/30 uppercase tracking-[0.3em]">Full Description</label>
+                                <textarea rows={5} value={product.description || ''} onChange={e => setProduct({...product, description: e.target.value})} className="w-full bg-gray-100 dark:bg-[#111] border border-black/10 dark:border-white/10 rounded px-4 py-3 outline-none focus:border-gold transition-colors text-black dark:text-white text-sm resize-none" placeholder="Detailed product description..." />
+                            </div>
                             <div className="grid grid-cols-2 gap-8">
                                 <div className="space-y-4">
                                     <label className="text-[10px] font-bold text-gray-400 dark:text-white/30 uppercase tracking-[0.3em]">Regular Price (RS)</label>
@@ -207,6 +215,13 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
                                 <select value={product.category_id || ''} onChange={e => setProduct({...product, category_id: parseInt(e.target.value)})} className="w-full bg-gray-100 dark:bg-[#111] border border-black/10 dark:border-white/10 py-4 px-4 outline-none focus:border-gold transition-colors text-sm text-gray-800 dark:text-white/80">
                                     <option value="">Select a category</option>
                                     {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                </select>
+                            </div>
+                            <div className="space-y-4">
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-white/30 uppercase tracking-[0.3em]">Status</label>
+                                <select value={product.status} onChange={e => setProduct({...product, status: e.target.value})} className="w-full bg-gray-100 dark:bg-[#111] border border-black/10 dark:border-white/10 py-4 px-4 outline-none focus:border-gold transition-colors text-sm text-gray-800 dark:text-white/80">
+                                    <option value="published">Published</option>
+                                    <option value="draft">Draft</option>
                                 </select>
                             </div>
                         </div>

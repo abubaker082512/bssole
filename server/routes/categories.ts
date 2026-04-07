@@ -35,6 +35,25 @@ router.post('/', async (req, res) => {
     }
 });
 
+// Update category
+router.put('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updates = req.body;
+        const { data, error } = await supabaseAdmin
+            .from('categories')
+            .update(updates)
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) throw error;
+        res.json(data);
+    } catch (error: any) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
 // Delete category
 router.delete('/:id', async (req, res) => {
     try {
