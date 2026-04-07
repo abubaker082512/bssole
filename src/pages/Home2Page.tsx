@@ -234,36 +234,6 @@ export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-black border-t border-white/5">
-        <div className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-10">
-          <div className="md:col-span-2">
-            <h3 className="text-2xl font-serif font-bold text-white mb-4">BS Sole</h3>
-            <p className="text-white/40 text-sm max-w-sm leading-relaxed">Premium footwear for the modern individual. Crafted with care, designed for comfort.</p>
-          </div>
-          <div>
-            <h4 className="text-xs font-bold uppercase tracking-[0.3em] text-gold mb-4">Quick Links</h4>
-            <ul className="space-y-2 text-sm text-white/40">
-              <li><button onClick={() => setPage('men-shoes')} className="hover:text-gold">Men Shoes</button></li>
-              <li><button onClick={() => setPage('women-shoes')} className="hover:text-gold">Women Shoes</button></li>
-              <li><button onClick={() => setPage('shop')} className="hover:text-gold">Shop All</button></li>
-              <li><button onClick={() => setPage('contact')} className="hover:text-gold">Contact</button></li>
-              <li><button onClick={() => setPage('returns')} className="hover:text-gold">Returns Policy</button></li>
-              <li><button onClick={() => setPage('delivery')} className="hover:text-gold">Delivery Policy</button></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-xs font-bold uppercase tracking-[0.3em] text-gold mb-4">Follow Us</h4>
-            <ul className="space-y-2 text-sm text-white/40">
-              <li><a href="https://www.instagram.com/bssoleofficial/?hl=en" target="_blank" rel="noreferrer" className="hover:text-gold">Instagram</a></li>
-              <li><a href="https://www.facebook.com/bssoleofficial" target="_blank" rel="noreferrer" className="hover:text-gold">Facebook</a></li>
-              <li><a href="https://tiktok.com/@bssoleofficial" target="_blank" rel="noreferrer" className="hover:text-gold">TikTok</a></li>
-            </ul>
-          </div>
-        </div>
-        <div className="border-t border-white/5 text-center py-6 text-xs text-white/20">© 2026 BS SOLE. ALL RIGHTS RESERVED.</div>
-      </footer>
     </div>
   );
 }
