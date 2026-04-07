@@ -18,9 +18,13 @@ router.get('/', async (req, res) => {
             `)
             .order('created_at', { ascending: false });
 
-        if (error) throw error;
+        if (error) {
+            console.error('Products GET error:', error);
+            throw error;
+        }
         res.json(data);
     } catch (error: any) {
+        console.error('Products GET catch:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -28,11 +32,26 @@ router.get('/', async (req, res) => {
 // Create product with input validation (Zod)
 router.post('/', async (req, res) => {
     try {
+        console.log('Product POST body:', req.body);
         const result = ProductSchema.safeParse(req.body);
         if (!result.success) {
+            console.error('Product validation error:', result.error);
             return res.status(400).json({ error: result.error.flatten() });
         }
         const product = result.data;
+        
+        // Generate slug if not provided
+        if (!product.slug && product.name) {
+            product.slug = product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        }
+        
+        // Ensure status is valid
+        if (!product.status) {
+            product.status = 'published';
+        }
+        
+        console.log('Product to insert:', product);
+        
         // Simple retry on transient DB errors to improve resiliency
         let data: any = null;
         let error: any = null;
@@ -48,9 +67,13 @@ router.post('/', async (req, res) => {
           // brief delay before retry
           await new Promise(r => setTimeout(r, 200));
         }
-        if (error) throw error;
+        if (error) {
+            console.error('Product insert error:', error);
+            throw error;
+        }
         res.status(201).json(data);
     } catch (error: any) {
+        console.error('Product POST catch:', error);
         // Distinguish validation errors vs server errors
         const status = error?.name === 'ZodError' ? 400 : 500;
         res.status(status).json({ error: error?.message ?? 'Failed to save product' });

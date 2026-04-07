@@ -11,9 +11,13 @@ router.get('/', async (req, res) => {
             .select(`*`)
             .order('name', { ascending: true });
 
-        if (error) throw error;
+        if (error) {
+            console.error('Categories GET error:', error);
+            throw error;
+        }
         res.json(data);
     } catch (error: any) {
+        console.error('Categories GET catch:', error);
         res.status(500).json({ error: error.message });
     }
 });
