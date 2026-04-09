@@ -12,12 +12,22 @@ import customersRouter from "./server/routes/customers.js";
 import settingsRouter from "./server/routes/settings.js";
 import heroSlidesRouter from "./server/routes/heroSlides.js";
 import siteContentRouter from "./server/routes/siteContent.js";
+import { isInitialized } from "./server/supabase.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const app = express();
 app.use(express.json());
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+    res.json({ 
+        status: 'ok', 
+        timestamp: new Date().toISOString(),
+        supabase: isInitialized ? 'initialized' : 'NOT initialized'
+    });
+});
 
 // API Routes
 app.use('/api/products', productsRouter);
