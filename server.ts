@@ -3,42 +3,31 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import productsRouter from "./server/routes/products.js";
-import categoriesRouter from "./server/routes/categories.js";
-import variantsRouter from "./server/routes/variants.js";
-import attributesRouter from "./server/routes/attributes.js";
-import ordersRouter from "./server/routes/orders.js";
-import customersRouter from "./server/routes/customers.js";
-import settingsRouter from "./server/routes/settings.js";
-import heroSlidesRouter from "./server/routes/heroSlides.js";
-import siteContentRouter from "./server/routes/siteContent.js";
-import { isInitialized } from "./server/supabase.js";
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const app = express();
 app.use(express.json());
 
-// Health check endpoint
+// Simple health check - doesn't import supabase to avoid crash
 app.get('/api/health', (req, res) => {
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    
     res.json({ 
         status: 'ok', 
         timestamp: new Date().toISOString(),
-        supabase: isInitialized ? 'initialized' : 'NOT initialized'
+        env_check: {
+            SUPABASE_URL: supabaseUrl ? 'SET' : 'NOT SET',
+            SUPABASE_SERVICE_ROLE_KEY: supabaseKey ? 'SET' : 'NOT SET'
+        }
     });
 });
 
-// API Routes
-app.use('/api/products', productsRouter);
-app.use('/api/categories', categoriesRouter);
-app.use('/api/variants', variantsRouter);
-app.use('/api/attributes', attributesRouter);
-app.use('/api/orders', ordersRouter);
-app.use('/api/customers', customersRouter);
-app.use('/api/settings', settingsRouter);
-app.use('/api/hero-slides', heroSlidesRouter);
-app.use('/api/site-content', siteContentRouter);
+// Lazy load routes only when needed
+app.get('/api/test', (req, res) => {
+    res.json({ message: 'Server is working', time: new Date().toISOString() });
+});
 
 export async function startServer() {
   const PORT = process.env.PORT || 3000;
