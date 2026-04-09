@@ -7,6 +7,11 @@ const router = Router();
 // Get all products
 router.get('/', async (req, res) => {
     try {
+        if (!supabaseAdmin) {
+            console.error('[PRODUCTS] Supabase client not initialized');
+            return res.json([]);
+        }
+        
         const { data, error } = await supabaseAdmin
             .from('products')
             .select(`
@@ -19,70 +24,65 @@ router.get('/', async (req, res) => {
             .order('created_at', { ascending: false });
 
         if (error) {
-            console.error('Products GET error:', error);
-            throw error;
+            console.error('[PRODUCTS] GET error:', error);
+            return res.json([]);
         }
-        res.json(data);
+        res.json(data || []);
     } catch (error: any) {
-        console.error('Products GET catch:', error);
-        res.status(500).json({ error: error.message });
+        console.error('[PRODUCTS] GET catch:', error);
+        res.json([]);
     }
 });
 
-// Create product with input validation (Zod)
+// Create product
 router.post('/', async (req, res) => {
     try {
-        console.log('Product POST body:', req.body);
+        if (!supabaseAdmin) {
+            return res.status(500).json({ error: 'Database not configured' });
+        }
+        
+        console.log('[PRODUCTS] Creating product:', req.body);
+        
         const result = ProductSchema.safeParse(req.body);
         if (!result.success) {
-            console.error('Product validation error:', result.error);
+            console.error('[PRODUCTS] Validation error:', result.error);
             return res.status(400).json({ error: result.error.flatten() });
         }
         const product = result.data;
         
-        // Generate slug if not provided
         if (!product.slug && product.name) {
             product.slug = product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         }
         
-        // Ensure status is valid
         if (!product.status) {
             product.status = 'published';
         }
         
-        console.log('Product to insert:', product);
-        
-        // Simple retry on transient DB errors to improve resiliency
-        let data: any = null;
-        let error: any = null;
-        for (let attempt = 0; attempt < 3; attempt++) {
-          const res = await supabaseAdmin
+        const { data, error } = await supabaseAdmin
             .from('products')
             .insert([product])
             .select()
             .single();
-          data = res.data;
-          error = (res as any).error;
-          if (!error) break;
-          // brief delay before retry
-          await new Promise(r => setTimeout(r, 200));
-        }
+
         if (error) {
-            console.error('Product insert error:', error);
-            throw error;
+            console.error('[PRODUCTS] Insert error:', error);
+            return res.status(400).json({ error: error.message });
         }
+        
         res.status(201).json(data);
     } catch (error: any) {
-        console.error('Product POST catch:', error);
-        // Distinguish validation errors vs server errors
-        const status = error?.name === 'ZodError' ? 400 : 500;
-        res.status(status).json({ error: error?.message ?? 'Failed to save product' });
+        console.error('[PRODUCTS] POST catch:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 
 // Update product
 router.put('/:id', async (req, res) => {
     try {
+        if (!supabaseAdmin) {
+            return res.status(500).json({ error: 'Database not configured' });
+        }
+        
         const { id } = req.params;
         const updates = req.body;
         
@@ -93,9 +93,13 @@ router.put('/:id', async (req, res) => {
             .select()
             .single();
 
-        if (error) throw error;
+        if (error) {
+            console.error('[PRODUCTS] Update error:', error);
+            return res.status(400).json({ error: error.message });
+        }
         res.json(data);
     } catch (error: any) {
+        console.error('[PRODUCTS] PUT catch:', error);
         res.status(400).json({ error: error.message });
     }
 });
@@ -103,15 +107,23 @@ router.put('/:id', async (req, res) => {
 // Delete product
 router.delete('/:id', async (req, res) => {
     try {
+        if (!supabaseAdmin) {
+            return res.status(500).json({ error: 'Database not configured' });
+        }
+        
         const { id } = req.params;
         const { error } = await supabaseAdmin
             .from('products')
             .delete()
             .eq('id', id);
 
-        if (error) throw error;
+        if (error) {
+            console.error('[PRODUCTS] Delete error:', error);
+            return res.status(400).json({ error: error.message });
+        }
         res.status(204).end();
     } catch (error: any) {
+        console.error('[PRODUCTS] DELETE catch:', error);
         res.status(400).json({ error: error.message });
     }
 });
@@ -119,6 +131,10 @@ router.delete('/:id', async (req, res) => {
 // Add image to product gallery
 router.post('/:id/images', async (req, res) => {
     try {
+        if (!supabaseAdmin) {
+            return res.status(500).json({ error: 'Database not configured' });
+        }
+        
         const { id } = req.params;
         const { image_url, sort_order } = req.body;
         
@@ -128,9 +144,13 @@ router.post('/:id/images', async (req, res) => {
             .select()
             .single();
 
-        if (error) throw error;
+        if (error) {
+            console.error('[PRODUCTS] Image insert error:', error);
+            return res.status(400).json({ error: error.message });
+        }
         res.status(201).json(data);
     } catch (error: any) {
+        console.error('[PRODUCTS] Image POST catch:', error);
         res.status(400).json({ error: error.message });
     }
 });
@@ -138,15 +158,23 @@ router.post('/:id/images', async (req, res) => {
 // Delete image from product gallery
 router.delete('/:id/images/:imageId', async (req, res) => {
     try {
+        if (!supabaseAdmin) {
+            return res.status(500).json({ error: 'Database not configured' });
+        }
+        
         const { imageId } = req.params;
         const { error } = await supabaseAdmin
             .from('product_images')
             .delete()
             .eq('id', imageId);
 
-        if (error) throw error;
+        if (error) {
+            console.error('[PRODUCTS] Image delete error:', error);
+            return res.status(400).json({ error: error.message });
+        }
         res.status(204).end();
     } catch (error: any) {
+        console.error('[PRODUCTS] Image DELETE catch:', error);
         res.status(400).json({ error: error.message });
     }
 });
