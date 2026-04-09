@@ -1,48 +1,48 @@
 import { Router } from 'express';
-import { supabaseAdmin } from '../supabase.js';
+import { supabaseAdmin, isInitialized } from '../supabase.js';
 
 const router = Router();
 
-// Get all categories (with hierarchy if needed)
+// Get all categories
 router.get('/', async (req, res) => {
+    console.log('[CATEGORIES] GET / called');
     try {
-        console.log('[CATEGORIES] Fetching categories...');
-        
-        if (!supabaseAdmin) {
-            console.error('[CATEGORIES] Supabase client not initialized');
+        if (!isInitialized) {
+            console.log('[CATEGORIES] Not initialized, returning empty');
             return res.json([]);
         }
         
+        console.log('[CATEGORIES] Calling Supabase...');
         const { data, error } = await supabaseAdmin
             .from('categories')
             .select(`*`)
             .order('name', { ascending: true });
 
         if (error) {
-            console.error('[CATEGORIES] Supabase error:', error);
-            // Return empty array instead of error to not break the UI
+            console.log('[CATEGORIES] Supabase error:', error.message);
             return res.json([]);
         }
-        console.log('[CATEGORIES] Success, found:', data?.length || 0);
+        
+        console.log('[CATEGORIES] Success, count:', data?.length || 0);
         res.json(data || []);
-    } catch (error: any) {
-        console.error('[CATEGORIES] GET catch:', error);
-        // Return empty array on error
+    } catch (err: any) {
+        console.log('[CATEGORIES] Exception:', err?.message || err);
         res.json([]);
     }
 });
 
 // Create category
 router.post('/', async (req, res) => {
+    console.log('[CATEGORIES] POST / called');
     try {
-        console.log('[CATEGORIES] Creating category:', req.body);
-        
-        if (!supabaseAdmin) {
-            console.error('[CATEGORIES] Supabase client not initialized');
+        if (!isInitialized) {
+            console.log('[CATEGORIES] Not initialized');
             return res.status(500).json({ error: 'Database not configured' });
         }
         
         const category = req.body;
+        console.log('[CATEGORIES] Payload:', category);
+        
         const { data, error } = await supabaseAdmin
             .from('categories')
             .insert([category])
@@ -50,28 +50,28 @@ router.post('/', async (req, res) => {
             .single();
 
         if (error) {
-            console.error('[CATEGORIES] Create error:', error);
+            console.log('[CATEGORIES] Insert error:', error.message);
             return res.status(400).json({ error: error.message });
         }
+        
         console.log('[CATEGORIES] Created:', data);
         res.status(201).json(data);
-    } catch (error: any) {
-        console.error('[CATEGORIES] POST error:', error);
-        res.status(400).json({ error: error.message });
+    } catch (err: any) {
+        console.log('[CATEGORIES] POST Exception:', err?.message || err);
+        res.status(500).json({ error: err?.message || 'Server error' });
     }
 });
 
 // Update category
 router.put('/:id', async (req, res) => {
+    console.log('[CATEGORIES] PUT /:id called');
     try {
-        const { id } = req.params;
-        const updates = req.body;
-        
-        if (!supabaseAdmin) {
+        if (!isInitialized) {
             return res.status(500).json({ error: 'Database not configured' });
         }
         
-        console.log('[CATEGORIES] Updating category:', id, updates);
+        const { id } = req.params;
+        const updates = req.body;
         
         const { data, error } = await supabaseAdmin
             .from('categories')
@@ -81,26 +81,25 @@ router.put('/:id', async (req, res) => {
             .single();
 
         if (error) {
-            console.error('[CATEGORIES] Update error:', error);
+            console.log('[CATEGORIES] Update error:', error.message);
             return res.status(400).json({ error: error.message });
         }
         res.json(data);
-    } catch (error: any) {
-        console.error('[CATEGORIES] PUT error:', error);
-        res.status(400).json({ error: error.message });
+    } catch (err: any) {
+        console.log('[CATEGORIES] PUT Exception:', err?.message || err);
+        res.status(500).json({ error: err?.message || 'Server error' });
     }
 });
 
 // Delete category
 router.delete('/:id', async (req, res) => {
+    console.log('[CATEGORIES] DELETE /:id called');
     try {
-        const { id } = req.params;
-        
-        if (!supabaseAdmin) {
+        if (!isInitialized) {
             return res.status(500).json({ error: 'Database not configured' });
         }
         
-        console.log('[CATEGORIES] Deleting category:', id);
+        const { id } = req.params;
         
         const { error } = await supabaseAdmin
             .from('categories')
@@ -108,20 +107,21 @@ router.delete('/:id', async (req, res) => {
             .eq('id', id);
 
         if (error) {
-            console.error('[CATEGORIES] Delete error:', error);
+            console.log('[CATEGORIES] Delete error:', error.message);
             return res.status(400).json({ error: error.message });
         }
         res.status(204).end();
-    } catch (error: any) {
-        console.error('[CATEGORIES] DELETE error:', error);
-        res.status(400).json({ error: error.message });
+    } catch (err: any) {
+        console.log('[CATEGORIES] DELETE Exception:', err?.message || err);
+        res.status(500).json({ error: err?.message || 'Server error' });
     }
 });
 
 // Get attributes
 router.get('/attributes', async (req, res) => {
+    console.log('[ATTRIBUTES] GET /attributes called');
     try {
-        if (!supabaseAdmin) {
+        if (!isInitialized) {
             return res.json([]);
         }
         
@@ -131,12 +131,12 @@ router.get('/attributes', async (req, res) => {
             .order('name', { ascending: true });
 
         if (error) {
-            console.error('[ATTRIBUTES] Error:', error);
+            console.log('[ATTRIBUTES] Error:', error.message);
             return res.json([]);
         }
-        res.json(data);
-    } catch (error: any) {
-        console.error('[ATTRIBUTES] GET error:', error);
+        res.json(data || []);
+    } catch (err: any) {
+        console.log('[ATTRIBUTES] Exception:', err?.message || err);
         res.json([]);
     }
 });
