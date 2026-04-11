@@ -35,21 +35,25 @@ VALUES ('product-images', 'product-images', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Allow public read access to images
+DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON storage.objects;
 CREATE POLICY "Public profiles are viewable by everyone" 
 ON storage.objects FOR SELECT 
 USING (bucket_id = 'product-images');
 
 -- Allow uploads to the product-images bucket (this fixes the "violates row-level security policy" error)
+DROP POLICY IF EXISTS "Anyone can upload an image" ON storage.objects;
 CREATE POLICY "Anyone can upload an image" 
 ON storage.objects FOR INSERT 
 WITH CHECK (bucket_id = 'product-images');
 
 -- Allow updates
+DROP POLICY IF EXISTS "Anyone can update an image" ON storage.objects;
 CREATE POLICY "Anyone can update an image" 
 ON storage.objects FOR UPDATE 
 WITH CHECK (bucket_id = 'product-images');
 
 -- Allow deletes
+DROP POLICY IF EXISTS "Anyone can delete an image" ON storage.objects;
 CREATE POLICY "Anyone can delete an image" 
 ON storage.objects FOR DELETE 
 USING (bucket_id = 'product-images');
