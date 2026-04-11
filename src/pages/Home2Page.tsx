@@ -28,7 +28,7 @@ export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data } = await supabase.from('products').select('id, name, image, price, category, featured').limit(8);
+        const { data } = await supabase.from('products').select('*').limit(8);
         setProducts(data ?? []);
       } catch {
         setProducts([]);
