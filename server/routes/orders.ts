@@ -74,7 +74,17 @@ router.post('/', async (req, res) => {
     // Create the order
     const { data: orderData, error: orderError } = await supabaseAdmin
       .from('orders')
-      .insert([{ customer_id: cid, total, total_amount: total, status: 'pending', address, shipping_address: address, billing_address: address }])
+      .insert([{ 
+        customer_id: cid, 
+        total, 
+        total_amount: total, 
+        status: 'pending', 
+        address, 
+        shipping_address: address, 
+        billing_address: address,
+        payment_method: 'cod',
+        payment_status: 'pending'
+      }])
       .select()
       .single();
     if (orderError) throw orderError;
