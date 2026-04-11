@@ -57,3 +57,7 @@ DROP POLICY IF EXISTS "Anyone can delete an image" ON storage.objects;
 CREATE POLICY "Anyone can delete an image" 
 ON storage.objects FOR DELETE 
 USING (bucket_id = 'product-images');
+
+-- 5. Add missing 'address' column to orders table for Checkout Flow
+ALTER TABLE public.orders 
+ADD COLUMN IF NOT EXISTS address JSONB;
