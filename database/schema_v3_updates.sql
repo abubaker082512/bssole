@@ -59,5 +59,41 @@ ON storage.objects FOR DELETE
 USING (bucket_id = 'product-images');
 
 -- 5. Add missing 'address' column to orders table for Checkout Flow
-ALTER TABLE public.orders 
-ADD COLUMN IF NOT EXISTS address JSONB;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS address JSONB;
+
+-- 6. Ensure Customers table exists fully
+CREATE TABLE IF NOT EXISTS public.customers (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    phone VARCHAR(50),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 7. Ensure Orders table has ALL remaining required columns
+CREATE TABLE IF NOT EXISTS public.orders (
+    id SERIAL PRIMARY KEY,
+    customer_id INTEGER REFERENCES public.customers(id),
+    total NUMERIC(10, 2) NOT NULL DEFAULT 0,
+    status VARCHAR(50) NOT NULL DEFAULT 'pending',
+    address JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS customer_id INTEGER REFERENCES public.customers(id);
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS total NUMERIC(10, 2) NOT NULL DEFAULT 0;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS status VARCHAR(50) NOT NULL DEFAULT 'pending';
+
+-- 8. Ensure Order Items table exists fully
+CREATE TABLE IF NOT EXISTS public.order_items (
+    id SERIAL PRIMARY KEY,
+    order_id INTEGER REFERENCES public.orders(id) ON DELETE CASCADE,
+    product_id INTEGER REFERENCES public.products(id),
+    quantity INTEGER NOT NULL DEFAULT 1,
+    price NUMERIC(10, 2) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.order_items ADD COLUMN IF NOT EXISTS quantity INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE public.order_items ADD COLUMN IF NOT EXISTS price NUMERIC(10, 2) NOT NULL DEFAULT 0;
