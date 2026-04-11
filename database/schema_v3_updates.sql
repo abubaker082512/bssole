@@ -27,3 +27,29 @@ ON CONFLICT (id) DO NOTHING;
 -- If you are using Row Level Security (RLS), uncomment the following lines to allow public reads:
 -- ALTER TABLE public.delivery_charges ENABLE ROW LEVEL SECURITY;
 -- CREATE POLICY "Enable read access for all users" ON public.delivery_charges FOR SELECT USING (true);
+
+
+-- 4. Create Storage Bucket and RLS Policies for "product-images"
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('product-images', 'product-images', true) 
+ON CONFLICT (id) DO NOTHING;
+
+-- Allow public read access to images
+CREATE POLICY "Public profiles are viewable by everyone" 
+ON storage.objects FOR SELECT 
+USING (bucket_id = 'product-images');
+
+-- Allow uploads to the product-images bucket (this fixes the "violates row-level security policy" error)
+CREATE POLICY "Anyone can upload an image" 
+ON storage.objects FOR INSERT 
+WITH CHECK (bucket_id = 'product-images');
+
+-- Allow updates
+CREATE POLICY "Anyone can update an image" 
+ON storage.objects FOR UPDATE 
+WITH CHECK (bucket_id = 'product-images');
+
+-- Allow deletes
+CREATE POLICY "Anyone can delete an image" 
+ON storage.objects FOR DELETE 
+USING (bucket_id = 'product-images');

@@ -38,7 +38,8 @@ router.delete('/:id', async (req, res) => {
 router.post('/values', async (req, res) => {
     try {
         const { attribute_id, value } = req.body;
-        const { data, error } = await supabaseAdmin.from('attribute_values').insert([{ attribute_id, value }]).select().single();
+        const slug = value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        const { data, error } = await supabaseAdmin.from('attribute_values').insert([{ attribute_id, value, slug }]).select().single();
         if (error) throw error;
         res.status(201).json(data);
     } catch (e: any) { res.status(400).json({ error: e.message }); }
