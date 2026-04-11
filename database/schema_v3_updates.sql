@@ -52,18 +52,32 @@ ALTER TABLE public.orders ALTER COLUMN shipping_address DROP NOT NULL;
 ALTER TABLE public.orders ALTER COLUMN billing_address DROP NOT NULL;
 ALTER TABLE public.orders ALTER COLUMN payment_method DROP NOT NULL;
 
--- 5. Ensure order_items exists fully
+-- 5. Ensure order_items exists fully and handles both SERIAL and UUID order IDs
+-- We use TEXT for order_id to be safe regardless of whether orders.id is SERIAL or UUID
 CREATE TABLE IF NOT EXISTS public.order_items (
     id SERIAL PRIMARY KEY,
-    order_id INTEGER REFERENCES public.orders(id) ON DELETE CASCADE,
+    order_id TEXT, 
     product_id INTEGER REFERENCES public.products(id),
     quantity INTEGER NOT NULL DEFAULT 1,
     price NUMERIC(10, 2) NOT NULL DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+-- Ensure columns exist if table was already there
+ALTER TABLE public.order_items ADD COLUMN IF NOT EXISTS order_id TEXT;
 ALTER TABLE public.order_items ADD COLUMN IF NOT EXISTS quantity INTEGER DEFAULT 1;
 ALTER TABLE public.order_items ADD COLUMN IF NOT EXISTS price NUMERIC(10, 2) DEFAULT 0;
+ALTER TABLE public.order_items ADD COLUMN IF NOT EXISTS product_id INTEGER;
+
+-- Try to add the FK if it's missing (might fail if types mismatch, but the data will at least be saved)
+DO $$ 
+BEGIN 
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'order_items_order_id_fkey') THEN
+        ALTER TABLE public.order_items ADD CONSTRAINT order_items_order_id_fkey FOREIGN KEY (order_id) REFERENCES public.orders(id) ON DELETE CASCADE;
+    EXCEPTION WHEN OTHERS THEN 
+        RAISE NOTICE 'Could not add foreign key - might be a type mismatch between orders.id and order_items.order_id';
+    END IF;
+END $$;
 
 -- 6. Storage Bucket & Policies (Consolidated)
 INSERT INTO storage.buckets (id, name, public) 

@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
         // Map to frontend format
         const orders = (data || []).map(o => ({
             ...o,
-            total_amount: o.total,
+            total_amount: o.total || o.total_amount || 0,
             customer_name: `${o.customers?.first_name || ''} ${o.customers?.last_name || ''}`.trim() || o.address?.name || 'Guest'
         }));
         res.json(orders);
@@ -39,14 +39,15 @@ router.get('/:id', async (req, res) => {
         const o = data;
         const mapped = {
             ...o,
-            total_amount: o.total,
-            customer_name: `${o.customers?.first_name || ''} ${o.customers?.last_name || ''}`.trim() || o.address?.name,
-            customer_email: o.customers?.email || o.address?.email,
-            customer_phone: o.customers?.phone || o.address?.phone,
-            shipping_address: typeof o.address === 'string' ? o.address : `${o.address?.line1 || ''}, ${o.address?.city || ''}, ${o.address?.postalCode || ''}`,
+            total_amount: o.total || o.total_amount || 0,
+            customer_name: `${o.customers?.first_name || ''} ${o.customers?.last_name || ''}`.trim() || o.address?.name || 'Guest',
+            customer_email: o.customers?.email || o.address?.email || 'N/A',
+            customer_phone: o.customers?.phone || o.address?.phone || 'N/A',
+            shipping_address: typeof o.address === 'string' ? o.address : 
+                (o.address ? `${o.address?.line1 || ''}, ${o.address?.city || ''}, ${o.address?.postalCode || ''}` : o.shipping_address || 'N/A'),
             items: (o.order_items || []).map((item: any) => ({
                 id: item.id,
-                product_name: item.products?.name || 'Product',
+                product_name: item.products?.name || item.product_name || 'Product',
                 quantity: item.quantity,
                 price: item.price
             }))
