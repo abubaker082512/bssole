@@ -1,13 +1,32 @@
 import express from "express";
-import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
+
+import productsRouter from './server/routes/products.js';
+import ordersRouter from './server/routes/orders.js';
+import categoriesRouter from './server/routes/categories.js';
+import attributesRouter from './server/routes/attributes.js';
+import variantsRouter from './server/routes/variants.js';
+import customersRouter from './server/routes/customers.js';
+import settingsRouter from './server/routes/settings.js';
+import siteContentRouter from './server/routes/siteContent.js';
+import heroSlidesRouter from './server/routes/heroSlides.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const app = express();
 app.use(express.json());
+
+app.use('/api/products', productsRouter);
+app.use('/api/orders', ordersRouter);
+app.use('/api/categories', categoriesRouter);
+app.use('/api/attributes', attributesRouter);
+app.use('/api/variants', variantsRouter);
+app.use('/api/customers', customersRouter);
+app.use('/api/settings', settingsRouter);
+app.use('/api/site-content', siteContentRouter);
+app.use('/api/hero-slides', heroSlidesRouter);
 
 // Simple health check - doesn't import supabase to avoid crash
 app.get('/api/health', (req, res) => {
@@ -34,6 +53,7 @@ export async function startServer() {
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
