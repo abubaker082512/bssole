@@ -77,11 +77,8 @@ router.post('/', async (req, res) => {
       .insert([{ 
         customer_id: cid, 
         total, 
-        total_amount: total, 
         status: 'pending', 
         address, 
-        shipping_address: address, 
-        billing_address: address,
         payment_method: 'cod',
         payment_status: 'pending'
       }])
