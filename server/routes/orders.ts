@@ -14,7 +14,14 @@ router.get('/', async (req, res) => {
             .select(`*, customers(first_name, last_name, email)`)
             .order('created_at', { ascending: false });
         if (error) throw error;
-        res.json(data);
+        
+        // Map to frontend format
+        const orders = (data || []).map(o => ({
+            ...o,
+            total_amount: o.total,
+            customer_name: `${o.customers?.first_name || ''} ${o.customers?.last_name || ''}`.trim() || o.address?.name || 'Guest'
+        }));
+        res.json(orders);
     } catch (e: any) { res.status(500).json({ error: e.message }); }
 });
 
@@ -27,7 +34,24 @@ router.get('/:id', async (req, res) => {
             .eq('id', req.params.id)
             .single();
         if (error) throw error;
-        res.json(data);
+
+        // Map to frontend format
+        const o = data;
+        const mapped = {
+            ...o,
+            total_amount: o.total,
+            customer_name: `${o.customers?.first_name || ''} ${o.customers?.last_name || ''}`.trim() || o.address?.name,
+            customer_email: o.customers?.email || o.address?.email,
+            customer_phone: o.customers?.phone || o.address?.phone,
+            shipping_address: typeof o.address === 'string' ? o.address : `${o.address?.line1 || ''}, ${o.address?.city || ''}, ${o.address?.postalCode || ''}`,
+            items: (o.order_items || []).map((item: any) => ({
+                id: item.id,
+                product_name: item.products?.name || 'Product',
+                quantity: item.quantity,
+                price: item.price
+            }))
+        };
+        res.json(mapped);
     } catch (e: any) { res.status(500).json({ error: e.message }); }
 });
 
