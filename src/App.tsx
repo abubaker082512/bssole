@@ -75,9 +75,16 @@ export default function App() {
 
   const loadProducts = async () => {
     try {
-      const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
-      if (error) throw error;
-      setProducts(data || []);
+      const res = await fetch('/api/products');
+      if (!res.ok) throw new Error('fetch error');
+      const data = await res.json();
+      const mappedProducts = data.map((p: any) => ({
+        ...p,
+        price: p.regular_price,
+        image: p.product_images?.[0]?.image_url || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80',
+        category: p.categories?.name || 'Uncategorized'
+      }));
+      setProducts(mappedProducts || []);
     } catch (err) {
       console.error("Failed to load products", err);
     } finally {

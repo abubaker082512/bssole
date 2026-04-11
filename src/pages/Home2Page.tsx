@@ -28,8 +28,15 @@ export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data } = await supabase.from('products').select('*').limit(8);
-        setProducts(data ?? []);
+        const res = await fetch('/api/products');
+        const data = await res.json();
+        const mappedProducts = data.map((p: any) => ({
+          ...p,
+          price: p.regular_price,
+          image: p.product_images?.[0]?.image_url || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80',
+          category: p.categories?.name || 'Uncategorized'
+        })).slice(0, 8);
+        setProducts(mappedProducts);
       } catch {
         setProducts([]);
       } finally {
