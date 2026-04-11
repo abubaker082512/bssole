@@ -12,8 +12,6 @@ import settingsRouter from './server/routes/settings.js';
 import siteContentRouter from './server/routes/siteContent.js';
 import heroSlidesRouter from './server/routes/heroSlides.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export const app = express();
 app.use(express.json());
@@ -49,6 +47,8 @@ app.get('/api/test', (req, res) => {
 });
 
 export async function startServer() {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
   const PORT = process.env.PORT || 3000;
 
   // Vite middleware for development
