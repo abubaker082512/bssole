@@ -86,6 +86,12 @@ router.put('/:id', async (req, res) => {
         const { id } = req.params;
         const updates = req.body;
         
+        // Strip out relational data that was joined during GET before saving
+        delete updates.brands;
+        delete updates.categories;
+        delete updates.product_images;
+        delete updates.product_variants;
+        
         const { data, error } = await supabaseAdmin
             .from('products')
             .update(updates)
