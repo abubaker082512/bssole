@@ -19,7 +19,13 @@ router.get('/', async (req, res) => {
                 categories(name),
                 brands(name),
                 product_images(image_url, sort_order),
-                product_variants(id, sku, price, stock_quantity, image_url)
+                product_variants(
+                    id, sku, price, sale_price, stock_quantity, image_url,
+                    variant_attribute_values(
+                        attribute_value_id,
+                        attribute_values(id, value, attributes(id, name))
+                    )
+                )
             `)
             .order('created_at', { ascending: false });
 
@@ -28,32 +34,56 @@ router.get('/', async (req, res) => {
             return res.json([]);
         }
         
-        // Process variants to extract colors from image_url (assuming image_url contains color name)
+        // Process variants to extract colors and sizes from attributes
         const processed = (data || []).map((p: any) => {
             const variants = p.product_variants || [];
             const colors = new Set<string>();
+            const sizes = new Set<string>();
             const variantImages: { [key: string]: string[] } = {};
             
             variants.forEach((v: any) => {
+                // Get attribute values for this variant
+                const attrValues = v.variant_attribute_values || [];
+                let colorKey = 'Default';
+                let sizeKey = '';
+                
+                attrValues.forEach((av: any) => {
+                    if (av.attribute_values) {
+                        const attrName = av.attribute_values.attributes?.name?.toLowerCase() || '';
+                        const attrValue = av.attribute_values.value || '';
+                        
+                        if (attrName.includes('color')) {
+                            colorKey = attrValue;
+                            colors.add(attrValue);
+                        } else if (attrName.includes('size')) {
+                            sizeKey = attrValue;
+                            sizes.add(attrValue);
+                        }
+                    }
+                });
+                
+                // Group images by color
                 if (v.image_url) {
-                    // Try to extract color from image URL or use a default
-                    // In practice, you'd have a color field in variants
-                    // For now, we'll create color groups based on different images
-                    const colorKey = 'Default';
                     if (!variantImages[colorKey]) {
                         variantImages[colorKey] = [];
                     }
                     if (!variantImages[colorKey].includes(v.image_url)) {
                         variantImages[colorKey].push(v.image_url);
                     }
-                    colors.add(colorKey);
                 }
             });
             
             return {
                 ...p,
-                variantImages,
-                colors: colors.size > 0 ? Array.from(colors) : ['Default']
+                colors: colors.size > 0 ? Array.from(colors) : [],
+                sizes: sizes.size > 0 ? Array.from(sizes).sort((a, b) => {
+                    // Sort sizes numerically if possible
+                    const aNum = parseFloat(a);
+                    const bNum = parseFloat(b);
+                    if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+                    return a.localeCompare(b);
+                }) : [],
+                variantImages
             };
         });
         
