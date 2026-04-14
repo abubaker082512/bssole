@@ -690,33 +690,12 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
     return product.image;
   };
 
-  // Get all images for gallery - show ALL images regardless of color
-  const getGalleryImages = () => {
-    const allImages: string[] = [];
-    
-    if (product.images) {
-      product.images.forEach((img: string) => {
-        if (!allImages.includes(img)) allImages.push(img);
-      });
-    }
-    
-    if (product.variantImages) {
-      Object.values(product.variantImages).forEach((imgs: any) => {
-        imgs.forEach((img: string) => {
-          if (!allImages.includes(img)) allImages.push(img);
-        });
-      });
-    }
-    
-    return allImages.length > 0 ? allImages : [product.image];
-  };
-
-const mainImage = getMainImage();
+  const mainImage = getMainImage();
   
   // Size chart image URL from Supabase storage
   const SIZE_CHART_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/product-images/size-chart.jpg`;
   
-  // Add size chart to gallery
+  // Get all gallery images with size chart
   const getGalleryImages = () => {
     const allImages: string[] = [];
     
