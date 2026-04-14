@@ -145,6 +145,21 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
         } catch (e) { console.error(e); }
     };
 
+    const handleDeleteVariant = async (variant: any, index: number) => {
+        if (variant.id) {
+            if (!confirm('Delete this variant permanently?')) return;
+            try {
+                await apiClient.delete(`/variants/${variant.id}`);
+                setVariants(variants.filter((_, i) => i !== index));
+            } catch (e) {
+                console.error('Failed to delete variant', e);
+                alert('Failed to delete variant');
+            }
+        } else {
+            setVariants(variants.filter((_, i) => i !== index));
+        }
+    };
+
     const handleVariantImageUpload = async (variantIndex: number, e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -314,6 +329,7 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
                                                         <th className="p-4">Price</th>
                                                         <th className="p-4">Stock</th>
                                                         <th className="p-4">Status</th>
+                                                        <th className="p-4">Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-black/5 dark:divide-white/5">
@@ -347,6 +363,11 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
                                                                     }} className="bg-transparent border-b border-black/10 dark:border-white/10 p-1 w-20 outline-none text-black dark:text-white" />
                                                                 </td>
                                                                 <td className="p-4 text-xs text-green-600 dark:text-green-400 font-bold">{v.id ? 'Saved' : 'Pending Save'}</td>
+                                                                <td className="p-4">
+                                                                    <button onClick={() => handleDeleteVariant(v, i)} className="text-red-500 hover:text-red-700 dark:hover:text-red-400">
+                                                                        <Trash2 size={16} />
+                                                                    </button>
+                                                                </td>
                                                             </tr>
                                                         );
                                                     })}
