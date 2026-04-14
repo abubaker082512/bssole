@@ -18,8 +18,8 @@ router.get('/', async (req, res) => {
                 *,
                 categories(name),
                 brands(name),
-                product_images(image_url),
-                product_variants(id, sku, price, stock_quantity)
+                product_images(image_url, sort_order),
+                product_variants(id, sku, price, stock_quantity, image_url)
             `)
             .order('created_at', { ascending: false });
 
@@ -27,7 +27,37 @@ router.get('/', async (req, res) => {
             console.error('[PRODUCTS] GET error:', error);
             return res.json([]);
         }
-        res.json(data || []);
+        
+        // Process variants to extract colors from image_url (assuming image_url contains color name)
+        const processed = (data || []).map((p: any) => {
+            const variants = p.product_variants || [];
+            const colors = new Set<string>();
+            const variantImages: { [key: string]: string[] } = {};
+            
+            variants.forEach((v: any) => {
+                if (v.image_url) {
+                    // Try to extract color from image URL or use a default
+                    // In practice, you'd have a color field in variants
+                    // For now, we'll create color groups based on different images
+                    const colorKey = 'Default';
+                    if (!variantImages[colorKey]) {
+                        variantImages[colorKey] = [];
+                    }
+                    if (!variantImages[colorKey].includes(v.image_url)) {
+                        variantImages[colorKey].push(v.image_url);
+                    }
+                    colors.add(colorKey);
+                }
+            });
+            
+            return {
+                ...p,
+                variantImages,
+                colors: colors.size > 0 ? Array.from(colors) : ['Default']
+            };
+        });
+        
+        res.json(processed);
     } catch (error: any) {
         console.error('[PRODUCTS] GET catch:', error);
         res.json([]);

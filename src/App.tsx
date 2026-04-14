@@ -79,26 +79,47 @@ export default function App() {
       const res = await fetch('/api/products');
       if (!res.ok) throw new Error('fetch error');
       const data = await res.json();
-      const mappedProducts = data.map((p: any) => ({
-        id: p.id,
-        name: p.name || 'Unknown Product',
-        description: p.description || '',
-        short_description: p.short_description || '',
-        price: p.sale_price || p.regular_price || 0,
-        regular_price: p.regular_price,
-        sale_price: p.sale_price,
-        stock: p.stock_quantity || 0,
-        stock_quantity: p.stock_quantity,
-        sku: p.sku || '',
-        status: p.status,
-        category: p.categories?.name || 'Uncategorized',
-        category_id: p.category_id,
-        image: p.product_images?.[0]?.image_url || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80',
-        images: p.product_images?.map((img: any) => img.image_url) || [],
-        featured: p.featured || 0,
-        sizes: ['US 7', 'US 8', 'US 9', 'US 10', 'US 11'],
-        colors: ['Black', 'Brown', 'Navy', 'White']
-      }));
+      const mappedProducts = data.map((p: any) => {
+        // Combine product images and variant images
+        const productImages = p.product_images?.map((img: any) => img.image_url) || [];
+        const variantImages = p.variantImages || {};
+        
+        // Merge all images
+        let allImages = [...productImages];
+        Object.values(variantImages).forEach((imgs: any) => {
+          imgs.forEach((img: string) => {
+            if (!allImages.includes(img)) allImages.push(img);
+          });
+        });
+        
+        if (allImages.length === 0) {
+          allImages = ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80'];
+        }
+
+        return {
+          id: p.id,
+          name: p.name || 'Unknown Product',
+          description: p.description || '',
+          short_description: p.short_description || '',
+          price: p.sale_price || p.regular_price || 0,
+          regular_price: p.regular_price,
+          sale_price: p.sale_price,
+          stock: p.stock_quantity || 0,
+          stock_quantity: p.stock_quantity,
+          sku: p.sku || '',
+          status: p.status,
+          category: p.categories?.name || 'Uncategorized',
+          category_id: p.category_id,
+          image: allImages[0],
+          images: allImages,
+          featured: p.featured || 0,
+          variants: p.product_variants || [],
+          variantImages: variantImages,
+          // Use colors from API or default
+          colors: p.colors || ['Default'],
+          sizes: p.sizes || ['US 7', 'US 8', 'US 9', 'US 10', 'US 11']
+        };
+      });
       setProducts(mappedProducts || []);
     } catch (err) {
       console.error("Failed to load products", err);
@@ -657,7 +678,27 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
   const originalPrice = product.regular_price && product.sale_price ? product.regular_price : null;
   const discount = originalPrice ? Math.round(((originalPrice - displayPrice) / originalPrice) * 100) : 0;
 
-  const allImages = product.images?.length ? product.images : [product.image];
+  // Filter images based on selected color (from variants)
+  const getImagesForColor = () => {
+    // First check if we have variant-specific images
+    if (product.variantImages && Object.keys(product.variantImages).length > 0) {
+      if (selectedColor && product.variantImages[selectedColor]) {
+        return product.variantImages[selectedColor];
+      }
+      // Return first color's images if no color selected
+      return Object.values(product.variantImages)[0] || product.images || [product.image];
+    }
+    
+    // Fallback to product images
+    return product.images?.length ? product.images : [product.image];
+  };
+
+  const currentImages = getImagesForColor();
+  
+  // Reset image index when color changes
+  useEffect(() => {
+    setSelectedImage(0);
+  }, [selectedColor]);
 
   const handleAddToCart = () => {
     addToCart({ ...product, quantity } as Product);
@@ -683,7 +724,7 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
           {/* Image Gallery */}
           <div className="space-y-4">
             <div className="relative aspect-square bg-white/5 rounded-2xl overflow-hidden">
-              <img src={allImages[selectedImage]} alt={product.name} className="w-full h-full object-cover" />
+              <img src={currentImages[selectedImage]} alt={product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               {discount > 0 && (
                 <div className="absolute top-6 left-6 bg-gold text-white text-xs font-bold px-4 py-2 rounded">
                   {discount}% OFF
@@ -691,10 +732,10 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
               )}
             </div>
             <div className="flex gap-4 overflow-x-auto">
-              {allImages.map((img: string, idx: number) => (
+              {currentImages.map((img: string, idx: number) => (
                 <button key={idx} onClick={() => setSelectedImage(idx)}
                   className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${selectedImage === idx ? 'border-gold' : 'border-transparent opacity-50'}`}>
-                  <img src={img} alt="" className="w-full h-full object-cover" />
+                  <img src={img} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 </button>
               ))}
             </div>

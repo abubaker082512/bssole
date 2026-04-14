@@ -17,6 +17,8 @@ export interface Product {
   status?: string;
   colors?: string[];
   sizes?: string[];
+  variants?: any[];
+  variantImages?: { [key: string]: string[] };
 }
 
 export interface CartItem extends Product {
