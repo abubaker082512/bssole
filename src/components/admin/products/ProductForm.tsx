@@ -102,6 +102,7 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
                 sku: `${product.sku || 'VAR'}-${Date.now()}-${idx}`,
                 price: product.regular_price,
                 stock_quantity: 0,
+                image_url: '',
                 attributes: attrArray
             };
         });
@@ -282,6 +283,7 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
                                             <table className="w-full text-left text-sm">
                                                 <thead className="bg-gray-100 dark:bg-[#111] text-gray-500 dark:text-white/50 uppercase tracking-widest text-[10px]">
                                                     <tr>
+                                                        <th className="p-4">Image</th>
                                                         <th className="p-4">SKU</th>
                                                         <th className="p-4">Price</th>
                                                         <th className="p-4">Stock</th>
@@ -291,6 +293,11 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
                                                 <tbody className="divide-y divide-black/5 dark:divide-white/5">
                                                     {variants.map((v, i) => (
                                                         <tr key={v.id || i}>
+                                                            <td className="p-4">
+                                                                <input type="text" value={v.image_url || ''} onChange={(e) => {
+                                                                    const nv = [...variants]; nv[i].image_url = e.target.value; setVariants(nv);
+                                                                }} className="bg-transparent border-b border-black/10 dark:border-white/10 p-1 w-32 outline-none text-black dark:text-white text-xs" placeholder="Image URL" />
+                                                            </td>
                                                             <td className="p-4 font-mono text-xs">
                                                                 <input type="text" value={v.sku} onChange={(e) => {
                                                                     const nv = [...variants]; nv[i].sku = e.target.value; setVariants(nv);
@@ -346,6 +353,51 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
                                         <p className="text-xs text-gray-500 dark:text-white/40">Powered by Supabase Storage</p>
                                     </div>
                                 </>
+                            )}
+                            
+                            {/* Variant Images Section */}
+                            {variants.length > 0 && (
+                                <div className="mt-12 pt-8 border-t border-black/5 dark:border-white/5">
+                                    <h3 className="text-xl font-serif font-bold border-b border-black/5 dark:border-white/5 pb-4 gold-text-gradient mb-6">Variant Images</h3>
+                                    <p className="text-sm text-gray-500 dark:text-white/40 mb-6">Assign images to each variant (color/size combination)</p>
+                                    
+                                    <div className="space-y-4">
+                                        {variants.map((v, idx) => {
+                                            // Extract attribute value names for display
+                                            const attrNames = v.attributes?.map((attrId: number) => {
+                                                for (const gAttr of globalAttributes) {
+                                                    const found = gAttr.attribute_values?.find((av: any) => av.id === attrId);
+                                                    if (found) return found.value;
+                                                }
+                                                return '';
+                                            }).filter(Boolean).join(' + ') || 'Default';
+                                            
+                                            return (
+                                                <div key={idx} className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-[#111] border border-black/5 dark:border-white/5">
+                                                    <div className="flex-1">
+                                                        <span className="text-sm font-bold text-gray-700 dark:text-white">{attrNames}</span>
+                                                    </div>
+                                                    <input 
+                                                        type="text" 
+                                                        value={v.image_url || ''} 
+                                                        onChange={(e) => {
+                                                            const nv = [...variants]; 
+                                                            nv[idx].image_url = e.target.value; 
+                                                            setVariants(nv);
+                                                        }} 
+                                                        placeholder="Image URL"
+                                                        className="flex-1 bg-white dark:bg-[#050505] border border-black/10 dark:border-white/10 px-3 py-2 text-sm text-black dark:text-white"
+                                                    />
+                                                    {v.image_url && (
+                                                        <div className="w-12 h-12 border border-black/10 dark:border-white/10">
+                                                            <img src={v.image_url} alt="" className="w-full h-full object-cover" />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
                             )}
                         </div>
                     )}
