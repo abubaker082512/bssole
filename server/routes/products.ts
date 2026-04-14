@@ -121,6 +121,9 @@ router.put('/:id', async (req, res) => {
         delete updates.categories;
         delete updates.product_images;
         delete updates.product_variants;
+        delete updates.colors;
+        delete updates.sizes;
+        delete updates.variantImages;
         
         const { data, error } = await supabaseAdmin
             .from('products')
