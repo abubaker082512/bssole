@@ -673,6 +673,7 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
+  const [showSizeChart, setShowSizeChart] = useState(false);
 
   const displayPrice = product.sale_price || product.regular_price || product.price;
   const originalPrice = product.regular_price && product.sale_price ? product.regular_price : null;
@@ -710,19 +711,33 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
     return allImages.length > 0 ? allImages : [product.image];
   };
 
-  const mainImage = getMainImage();
-  const galleryImages = getGalleryImages();
+const mainImage = getMainImage();
   
-  // When color changes, set main image as the selected image
-  useEffect(() => {
-    const mainImg = getMainImage();
-    const mainIdx = galleryImages.findIndex(img => img === mainImg);
-    setSelectedImage(mainIdx >= 0 ? mainIdx : 0);
-  }, [selectedColor]);
-
-  const handleAddToCart = () => {
-    addToCart({ ...product, quantity } as Product);
-    setPage('shop');
+  // Size chart image URL from Supabase storage
+  const SIZE_CHART_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/product-images/size-chart.jpg`;
+  
+  // Add size chart to gallery
+  const getGalleryImages = () => {
+    const allImages: string[] = [];
+    
+    if (product.images) {
+      product.images.forEach((img: string) => {
+        if (!allImages.includes(img)) allImages.push(img);
+      });
+    }
+    
+    if (product.variantImages) {
+      Object.values(product.variantImages).forEach((imgs: any) => {
+        imgs.forEach((img: string) => {
+          if (!allImages.includes(img)) allImages.push(img);
+        });
+      });
+    }
+    
+    // Add size chart at the end
+    allImages.push(SIZE_CHART_URL);
+    
+    return allImages.length > 1 ? allImages : [product.image];
   };
 
   return (
@@ -793,7 +808,7 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
               <div>
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-white text-sm font-bold">Size</span>
-                  <button className="text-white/40 text-xs underline">Size Guide</button>
+                  <button onClick={() => setShowSizeChart(true)} className="text-white/40 text-xs underline hover:text-gold transition-colors">Size Guide</button>
                 </div>
                 <div className="flex flex-wrap gap-3">
                   {product.sizes.map((size: string) => (
@@ -866,6 +881,21 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
           </div>
         )}
       </div>
+
+      {/* Size Chart Modal */}
+      {showSizeChart && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setShowSizeChart(false)}>
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
+            <div className="p-4 flex justify-between items-center border-b">
+              <h3 className="text-lg font-bold text-black">Size Chart</h3>
+              <button onClick={() => setShowSizeChart(false)} className="text-gray-500 hover:text-black">✕</button>
+            </div>
+            <div className="p-4">
+              <img src={SIZE_CHART_URL} alt="Size Chart" className="w-full h-auto" />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
