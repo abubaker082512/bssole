@@ -678,22 +678,30 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
   const originalPrice = product.regular_price && product.sale_price ? product.regular_price : null;
   const discount = originalPrice ? Math.round(((originalPrice - displayPrice) / originalPrice) * 100) : 0;
 
-  // Filter images based on selected color (from variants)
-  const getImagesForColor = () => {
-    // First check if we have variant-specific images
-    if (product.variantImages && Object.keys(product.variantImages).length > 0) {
-      if (selectedColor && product.variantImages[selectedColor]) {
-        return product.variantImages[selectedColor];
-      }
-      // Return first color's images if no color selected
-      return Object.values(product.variantImages)[0] || product.images || [product.image];
+  // Get all images - show all regardless of color selection
+  const getAllImages = () => {
+    const allImages: string[] = [];
+    
+    // Add product images
+    if (product.images) {
+      product.images.forEach((img: string) => {
+        if (!allImages.includes(img)) allImages.push(img);
+      });
     }
     
-    // Fallback to product images
-    return product.images?.length ? product.images : [product.image];
+    // Add all variant images (from all colors)
+    if (product.variantImages) {
+      Object.values(product.variantImages).forEach((imgs: any) => {
+        imgs.forEach((img: string) => {
+          if (!allImages.includes(img)) allImages.push(img);
+        });
+      });
+    }
+    
+    return allImages.length > 0 ? allImages : [product.image];
   };
 
-  const currentImages = getImagesForColor();
+  const currentImages = getAllImages();
   
   // Reset image index when color changes
   useEffect(() => {
