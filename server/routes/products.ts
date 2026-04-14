@@ -41,6 +41,15 @@ router.get('/', async (req, res) => {
             const sizes = new Set<string>();
             const variantImages: { [key: string]: string[] } = {};
             
+            // First, try to group product_images by color using a naming convention
+            // or just add them all to a default/primary color
+            const productImgs = p.product_images || [];
+            if (productImgs.length > 0) {
+                // Add product images to "Default" or first available color
+                const defaultColor = 'Default';
+                variantImages[defaultColor] = productImgs.map((img: any) => img.image_url);
+            }
+            
             variants.forEach((v: any) => {
                 // Get attribute values for this variant
                 const attrValues = v.variant_attribute_values || [];
@@ -62,22 +71,30 @@ router.get('/', async (req, res) => {
                     }
                 });
                 
-                // Group images by color
+                // Group images by color - variant images take priority
                 if (v.image_url) {
                     if (!variantImages[colorKey]) {
                         variantImages[colorKey] = [];
                     }
                     if (!variantImages[colorKey].includes(v.image_url)) {
-                        variantImages[colorKey].push(v.image_url);
+                        variantImages[colorKey].unshift(v.image_url); // Add variant image first (priority)
                     }
                 }
             });
+            
+            // If we have colors from variants, move product images to the first color
+            if (colors.size > 0 && productImgs.length > 0) {
+                const firstColor = Array.from(colors)[0];
+                // Product images already added to Default, let's add to first color too
+                // Remove from Default since we'll use firstColor
+                delete variantImages['Default'];
+                variantImages[firstColor] = [...productImgs.map((img: any) => img.image_url), ...(variantImages[firstColor] || [])];
+            }
             
             return {
                 ...p,
                 colors: colors.size > 0 ? Array.from(colors) : [],
                 sizes: sizes.size > 0 ? Array.from(sizes).sort((a, b) => {
-                    // Sort sizes numerically if possible
                     const aNum = parseFloat(a);
                     const bNum = parseFloat(b);
                     if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
