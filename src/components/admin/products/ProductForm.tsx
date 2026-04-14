@@ -145,6 +145,32 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
         } catch (e) { console.error(e); }
     };
 
+    const handleVariantImageUpload = async (variantIndex: number, e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setLoading(true);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `variant-${productId}-${variantIndex}-${Date.now()}.${fileExt}`;
+            const { error: uploadError } = await supabase.storage.from('product-images').upload(fileName, file);
+            
+            if (uploadError) throw uploadError;
+
+            const { data } = supabase.storage.from('product-images').getPublicUrl(fileName);
+            
+            // Update variant with image URL
+            const nv = [...variants];
+            nv[variantIndex].image_url = data.publicUrl;
+            setVariants(nv);
+        } catch (err) {
+            console.error('Variant upload failed', err);
+            alert('Upload failed');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const tabs = [
         { id: 'general', label: 'General', icon: <LayoutTemplate size={16} /> },
         { id: 'inventory', label: 'Inventory', icon: <Server size={16} /> },
@@ -359,9 +385,9 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
                             {variants.length > 0 && (
                                 <div className="mt-12 pt-8 border-t border-black/5 dark:border-white/5">
                                     <h3 className="text-xl font-serif font-bold border-b border-black/5 dark:border-white/5 pb-4 gold-text-gradient mb-6">Variant Images</h3>
-                                    <p className="text-sm text-gray-500 dark:text-white/40 mb-6">Assign images to each variant (color/size combination)</p>
+                                    <p className="text-sm text-gray-500 dark:text-white/40 mb-6">Upload images for each variant (color/size combination)</p>
                                     
-                                    <div className="space-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                         {variants.map((v, idx) => {
                                             // Extract attribute value names for display
                                             const attrNames = v.attributes?.map((attrId: number) => {
@@ -373,26 +399,41 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
                                             }).filter(Boolean).join(' + ') || 'Default';
                                             
                                             return (
-                                                <div key={idx} className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-[#111] border border-black/5 dark:border-white/5">
-                                                    <div className="flex-1">
-                                                        <span className="text-sm font-bold text-gray-700 dark:text-white">{attrNames}</span>
+                                                <div key={idx} className="p-4 bg-gray-50 dark:bg-[#111] border border-black/5 dark:border-white/5">
+                                                    <div className="mb-3">
+                                                        <span className="text-xs font-bold text-gray-700 dark:text-white uppercase">{attrNames}</span>
                                                     </div>
-                                                    <input 
-                                                        type="text" 
-                                                        value={v.image_url || ''} 
-                                                        onChange={(e) => {
-                                                            const nv = [...variants]; 
-                                                            nv[idx].image_url = e.target.value; 
-                                                            setVariants(nv);
-                                                        }} 
-                                                        placeholder="Image URL"
-                                                        className="flex-1 bg-white dark:bg-[#050505] border border-black/10 dark:border-white/10 px-3 py-2 text-sm text-black dark:text-white"
-                                                    />
-                                                    {v.image_url && (
-                                                        <div className="w-12 h-12 border border-black/10 dark:border-white/10">
-                                                            <img src={v.image_url} alt="" className="w-full h-full object-cover" />
-                                                        </div>
-                                                    )}
+                                                    
+                                                    {/* Image Upload Area */}
+                                                    <div className="relative">
+                                                        {v.image_url ? (
+                                                            <div className="relative aspect-square bg-gray-200 dark:bg-[#050505] border border-black/10 dark:border-white/10">
+                                                                <img src={v.image_url} alt={attrNames} className="w-full h-full object-cover" />
+                                                                <button 
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        const nv = [...variants]; 
+                                                                        nv[idx].image_url = ''; 
+                                                                        setVariants(nv);
+                                                                    }}
+                                                                    className="absolute top-2 right-2 bg-red-500 text-white p-2"
+                                                                >
+                                                                    <Trash2 size={14} />
+                                                                </button>
+                                                            </div>
+                                                        ) : (
+                                                            <label className="flex flex-col items-center justify-center aspect-square border-2 border-dashed border-black/10 dark:border-white/10 cursor-pointer hover:border-gold/50 transition-colors">
+                                                                <ImageIcon className="text-gray-400 dark:text-white/20 mb-2" size={24} />
+                                                                <span className="text-xs text-gray-500 dark:text-white/40">Upload</span>
+                                                                <input 
+                                                                    type="file" 
+                                                                    accept="image/*"
+                                                                    className="hidden"
+                                                                    onChange={(e) => handleVariantImageUpload(idx, e)}
+                                                                />
+                                                            </label>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             );
                                         })}

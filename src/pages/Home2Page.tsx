@@ -149,6 +149,11 @@ export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
                   {p.featured === 1 && (
                     <span className="absolute top-3 left-3 bg-gold text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1">Featured</span>
                   )}
+                  {(p.sale_price && p.regular_price) && Math.round(((p.regular_price - p.sale_price) / p.regular_price) * 100) > 0 && (
+                    <span className="absolute top-3 right-3 bg-gold text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1">
+                      {Math.round(((p.regular_price - p.sale_price) / p.regular_price) * 100)}% OFF
+                    </span>
+                  )}
                   {addToCart && (
                     <button
                       onClick={(e) => { e.stopPropagation(); addToCart(p); }}
@@ -167,7 +172,16 @@ export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
                 </div>
                 <h3 className="text-sm font-bold text-white mt-1 truncate">{p.name}</h3>
                 <p className="text-xs text-white/30 uppercase tracking-wider">{p.category}</p>
-                <p className="text-sm font-bold text-gold mt-1">Rs. {p.price?.toLocaleString()}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  {p.sale_price ? (
+                    <>
+                      <span className="text-sm font-bold text-gold">Rs. {p.sale_price.toLocaleString()}</span>
+                      <span className="text-xs text-white/40 line-through">Rs. {p.regular_price?.toLocaleString()}</span>
+                    </>
+                  ) : (
+                    <span className="text-sm font-bold text-gold">Rs. {(p.regular_price || p.price)?.toLocaleString()}</span>
+                  )}
+                </div>
               </div>
             ))}
           </div>
