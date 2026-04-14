@@ -24,6 +24,7 @@ export default function App() {
   const [marqueeText, setMarqueeText] = useState<string>('');
   const [heroSlides, setHeroSlides] = useState<any[]>([]);
   const [siteContent, setSiteContent] = useState<any>({});
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     loadProducts();
@@ -79,10 +80,24 @@ export default function App() {
       if (!res.ok) throw new Error('fetch error');
       const data = await res.json();
       const mappedProducts = data.map((p: any) => ({
-        ...p,
-        price: p.regular_price,
+        id: p.id,
+        name: p.name || 'Unknown Product',
+        description: p.description || '',
+        short_description: p.short_description || '',
+        price: p.sale_price || p.regular_price || 0,
+        regular_price: p.regular_price,
+        sale_price: p.sale_price,
+        stock: p.stock_quantity || 0,
+        stock_quantity: p.stock_quantity,
+        sku: p.sku || '',
+        status: p.status,
+        category: p.categories?.name || 'Uncategorized',
+        category_id: p.category_id,
         image: p.product_images?.[0]?.image_url || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80',
-        category: p.categories?.name || 'Uncategorized'
+        images: p.product_images?.map((img: any) => img.image_url) || [],
+        featured: p.featured || 0,
+        sizes: ['US 7', 'US 8', 'US 9', 'US 10', 'US 11'],
+        colors: ['Black', 'Brown', 'Navy', 'White']
       }));
       setProducts(mappedProducts || []);
     } catch (err) {
@@ -133,9 +148,10 @@ export default function App() {
     switch (currentPage) {
       case 'home': return <HomePage products={products.filter(p => p.featured)} setPage={setCurrentPage} addToCart={addToCart} heroSlides={heroSlides} />;
       case 'home2': return <Home2Page setPage={setCurrentPage} addToCart={addToCart} heroSlides={heroSlides} />;
-      case 'shop': return <ShopPage products={products} addToCart={addToCart} />;
-      case 'men-shoes': return <CategoryPage category="Men Shoes" products={products.filter(p => p.category?.toLowerCase().includes('men'))} addToCart={addToCart} setPage={setCurrentPage} />;
-      case 'women-shoes': return <CategoryPage category="Women Shoes" products={products.filter(p => p.category?.toLowerCase().includes('women'))} addToCart={addToCart} setPage={setCurrentPage} />;
+      case 'shop': return <ShopPage products={products} addToCart={addToCart} setPage={setCurrentPage} setSelectedProduct={setSelectedProduct} />;
+      case 'men-shoes': return <CategoryPage category="Men Shoes" products={products.filter(p => p.category?.toLowerCase().includes('men'))} addToCart={addToCart} setPage={setCurrentPage} setSelectedProduct={setSelectedProduct} />;
+      case 'women-shoes': return <CategoryPage category="Women Shoes" products={products.filter(p => p.category?.toLowerCase().includes('women'))} addToCart={addToCart} setPage={setCurrentPage} setSelectedProduct={setSelectedProduct} />;
+      case 'product-detail': return selectedProduct ? <ProductDetailPage product={selectedProduct} addToCart={addToCart} onBack={() => { setSelectedProduct(null); setCurrentPage('shop'); }} setPage={setCurrentPage} /> : <ShopPage products={products} addToCart={addToCart} setPage={setCurrentPage} setSelectedProduct={setSelectedProduct} />;
       case 'contact': return <ContactPage />;
       case 'admin':
         // Protect admin area: require admin email from env var and valid session
@@ -505,7 +521,7 @@ function HomePage({ products, setPage, addToCart, heroSlides }: { products: Prod
   );
 }
 
-function ShopPage({ products, addToCart }: { products: Product[], addToCart: (p: Product) => void }) {
+function ShopPage({ products, addToCart, setPage, setSelectedProduct }: { products: Product[], addToCart: (p: Product) => void, setPage?: (p: Page) => void, setSelectedProduct?: (p: Product) => void }) {
   const [filter, setFilter] = useState('All');
   const categories = ['All', ...new Set(products.map(p => p.category))];
   const filteredProducts = filter === 'All' ? products : products.filter(p => p.category === filter);
@@ -526,21 +542,37 @@ function ShopPage({ products, addToCart }: { products: Product[], addToCart: (p:
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
         {filteredProducts.map((product) => (
-          <motion.div key={product.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="group bg-white/5 border border-white/5 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:border-gold/30 transition-all">
+          <motion.div key={product.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} 
+            className="group bg-white/5 border border-white/5 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:border-gold/30 transition-all cursor-pointer"
+            onClick={() => setSelectedProduct ? setSelectedProduct(product) : setPage?.('product-detail')}>
             <div className="relative aspect-[3/4] overflow-hidden bg-white/5">
               <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" referrerPolicy="no-referrer" />
-              <button onClick={() => addToCart(product)}
+              <button onClick={(e) => { e.stopPropagation(); addToCart(product); }}
                 className="absolute bottom-0 left-0 w-full bg-gold text-white py-4 text-[10px] font-bold tracking-[0.3em] uppercase translate-y-full group-hover:translate-y-0 transition-transform duration-500">
                 Quick Add
               </button>
               {product.featured ? (
                 <div className="absolute top-6 left-6 text-[8px] font-bold tracking-[0.3em] uppercase bg-gold text-white px-3 py-1">Featured</div>
               ) : null}
+              {(product.sale_price && product.regular_price) && Math.round(((product.regular_price - product.sale_price) / product.regular_price) * 100) > 0 && (
+                <div className="absolute top-6 right-6 text-[8px] font-bold tracking-[0.3em] uppercase bg-gold text-white px-3 py-1">
+                  {Math.round(((product.regular_price - product.sale_price) / product.regular_price) * 100)}% OFF
+                </div>
+              )}
             </div>
             <div className="p-5">
               <h4 className="text-lg font-serif font-bold text-white mb-1 group-hover:text-gold transition-colors">{product.name}</h4>
               <p className="text-[10px] text-white/30 uppercase tracking-[0.2em] mb-3">{product.category}</p>
-              <div className="text-gold font-bold text-sm">RS. {product.price.toLocaleString()}</div>
+              <div className="flex items-center gap-2">
+                {product.sale_price ? (
+                  <>
+                    <span className="text-gold font-bold text-sm">RS. {product.sale_price.toLocaleString()}</span>
+                    <span className="text-white/30 text-xs line-through">RS. {product.regular_price?.toLocaleString()}</span>
+                  </>
+                ) : (
+                  <span className="text-gold font-bold text-sm">RS. {(product.regular_price || product.price).toLocaleString()}</span>
+                )}
+              </div>
               <p className="text-[10px] text-white/30 mt-2">Free delivery above Rs.3,000 | 7-day return</p>
             </div>
           </motion.div>
@@ -572,7 +604,7 @@ function ProductCard({ product, addToCart }: { product: Product, addToCart: (p: 
   );
 }
 
-function CategoryPage({ category, products, addToCart, setPage }: { category: string, products: Product[], addToCart: (p: Product) => void, setPage: (p: Page) => void }) {
+function CategoryPage({ category, products, addToCart, setPage, setSelectedProduct }: { category: string, products: Product[], addToCart: (p: Product) => void, setPage: (p: Page) => void, setSelectedProduct?: (p: Product) => void }) {
   return (
     <div className="max-w-[1600px] mx-auto py-32 px-6 md:px-12 bg-black min-h-screen">
       <div className="mb-24">
@@ -588,7 +620,9 @@ function CategoryPage({ category, products, addToCart, setPage }: { category: st
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
           {products.map((product) => (
-            <motion.div key={product.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="group bg-white/5 border border-white/5 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:border-gold/30 transition-all">
+            <motion.div key={product.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} 
+              className="group bg-white/5 border border-white/5 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:border-gold/30 transition-all cursor-pointer"
+              onClick={() => setSelectedProduct ? setSelectedProduct(product) : setPage('product-detail')}>
               <div className="relative aspect-[3/4] overflow-hidden bg-white/5">
                 <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" referrerPolicy="no-referrer" />
                 <button onClick={() => addToCart(product)}
@@ -609,6 +643,168 @@ function CategoryPage({ category, products, addToCart, setPage }: { category: st
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: Product, addToCart: (p: Product) => void, onBack: () => void, setPage: (p: Page) => void }) {
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedSize, setSelectedSize] = useState<string>('');
+  const [selectedColor, setSelectedColor] = useState<string>('');
+  const [quantity, setQuantity] = useState(1);
+
+  const displayPrice = product.sale_price || product.regular_price || product.price;
+  const originalPrice = product.regular_price && product.sale_price ? product.regular_price : null;
+  const discount = originalPrice ? Math.round(((originalPrice - displayPrice) / originalPrice) * 100) : 0;
+
+  const allImages = product.images?.length ? product.images : [product.image];
+
+  const handleAddToCart = () => {
+    addToCart({ ...product, quantity } as Product);
+    setPage('shop');
+  };
+
+  return (
+    <div className="min-h-screen bg-black">
+      {/* Breadcrumb */}
+      <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="flex items-center gap-3 text-sm">
+          <button onClick={() => setPage('home2')} className="text-white/40 hover:text-gold">Home</button>
+          <span className="text-white/20">/</span>
+          <button onClick={() => setPage('shop')} className="text-white/40 hover:text-gold">Shop</button>
+          <span className="text-white/20">/</span>
+          <span className="text-gold">{product.name}</span>
+        </div>
+      </div>
+
+      {/* Product Section */}
+      <div className="max-w-7xl mx-auto px-6 pb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+          {/* Image Gallery */}
+          <div className="space-y-4">
+            <div className="relative aspect-square bg-white/5 rounded-2xl overflow-hidden">
+              <img src={allImages[selectedImage]} alt={product.name} className="w-full h-full object-cover" />
+              {discount > 0 && (
+                <div className="absolute top-6 left-6 bg-gold text-white text-xs font-bold px-4 py-2 rounded">
+                  {discount}% OFF
+                </div>
+              )}
+            </div>
+            <div className="flex gap-4 overflow-x-auto">
+              {allImages.map((img: string, idx: number) => (
+                <button key={idx} onClick={() => setSelectedImage(idx)}
+                  className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${selectedImage === idx ? 'border-gold' : 'border-transparent opacity-50'}`}>
+                  <img src={img} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Product Info */}
+          <div className="space-y-8">
+            <div>
+              <p className="text-gold text-xs font-bold uppercase tracking-widest mb-3">{product.category}</p>
+              <h1 className="text-4xl lg:text-5xl font-serif font-bold text-white">{product.name}</h1>
+            </div>
+
+            {/* Price */}
+            <div className="flex items-baseline gap-4">
+              <span className="text-4xl font-bold text-gold">Rs. {displayPrice.toLocaleString()}</span>
+              {originalPrice && (
+                <span className="text-xl text-white/40 line-through">Rs. {originalPrice.toLocaleString()}</span>
+              )}
+            </div>
+
+            {/* Short Description */}
+            {product.short_description && (
+              <p className="text-white/60 text-lg leading-relaxed">{product.short_description}</p>
+            )}
+
+            {/* SKU */}
+            {product.sku && (
+              <div className="text-sm text-white/40">
+                SKU: <span className="font-mono">{product.sku}</span>
+              </div>
+            )}
+
+            {/* Size Selection */}
+            {product.sizes && product.sizes.length > 0 && (
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-white text-sm font-bold">Size</span>
+                  <button className="text-white/40 text-xs underline">Size Guide</button>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  {product.sizes.map((size: string) => (
+                    <button key={size} onClick={() => setSelectedSize(size)}
+                      className={`w-12 h-12 rounded-lg border font-bold text-sm transition-all ${selectedSize === size ? 'border-gold bg-gold text-black' : 'border-white/20 text-white hover:border-gold'}`}>
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Color Selection */}
+            {product.colors && product.colors.length > 0 && (
+              <div>
+                <span className="text-white text-sm font-bold block mb-3">Color</span>
+                <div className="flex flex-wrap gap-3">
+                  {product.colors.map((color: string) => (
+                    <button key={color} onClick={() => setSelectedColor(color)}
+                      className={`px-4 py-2 rounded-lg border font-bold text-sm transition-all ${selectedColor === color ? 'border-gold bg-gold text-black' : 'border-white/20 text-white hover:border-gold'}`}>
+                      {color}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Quantity */}
+            <div>
+              <span className="text-white text-sm font-bold block mb-3">Quantity</span>
+              <div className="flex items-center gap-4">
+                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-12 h-12 rounded-lg border border-white/20 text-white hover:border-gold flex items-center justify-center">-</button>
+                <span className="text-xl font-bold text-white w-12 text-center">{quantity}</span>
+                <button onClick={() => setQuantity(quantity + 1)} className="w-12 h-12 rounded-lg border border-white/20 text-white hover:border-gold flex items-center justify-center">+</button>
+              </div>
+            </div>
+
+            {/* Stock Status */}
+            <div className="flex items-center gap-3">
+              <div className={`w-3 h-3 rounded-full ${(product.stock_quantity || product.stock) > 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
+              <span className={`text-sm font-bold ${(product.stock_quantity || product.stock) > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                {(product.stock_quantity || product.stock) > 0 ? 'In Stock' : 'Out of Stock'}
+              </span>
+            </div>
+
+            {/* Add to Cart Button */}
+            <button onClick={handleAddToCart} className="w-full py-4 bg-gold text-black font-bold text-sm uppercase tracking-widest hover:bg-white transition-colors rounded-lg">
+              Add to Cart
+            </button>
+
+            {/* Delivery Info */}
+            <div className="border-t border-white/10 pt-6 space-y-4">
+              <div className="flex items-center gap-3 text-white/60 text-sm">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+                <span>Free delivery above Rs. 3,000</span>
+              </div>
+              <div className="flex items-center gap-3 text-white/60 text-sm">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                <span>7-day return policy</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Full Description */}
+        {product.description && (
+          <div className="mt-20 border-t border-white/10 pt-12">
+            <h2 className="text-2xl font-serif font-bold text-white mb-6">Product Description</h2>
+            <div className="prose prose-invert max-w-none text-white/60" dangerouslySetInnerHTML={{ __html: product.description }} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
