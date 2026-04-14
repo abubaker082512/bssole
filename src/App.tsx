@@ -678,18 +678,27 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
   const originalPrice = product.regular_price && product.sale_price ? product.regular_price : null;
   const discount = originalPrice ? Math.round(((originalPrice - displayPrice) / originalPrice) * 100) : 0;
 
-  // Get all images - show all regardless of color selection
-  const getAllImages = () => {
+  // Get main image based on selected color
+  const getMainImage = () => {
+    if (product.variantImages && selectedColor && product.variantImages[selectedColor]?.length > 0) {
+      return product.variantImages[selectedColor][0];
+    }
+    if (product.variantImages && Object.keys(product.variantImages).length > 0) {
+      return Object.values(product.variantImages)[0][0];
+    }
+    return product.image;
+  };
+
+  // Get all images for gallery - show ALL images regardless of color
+  const getGalleryImages = () => {
     const allImages: string[] = [];
     
-    // Add product images
     if (product.images) {
       product.images.forEach((img: string) => {
         if (!allImages.includes(img)) allImages.push(img);
       });
     }
     
-    // Add all variant images (from all colors)
     if (product.variantImages) {
       Object.values(product.variantImages).forEach((imgs: any) => {
         imgs.forEach((img: string) => {
@@ -701,11 +710,14 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
     return allImages.length > 0 ? allImages : [product.image];
   };
 
-  const currentImages = getAllImages();
+  const mainImage = getMainImage();
+  const galleryImages = getGalleryImages();
   
-  // Reset image index when color changes
+  // When color changes, set main image as the selected image
   useEffect(() => {
-    setSelectedImage(0);
+    const mainImg = getMainImage();
+    const mainIdx = galleryImages.findIndex(img => img === mainImg);
+    setSelectedImage(mainIdx >= 0 ? mainIdx : 0);
   }, [selectedColor]);
 
   const handleAddToCart = () => {
@@ -732,7 +744,7 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
           {/* Image Gallery */}
           <div className="space-y-4">
             <div className="relative aspect-square bg-white/5 rounded-2xl overflow-hidden">
-              <img src={currentImages[selectedImage]} alt={product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+              <img src={selectedImage < galleryImages.length ? galleryImages[selectedImage] : mainImage} alt={product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               {discount > 0 && (
                 <div className="absolute top-6 left-6 bg-gold text-white text-xs font-bold px-4 py-2 rounded">
                   {discount}% OFF
@@ -740,7 +752,7 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
               )}
             </div>
             <div className="flex gap-4 overflow-x-auto">
-              {currentImages.map((img: string, idx: number) => (
+              {galleryImages.map((img: string, idx: number) => (
                 <button key={idx} onClick={() => setSelectedImage(idx)}
                   className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${selectedImage === idx ? 'border-gold' : 'border-transparent opacity-50'}`}>
                   <img src={img} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
