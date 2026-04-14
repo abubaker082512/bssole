@@ -544,7 +544,7 @@ function ShopPage({ products, addToCart, setPage, setSelectedProduct }: { produc
         {filteredProducts.map((product) => (
           <motion.div key={product.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} 
             className="group bg-white/5 border border-white/5 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:border-gold/30 transition-all cursor-pointer"
-            onClick={() => setSelectedProduct ? setSelectedProduct(product) : setPage?.('product-detail')}>
+            onClick={() => { setSelectedProduct?.(product); setPage?.('product-detail'); }}>
             <div className="relative aspect-[3/4] overflow-hidden bg-white/5">
               <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" referrerPolicy="no-referrer" />
               <button onClick={(e) => { e.stopPropagation(); addToCart(product); }}
@@ -622,7 +622,7 @@ function CategoryPage({ category, products, addToCart, setPage, setSelectedProdu
           {products.map((product) => (
             <motion.div key={product.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} 
               className="group bg-white/5 border border-white/5 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:border-gold/30 transition-all cursor-pointer"
-              onClick={() => setSelectedProduct ? setSelectedProduct(product) : setPage('product-detail')}>
+              onClick={() => { setSelectedProduct?.(product); setPage('product-detail'); }}>
               <div className="relative aspect-[3/4] overflow-hidden bg-white/5">
                 <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" referrerPolicy="no-referrer" />
                 <button onClick={() => addToCart(product)}
