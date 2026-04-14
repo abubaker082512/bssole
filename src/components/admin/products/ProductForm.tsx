@@ -309,7 +309,7 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
                                             <table className="w-full text-left text-sm">
                                                 <thead className="bg-gray-100 dark:bg-[#111] text-gray-500 dark:text-white/50 uppercase tracking-widest text-[10px]">
                                                     <tr>
-                                                        <th className="p-4">Image</th>
+                                                        <th className="p-4">Variant</th>
                                                         <th className="p-4">SKU</th>
                                                         <th className="p-4">Price</th>
                                                         <th className="p-4">Stock</th>
@@ -317,31 +317,39 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-black/5 dark:divide-white/5">
-                                                    {variants.map((v, i) => (
-                                                        <tr key={v.id || i}>
-                                                            <td className="p-4">
-                                                                <input type="text" value={v.image_url || ''} onChange={(e) => {
-                                                                    const nv = [...variants]; nv[i].image_url = e.target.value; setVariants(nv);
-                                                                }} className="bg-transparent border-b border-black/10 dark:border-white/10 p-1 w-32 outline-none text-black dark:text-white text-xs" placeholder="Image URL" />
-                                                            </td>
-                                                            <td className="p-4 font-mono text-xs">
-                                                                <input type="text" value={v.sku} onChange={(e) => {
-                                                                    const nv = [...variants]; nv[i].sku = e.target.value; setVariants(nv);
-                                                                }} className="bg-transparent border-b border-black/10 dark:border-white/10 p-1 w-full outline-none text-black dark:text-white" />
-                                                            </td>
-                                                            <td className="p-4">
-                                                                <input type="number" value={v.price} onChange={(e) => {
-                                                                    const nv = [...variants]; nv[i].price = parseFloat(e.target.value); setVariants(nv);
-                                                                }} className="bg-transparent border-b border-black/10 dark:border-white/10 p-1 w-24 outline-none text-black dark:text-white" />
-                                                            </td>
-                                                            <td className="p-4">
-                                                                <input type="number" value={v.stock_quantity} onChange={(e) => {
-                                                                    const nv = [...variants]; nv[i].stock_quantity = parseInt(e.target.value); setVariants(nv);
-                                                                }} className="bg-transparent border-b border-black/10 dark:border-white/10 p-1 w-20 outline-none text-black dark:text-white" />
-                                                            </td>
-                                                            <td className="p-4 text-xs text-green-600 dark:text-green-400 font-bold">{v.id ? 'Saved' : 'Pending Save'}</td>
-                                                        </tr>
-                                                    ))}
+                                                    {variants.map((v, i) => {
+                                                        const attrDisplay = v.attributes?.map((attrId: number) => {
+                                                            for (const gAttr of globalAttributes) {
+                                                                const found = gAttr.attribute_values?.find((av: any) => av.id === attrId);
+                                                                if (found) return found.value;
+                                                            }
+                                                            return '';
+                                                        }).filter(Boolean).join(' + ') || '-';
+                                                        
+                                                        return (
+                                                            <tr key={v.id || i}>
+                                                                <td className="p-4">
+                                                                    <span className="text-sm font-bold text-black dark:text-white">{attrDisplay}</span>
+                                                                </td>
+                                                                <td className="p-4 font-mono text-xs">
+                                                                    <input type="text" value={v.sku} onChange={(e) => {
+                                                                        const nv = [...variants]; nv[i].sku = e.target.value; setVariants(nv);
+                                                                    }} className="bg-transparent border-b border-black/10 dark:border-white/10 p-1 w-full outline-none text-black dark:text-white" />
+                                                                </td>
+                                                                <td className="p-4">
+                                                                    <input type="number" value={v.price} onChange={(e) => {
+                                                                        const nv = [...variants]; nv[i].price = parseFloat(e.target.value); setVariants(nv);
+                                                                    }} className="bg-transparent border-b border-black/10 dark:border-white/10 p-1 w-24 outline-none text-black dark:text-white" />
+                                                                </td>
+                                                                <td className="p-4">
+                                                                    <input type="number" value={v.stock_quantity} onChange={(e) => {
+                                                                        const nv = [...variants]; nv[i].stock_quantity = parseInt(e.target.value); setVariants(nv);
+                                                                    }} className="bg-transparent border-b border-black/10 dark:border-white/10 p-1 w-20 outline-none text-black dark:text-white" />
+                                                                </td>
+                                                                <td className="p-4 text-xs text-green-600 dark:text-green-400 font-bold">{v.id ? 'Saved' : 'Pending Save'}</td>
+                                                            </tr>
+                                                        );
+                                                    })}
                                                 </tbody>
                                             </table>
                                         </div>
