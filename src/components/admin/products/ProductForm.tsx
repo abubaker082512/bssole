@@ -47,7 +47,13 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
            if (found) {
                setProduct(found);
                setImages(found.product_images || []);
-               setVariants(found.product_variants || []);
+               
+               // Process variants to extract attribute IDs for display
+               const processedVariants = (found.product_variants || []).map((v: any) => {
+                   const attrIds = (v.variant_attribute_values || []).map((av: any) => av.attribute_value_id);
+                   return { ...v, attributes: attrIds };
+               });
+               setVariants(processedVariants);
            }
         } catch(e) {
             console.error(e);
