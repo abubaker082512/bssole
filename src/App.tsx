@@ -713,10 +713,12 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
       });
     }
     
-    // Add size chart at the end
-    allImages.push(SIZE_CHART_URL);
+    // Add size chart at the end only if URL is valid
+    if (SIZE_CHART_URL && !SIZE_CHART_URL.includes('undefined')) {
+      allImages.push(SIZE_CHART_URL);
+    }
     
-    return allImages.length > 1 ? allImages : [product.image];
+    return allImages.length > 0 ? allImages : [product.image];
   };
 
 const galleryImages = getGalleryImages();
@@ -869,7 +871,7 @@ const galleryImages = getGalleryImages();
       </div>
 
       {/* Size Chart Modal */}
-      {showSizeChart && (
+      {showSizeChart && SIZE_CHART_URL && !SIZE_CHART_URL.includes('undefined') && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setShowSizeChart(false)}>
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
             <div className="p-4 flex justify-between items-center border-b">
