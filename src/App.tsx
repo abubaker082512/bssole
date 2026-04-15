@@ -719,6 +719,8 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
     return allImages.length > 1 ? allImages : [product.image];
   };
 
+  const galleryImages = getGalleryImages();
+
   return (
     <div className="min-h-screen bg-black">
       {/* Breadcrumb */}
