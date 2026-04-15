@@ -775,7 +775,7 @@ const galleryImages = getGalleryImages();
             <div className="flex items-baseline gap-4">
               <span className="text-4xl font-bold text-gold">Rs. {displayPrice.toLocaleString()}</span>
               {originalPrice && (
-                <span className="text-xl text-gray-400 line-through">Rs. {originalPrice.toLocaleString()}</span>
+                <span className="text-xl text-white/50 line-through">Rs. {originalPrice.toLocaleString()}</span>
               )}
             </div>
 
