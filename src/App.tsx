@@ -719,7 +719,12 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
     return allImages.length > 1 ? allImages : [product.image];
   };
 
-  const galleryImages = getGalleryImages();
+const galleryImages = getGalleryImages();
+  
+  const handleAddToCart = () => {
+    addToCart({ ...product, quantity } as Product);
+    setPage('shop');
+  };
 
   return (
     <div className="min-h-screen bg-black">
