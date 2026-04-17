@@ -708,6 +708,7 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
   };
 
   const mainImage = getMainImage();
+  console.log('[Render] mainImage:', mainImage, 'selectedImage:', selectedImage);
   
   // Size chart image URL from Supabase storage
   const SIZE_CHART_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/product-images/size-chart.jpg`;
