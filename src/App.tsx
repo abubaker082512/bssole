@@ -765,7 +765,7 @@ return allImages.length > 0 ? allImages : [product.image];
           {/* Image Gallery */}
           <div className="space-y-4">
             <div className="relative aspect-square bg-white/5 rounded-2xl overflow-hidden">
-              <img src={selectedImage < galleryImages.length ? galleryImages[selectedImage] : mainImage} alt={product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+              <img src={mainImage} alt={product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               {discount > 0 && (
                 <div className="absolute top-6 left-6 bg-gold text-white text-xs font-bold px-4 py-2 rounded">
                   {discount}% OFF
