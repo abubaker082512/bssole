@@ -48,10 +48,10 @@ router.get('/', async (req, res) => {
                 const attrValues = v.variant_attribute_values || [];
                 attrValues.forEach((av: any) => {
                     if (av.attribute_values) {
-                        const attrName = av.attribute_values.attributes?.name?.toLowerCase() || '';
+                        const attrName = (av.attribute_values.attributes?.name || '').toLowerCase();
                         const attrValue = av.attribute_values.value || '';
                         
-                        if (attrName.includes('color')) {
+                        if (attrName.includes('color') || attrName.includes('colour')) {
                             colors.add(attrValue);
                         } else if (attrName.includes('size')) {
                             sizes.add(attrValue);
@@ -67,10 +67,10 @@ router.get('/', async (req, res) => {
                 
                 attrValues.forEach((av: any) => {
                     if (av.attribute_values) {
-                        const attrName = av.attribute_values.attributes?.name?.toLowerCase() || '';
+                        const attrName = (av.attribute_values.attributes?.name || '').toLowerCase();
                         const attrValue = av.attribute_values.value || '';
                         
-                        if (attrName.includes('color')) {
+                        if (attrName.includes('color') || attrName.includes('colour')) {
                             colorKey = attrValue;
                         }
                     }
