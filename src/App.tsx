@@ -684,15 +684,20 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
 
   // Get main image based on selected color
   const getMainImage = () => {
+    console.log('[getMainImage] selectedColor:', selectedColor, 'variantImages:', product.variantImages);
+    
     if (product.variantImages && selectedColor) {
       // Try exact match first
       if (product.variantImages[selectedColor]?.length > 0) {
+        console.log('[getMainImage] Exact match found:', product.variantImages[selectedColor][0]);
         return product.variantImages[selectedColor][0];
       }
       // Try case-insensitive match
       const keys = Object.keys(product.variantImages);
+      console.log('[getMainImage] Available keys:', keys);
       const matchedKey = keys.find(k => k.toLowerCase() === selectedColor.toLowerCase());
       if (matchedKey && product.variantImages[matchedKey]?.length > 0) {
+        console.log('[getMainImage] Case-insensitive match found:', product.variantImages[matchedKey][0]);
         return product.variantImages[matchedKey][0];
       }
     }
@@ -827,7 +832,7 @@ return allImages.length > 0 ? allImages : [product.image];
                 <span className="text-white text-sm font-bold block mb-3">Color</span>
                 <div className="flex flex-wrap gap-3">
                   {product.colors.map((color: string) => (
-                    <button key={color} onClick={() => setSelectedColor(color)}
+                    <button key={color} onClick={() => { console.log('[Color Click] Setting color:', color); setSelectedColor(color); }}
                       className={`px-4 py-2 rounded-lg border font-bold text-sm transition-all ${selectedColor === color ? 'border-gold bg-gold text-black' : 'border-white/20 text-white hover:border-gold'}`}>
                       {color}
                     </button>
