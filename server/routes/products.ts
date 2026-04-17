@@ -43,35 +43,23 @@ router.get('/', async (req, res) => {
             
             const productImgs = p.product_images?.map((img: any) => img.image_url) || [];
             
-            // First, collect all unique colors from variants
-            variants.forEach((v: any) => {
-                const attrValues = v.variant_attribute_values || [];
-                attrValues.forEach((av: any) => {
-                    if (av.attribute_values) {
-                        const attrName = (av.attribute_values.attributes?.name || '').toLowerCase();
-                        const attrValue = av.attribute_values.value || '';
-                        
-                        if (attrName.includes('color') || attrName.includes('colour')) {
-                            colors.add(attrValue);
-                        } else if (attrName.includes('size')) {
-                            sizes.add(attrValue);
-                        }
-                    }
-                });
-            });
-            
-            // Now process variants and group images by color
+            // Process each variant
             variants.forEach((v: any) => {
                 const attrValues = v.variant_attribute_values || [];
                 let colorKey = 'Default';
                 
+                // Find color attribute for this variant
                 attrValues.forEach((av: any) => {
-                    if (av.attribute_values) {
-                        const attrName = (av.attribute_values.attributes?.name || '').toLowerCase();
-                        const attrValue = av.attribute_values.value || '';
+                    const attrData = av.attribute_values;
+                    if (attrData) {
+                        const attrName = (attrData.attributes?.name || '').toLowerCase();
+                        const attrValue = attrData.value || '';
                         
                         if (attrName.includes('color') || attrName.includes('colour')) {
                             colorKey = attrValue;
+                            colors.add(attrValue);
+                        } else if (attrName.includes('size')) {
+                            sizes.add(attrValue);
                         }
                     }
                 });
@@ -82,19 +70,18 @@ router.get('/', async (req, res) => {
                         variantImages[colorKey] = [];
                     }
                     if (!variantImages[colorKey].includes(v.image_url)) {
-                        variantImages[colorKey].unshift(v.image_url);
+                        variantImages[colorKey].push(v.image_url);
                     }
                 }
             });
             
-            // Now add product images to ALL colors (as fallback images)
+            // Add product images to all colors as fallback
             const colorList = Array.from(colors);
             if (colorList.length > 0 && productImgs.length > 0) {
                 colorList.forEach(color => {
                     if (!variantImages[color]) {
                         variantImages[color] = [];
                     }
-                    // Add product images after any variant images for this color
                     productImgs.forEach((img: string) => {
                         if (!variantImages[color].includes(img)) {
                             variantImages[color].push(img);
@@ -102,9 +89,10 @@ router.get('/', async (req, res) => {
                     });
                 });
             } else if (productImgs.length > 0) {
-                // No colors from variants, just add to Default
                 variantImages['Default'] = productImgs;
             }
+            
+            console.log('[PRODUCTS] Processed:', p.name, { colors: colorList, variantImages });
             
             return {
                 ...p,
