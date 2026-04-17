@@ -80,6 +80,9 @@ export default function App() {
       if (!res.ok) throw new Error('fetch error');
       const data = await res.json();
       const mappedProducts = data.map((p: any) => {
+        // Debug: log variantImages from API
+        console.log('[FRONTEND] Product:', p.name, 'variantImages:', p.variantImages, 'colors:', p.colors);
+        
         // Combine product images and variant images
         const productImages = p.product_images?.map((img: any) => img.image_url) || [];
         const variantImages = p.variantImages || {};
@@ -681,8 +684,17 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
 
   // Get main image based on selected color
   const getMainImage = () => {
-    if (product.variantImages && selectedColor && product.variantImages[selectedColor]?.length > 0) {
-      return product.variantImages[selectedColor][0];
+    if (product.variantImages && selectedColor) {
+      // Try exact match first
+      if (product.variantImages[selectedColor]?.length > 0) {
+        return product.variantImages[selectedColor][0];
+      }
+      // Try case-insensitive match
+      const keys = Object.keys(product.variantImages);
+      const matchedKey = keys.find(k => k.toLowerCase() === selectedColor.toLowerCase());
+      if (matchedKey && product.variantImages[matchedKey]?.length > 0) {
+        return product.variantImages[matchedKey][0];
+      }
     }
     if (product.variantImages && Object.keys(product.variantImages).length > 0) {
       return Object.values(product.variantImages)[0][0];
@@ -718,10 +730,10 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
       allImages.push(SIZE_CHART_URL);
     }
     
-    return allImages.length > 0 ? allImages : [product.image];
+return allImages.length > 0 ? allImages : [product.image];
   };
 
-const galleryImages = getGalleryImages();
+  const galleryImages = getGalleryImages();
   
   const handleAddToCart = () => {
     addToCart({ ...product, quantity } as Product);
