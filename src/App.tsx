@@ -786,11 +786,17 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
   
   // Display image - use gallery selection if made, otherwise color-based
   const getDisplayImage = () => {
+    // If user selected from gallery, show that (unless just changed color)
     if (selectedImage > 0 && galleryImages[selectedImage]) {
       return galleryImages[selectedImage];
     }
     return mainImage;
   };
+  
+  // When selectedColor changes, reset gallery selection so color takes priority
+  useEffect(() => {
+    setSelectedImage(0);
+  }, [selectedColor]);
   
   const displayImage = getDisplayImage();
 
