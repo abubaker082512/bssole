@@ -175,7 +175,7 @@ export default function App() {
       case 'shop': return <ShopPage products={products} addToCart={addToCart} setPage={setCurrentPage} setSelectedProduct={setSelectedProduct} />;
       case 'men-shoes': return <CategoryPage category="Men Shoes" products={products.filter(p => p.category?.toLowerCase().includes('men'))} addToCart={addToCart} setPage={setCurrentPage} setSelectedProduct={setSelectedProduct} />;
       case 'women-shoes': return <CategoryPage category="Women Shoes" products={products.filter(p => p.category?.toLowerCase().includes('women'))} addToCart={addToCart} setPage={setCurrentPage} setSelectedProduct={setSelectedProduct} />;
-      case 'product-detail': return selectedProduct ? <ProductDetailPage product={selectedProduct} addToCart={addToCart} onBack={() => { setSelectedProduct(null); setCurrentPage('shop'); }} setPage={setCurrentPage} /> : <ShopPage products={products} addToCart={addToCart} setPage={setCurrentPage} setSelectedProduct={setSelectedProduct} />;
+      case 'product-detail': return selectedProduct ? <ProductDetailPage product={selectedProduct} addToCart={addToCart} onBack={() => { setSelectedProduct(null); setCurrentPage('home2'); }} setPage={setCurrentPage} /> : <ShopPage products={products} addToCart={addToCart} setPage={setCurrentPage} setSelectedProduct={setSelectedProduct} />;
       case 'contact': return <ContactPage />;
       case 'admin':
         // Protect admin area: require admin email from env var and valid session
@@ -746,14 +746,14 @@ return allImages.length > 0 ? allImages : [product.image];
     setPage('shop');
   };
 
-  return (
+return (
     <div className="min-h-screen bg-black">
       {/* Breadcrumb */}
       <div className="max-w-7xl mx-auto px-6 py-6">
         <div className="flex items-center gap-3 text-sm">
           <button onClick={() => setPage('home2')} className="text-white/40 hover:text-gold">Home</button>
           <span className="text-white/20">/</span>
-          <button onClick={() => setPage('shop')} className="text-white/40 hover:text-gold">Shop</button>
+          <button onClick={() => setPage('home2')} className="text-white/40 hover:text-gold">Shop</button>
           <span className="text-white/20">/</span>
           <span className="text-gold">{product.name}</span>
         </div>
