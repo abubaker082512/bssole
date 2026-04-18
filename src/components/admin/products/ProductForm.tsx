@@ -77,6 +77,17 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
             if (newVariants.length > 0 && savedProductId) {
                 await apiClient.post(`/variants/product/${savedProductId}`, { variants: newVariants });
             }
+            
+            // Update existing variants (with images, prices, etc)
+            const existingVariants = variants.filter(v => v.id);
+            for (const variant of existingVariants) {
+                await apiClient.put(`/variants/${variant.id}`, {
+                    sku: variant.sku,
+                    price: variant.price,
+                    stock_quantity: variant.stock_quantity,
+                    image_url: variant.image_url
+                });
+            }
 
             onBack();
         } catch (e) {

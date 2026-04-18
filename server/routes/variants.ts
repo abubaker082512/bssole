@@ -75,4 +75,24 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// Update variant
+router.put('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { sku, price, stock_quantity, image_url } = req.body;
+        
+        const { data, error } = await supabaseAdmin
+            .from('product_variants')
+            .update({ sku, price, stock_quantity, image_url })
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) throw error;
+        res.json(data);
+    } catch (error: any) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
 export default router;
