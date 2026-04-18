@@ -26,6 +26,58 @@ export default function App() {
   const [siteContent, setSiteContent] = useState<any>({});
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
+  // Handle browser back button
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      const path = window.location.pathname;
+      if (path === '/' || path === '') {
+        setCurrentPage('home2');
+      } else if (path === '/shop') {
+        setCurrentPage('shop');
+      } else if (path.startsWith('/product/')) {
+        // Product detail - need to find product from URL
+        const slug = path.split('/product/')[1];
+        const found = products.find(p => p.slug === slug || p.name.toLowerCase().replace(/\s+/g, '-') === slug);
+        if (found) {
+          setSelectedProduct(found);
+          setCurrentPage('product-detail');
+        }
+      } else if (path === '/contact') {
+        setCurrentPage('contact');
+      } else if (path === '/returns') {
+        setCurrentPage('returns');
+      } else if (path === '/delivery') {
+        setCurrentPage('delivery');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [products]);
+
+  // Update URL when page changes
+  const updateUrl = (page: string, productSlug?: string) => {
+    let url = '/';
+    switch (page) {
+      case 'home2': url = '/'; break;
+      case 'shop': url = '/shop'; break;
+      case 'product-detail': url = productSlug ? `/product/${productSlug}` : '/shop'; break;
+      case 'contact': url = '/contact'; break;
+      case 'returns': url = '/returns'; break;
+      case 'delivery': url = '/delivery'; break;
+    }
+    window.history.pushState({}, '', url);
+  };
+
+  // Update URL when page changes
+  useEffect(() => {
+    if (!selectedProduct) {
+      updateUrl(currentPage);
+    } else {
+      const slug = selectedProduct.slug || selectedProduct.name.toLowerCase().replace(/\s+/g, '-');
+      updateUrl('product-detail', slug);
+    }
+  }, [currentPage, selectedProduct]);
+
   useEffect(() => {
     loadProducts();
     loadDeliveryCharges();
