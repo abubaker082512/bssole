@@ -751,7 +751,26 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
     return product.image;
   };
 
+  // Get main image - use gallery selection if made, otherwise color-based
+  const getDisplayImage = () => {
+    // If user selected from gallery, show that
+    if (selectedImage > 0 && galleryImages[selectedImage]) {
+      return galleryImages[selectedImage];
+    }
+    // Otherwise use color-based main image
+    if (product.variantImages && selectedColor) {
+      if (product.variantImages[selectedColor]?.length > 0) {
+        return product.variantImages[selectedColor][0];
+      }
+    }
+    if (product.variantImages && Object.keys(product.variantImages).length > 0) {
+      return Object.values(product.variantImages)[0][0];
+    }
+    return product.image;
+  };
+
   const mainImage = getMainImage();
+  const displayImage = getDisplayImage();
   
   // Size chart image URL from Supabase storage
   const SIZE_CHART_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/product-images/size-chart.jpg`;
@@ -809,7 +828,7 @@ return (
           <div className="space-y-4">
             <div className="relative aspect-square bg-white/5 rounded-2xl overflow-hidden">
               <img 
-                src={mainImage} 
+                src={displayImage} 
                 alt={product.name} 
                 className="w-full h-full object-cover" 
                 referrerPolicy="no-referrer"
