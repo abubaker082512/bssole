@@ -78,21 +78,6 @@ router.get('/', async (req, res) => {
             // Add product images to all colors as fallback
             const colorList = Array.from(colors);
             if (colorList.length > 0 && productImgs.length > 0) {
-                colorList.forEach(color => {
-                    if (!variantImages[color]) {
-                        variantImages[color] = [];
-                    }
-                    productImgs.forEach((img: string) => {
-                        if (!variantImages[color].includes(img)) {
-                            variantImages[color].push(img);
-                        }
-                    });
-                });
-            } else if (productImgs.length > 0) {
-                variantImages['Default'] = productImgs;
-            }
-            
-            console.log('[PRODUCTS] Processed:', p.name, { colors: colorList, variantImages });
             
             return {
                 ...p,

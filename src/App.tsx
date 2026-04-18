@@ -132,9 +132,6 @@ export default function App() {
       if (!res.ok) throw new Error('fetch error');
       const data = await res.json();
       const mappedProducts = data.map((p: any) => {
-        // Debug: log variantImages from API
-        console.log('[FRONTEND] Product:', p.name, 'variantImages:', p.variantImages, 'colors:', p.colors);
-        
         // Combine product images and variant images
         const productImages = p.product_images?.map((img: any) => img.image_url) || [];
         const variantImages = p.variantImages || {};
@@ -736,20 +733,15 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
 
   // Get main image based on selected color
   const getMainImage = () => {
-    console.log('[getMainImage] selectedColor:', selectedColor, 'variantImages:', product.variantImages);
-    
     if (product.variantImages && selectedColor) {
       // Try exact match first
       if (product.variantImages[selectedColor]?.length > 0) {
-        console.log('[getMainImage] Exact match found:', product.variantImages[selectedColor][0]);
         return product.variantImages[selectedColor][0];
       }
       // Try case-insensitive match
       const keys = Object.keys(product.variantImages);
-      console.log('[getMainImage] Available keys:', keys);
       const matchedKey = keys.find(k => k.toLowerCase() === selectedColor.toLowerCase());
       if (matchedKey && product.variantImages[matchedKey]?.length > 0) {
-        console.log('[getMainImage] Case-insensitive match found:', product.variantImages[matchedKey][0]);
         return product.variantImages[matchedKey][0];
       }
     }
@@ -760,7 +752,6 @@ function ProductDetailPage({ product, addToCart, onBack, setPage }: { product: P
   };
 
   const mainImage = getMainImage();
-  console.log('[Render] mainImage:', mainImage, 'selectedImage:', selectedImage);
   
   // Size chart image URL from Supabase storage
   const SIZE_CHART_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/product-images/size-chart.jpg`;
@@ -885,7 +876,7 @@ return (
                 <span className="text-white text-sm font-bold block mb-3">Color</span>
                 <div className="flex flex-wrap gap-3">
                   {product.colors.map((color: string) => (
-                    <button key={color} onClick={() => { console.log('[Color Click] Setting color:', color); setSelectedColor(color); }}
+                    <button key={color} onClick={() => setSelectedColor(color)}
                       className={`px-4 py-2 rounded-lg border font-bold text-sm transition-all ${selectedColor === color ? 'border-gold bg-gold text-black' : 'border-white/20 text-white hover:border-gold'}`}>
                       {color}
                     </button>
