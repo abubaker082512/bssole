@@ -2,15 +2,15 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import productsRouter from './server/routes/products';
-import ordersRouter from './server/routes/orders';
-import categoriesRouter from './server/routes/categories';
-import attributesRouter from './server/routes/attributes';
-import variantsRouter from './server/routes/variants';
-import customersRouter from './server/routes/customers';
-import settingsRouter from './server/routes/settings';
-import siteContentRouter from './server/routes/siteContent';
-import heroSlidesRouter from './server/routes/heroSlides';
+import productsRouter from './server/routes/products.js';
+import ordersRouter from './server/routes/orders.js';
+import categoriesRouter from './server/routes/categories.js';
+import attributesRouter from './server/routes/attributes.js';
+import variantsRouter from './server/routes/variants.js';
+import customersRouter from './server/routes/customers.js';
+import settingsRouter from './server/routes/settings.js';
+import siteContentRouter from './server/routes/siteContent.js';
+import heroSlidesRouter from './server/routes/heroSlides.js';
 
 
 export const app = express();

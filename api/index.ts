@@ -1,4 +1,4 @@
-import app from '../server';
+import app from '../server.js';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 // Vercel serverless function entrypoint
