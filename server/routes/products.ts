@@ -4,102 +4,28 @@ import { ProductSchema } from '../validation/productSchema.js';
 
 const router = Router();
 
-// Get all products
+// Get all products - SIMPLE VERSION
 router.get('/', async (req, res) => {
-    try {
-        console.log('[PRODUCTS] Route hit, supabaseAdmin initialized:', !!supabaseAdmin);
-        if (!supabaseAdmin) {
-            console.error('[PRODUCTS] Supabase client not initialized');
-            return res.json({ error: 'Supabase client not initialized', code: 'NO_SUPABASE_CLIENT' });
-        }
-        
-        // fetch products and sanitize
-        let data = (await supabaseAdmin
-        .from('products')
-        .select(`
-                *,
-                categories(name),
-                brands(name),
-                product_images(image_url, sort_order),
-                product_variants(
-                    id, sku, price, sale_price, stock_quantity, image_url,
-                    variant_attribute_values(
-                        attribute_value_id,
-                        attribute_values(id, value, attributes(id, name))
-                    )
-                )
-            `)
-            .order('created_at', { ascending: false });
-
-        if (error) {
-            console.error('[PRODUCTS] GET error:', error);
-            return res.json([]);
-        }
-        // Normalize data to an array and remove nulls
-        data = Array.isArray(data) ? data.filter((x: any) => x != null) : [];
-        
-        // Process variants to extract colors and sizes from attributes
-        const processed = (data || []).map((p: any) => {
-            if (!p) return { id: 0, name: '', colors: [], sizes: [], variantImages: {}, product_images: [] };
-            
-            const variants = p.product_variants || [];
-            const colors = new Set<string>();
-            const sizes = new Set<string>();
-            const variantImages: { [key: string]: string[] } = {};
-            
-            const productImgs = (p.product_images || []).map((img: any) => img.image_url) || [];
-            variants.forEach((v: any) => {
-                const attrValues = v.variant_attribute_values || [];
-                let colorKey = 'Default';
-                
-                // Find color attribute for this variant
-                attrValues.forEach((av: any) => {
-                    const attrData = av.attribute_values;
-                    if (attrData) {
-                        const attrName = (attrData.attributes?.name || '').toLowerCase();
-                        const attrValue = attrData.value || '';
-                        
-                        if (attrName.includes('color') || attrName.includes('colour')) {
-                            colorKey = attrValue;
-                            colors.add(attrValue);
-                        } else if (attrName.includes('size')) {
-                            sizes.add(attrValue);
-                        }
-                    }
-                });
-                
-                // Group variant images by color
-                if (v.image_url) {
-                    if (!variantImages[colorKey]) {
-                        variantImages[colorKey] = [];
-                    }
-                    if (!variantImages[colorKey].includes(v.image_url)) {
-                        variantImages[colorKey].push(v.image_url);
-                    }
-                }
-            });
-            
-            // Add product images to all colors as fallback
-            const colorList = Array.from(colors);
-            if (colorList.length > 0 && productImgs.length > 0) {
-            
-            return {
-                ...p,
-                colors: colorList.length > 0 ? colorList : [],
-                sizes: sizes.size > 0 ? Array.from(sizes).sort((a, b) => {
-                    const aNum = parseFloat(a);
-                    const bNum = parseFloat(b);
-                    if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
-                    return a.localeCompare(b);
-                }) : [],
-                variantImages
-            };
+    if (!supabaseAdmin) {
+        return res.json({ 
+            error: 'Supabase client not initialized',
+            message: 'Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY env vars'
         });
+    }
+    
+    try {
+        // Simple fetch
+        const { data, error } = await supabaseAdmin
+            .from('products')
+            .select('*');
         
-        res.json(processed);
-    } catch (error: any) {
-        console.error('[PRODUCTS] GET catch:', error);
-        res.json([]);
+        if (error) {
+            return res.json({ error: error.message });
+        }
+        
+        res.json(data || []);
+    } catch (e: any) {
+        res.json({ error: e.message });
     }
 });
 
