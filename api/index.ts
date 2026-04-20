@@ -1,4 +1,9 @@
-// Simple Vercel serverless function - no imports that could crash
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.SUPABASE_URL!;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url);
@@ -7,22 +12,35 @@ export default async function handler(req: Request): Promise<Response> {
   if (url.pathname === '/api/health') {
     return new Response(JSON.stringify({ 
       status: 'ok', 
-      timestamp: new Date().toISOString() 
+      timestamp: new Date().toISOString(),
+      supabaseUrl: supabaseUrl ? 'SET' : 'NOT SET',
+      supabaseKey: supabaseKey ? 'SET' : 'NOT SET'
     }), {
       headers: { 'Content-Type': 'application/json' }
     });
   }
   
-  // Products endpoint - simple response for now
+  // Products endpoint
   if (url.pathname === '/api/products') {
-    return new Response(JSON.stringify({ 
-      message: 'Products endpoint works but needs Supabase config',
-      envCheck: {
-        SUPABASE_URL: process.env.SUPABASE_URL ? 'SET' : 'NOT SET'
+    try {
+      const { data, error } = await supabase.from('products').select('*');
+      
+      if (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' }
+        });
       }
-    }), {
-      headers: { 'Content-Type': 'application/json' }
-    });
+      
+      return new Response(JSON.stringify(data || []), {
+        headers: { 'Content-Type': 'application/json' }
+      });
+    } catch (e: any) {
+      return new Response(JSON.stringify({ error: e.message }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
   }
   
   // 404 for other routes
