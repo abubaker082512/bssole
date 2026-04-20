@@ -131,7 +131,8 @@ export default function App() {
       const res = await fetch('/api/products');
       if (!res.ok) throw new Error('fetch error');
       const data = await res.json();
-      const mappedProducts = data.map((p: any) => {
+      const safeData = Array.isArray(data) ? data.filter((p) => p != null) : [];
+      const mappedProducts = safeData.map((p: any) => {
         // Handle null product_images
         const productImages = (p.product_images || []).map((img: any) => img.image_url) || [];
         const variantImages = p.variantImages || {};
