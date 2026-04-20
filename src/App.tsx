@@ -219,14 +219,7 @@ export default function App() {
   const cartTotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
   const renderPage = () => {
-    // Global skeleton if homepage data hasn't loaded yet
-    if (!loading && (currentPage === 'home' || currentPage === 'home2') && (!products || products.length === 0)) {
-      return (
-        <div className="min-h-screen bg-black flex items-center justify-center">
-          <div className="text-white/60">Loading products...</div>
-        </div>
-      )
-    }
+
     switch (currentPage) {
       case 'home': return <HomePage products={products.filter(p => p.featured)} setPage={setCurrentPage} addToCart={addToCart} heroSlides={heroSlides} />;
       case 'home2': return <Home2Page setPage={setCurrentPage} addToCart={addToCart} heroSlides={heroSlides} />;
