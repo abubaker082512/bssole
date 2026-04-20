@@ -6,6 +6,7 @@ function getEnvVar(key: string): string | undefined {
     return process.env?.[key];
 }
 
+// Safely get environment variables - handle undefined gracefully
 const supabaseUrl = getEnvVar('SUPABASE_URL') || getEnvVar('VITE_SUPABASE_URL');
 const supabaseKey = getEnvVar('SUPABASE_SERVICE_ROLE_KEY') || getEnvVar('VITE_SUPABASE_ANON_KEY') || getEnvVar('SUPABASE_ANON_KEY');
 

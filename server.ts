@@ -28,17 +28,22 @@ app.use('/api/hero-slides', heroSlidesRouter);
 
 // Simple health check - doesn't import supabase to avoid crash
 app.get('/api/health', (req, res) => {
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    
-    res.json({ 
-        status: 'ok', 
-        timestamp: new Date().toISOString(),
-        env_check: {
-            SUPABASE_URL: supabaseUrl ? 'SET' : 'NOT SET',
-            SUPABASE_SERVICE_ROLE_KEY: supabaseKey ? 'SET' : 'NOT SET'
-        }
-    });
+    try {
+        const supabaseUrl = process.env.SUPABASE_URL;
+        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+        
+        res.json({ 
+            status: 'ok', 
+            timestamp: new Date().toISOString(),
+            env_check: {
+                SUPABASE_URL: supabaseUrl ? 'SET' : 'NOT SET',
+                SUPABASE_SERVICE_ROLE_KEY: supabaseKey ? 'SET' : 'NOT SET'
+            }
+        });
+    } catch (error) {
+        console.error('[HEALTH] Error:', error);
+        res.status(500).json({ error: 'Internal server error', message: error.message });
+    }
 });
 
 // Lazy load routes only when needed
