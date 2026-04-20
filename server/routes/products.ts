@@ -36,15 +36,14 @@ router.get('/', async (req, res) => {
         
         // Process variants to extract colors and sizes from attributes
         const processed = (data || []).map((p: any) => {
+            if (!p) return { id: 0, name: '', colors: [], sizes: [], variantImages: {}, product_images: [] };
+            
             const variants = p.product_variants || [];
             const colors = new Set<string>();
             const sizes = new Set<string>();
             const variantImages: { [key: string]: string[] } = {};
             
             const productImgs = (p.product_images || []).map((img: any) => img.image_url) || [];
-            if (!p) return { ...p, colors: [], sizes: [], variantImages: {} };
-            
-            // Process each variant
             variants.forEach((v: any) => {
                 const attrValues = v.variant_attribute_values || [];
                 let colorKey = 'Default';
