@@ -6,12 +6,6 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-export const config = {
-  runtime: 'nodejs',
-  memory: 1024,
-  maxDuration: 30
-};
-
 export default async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url);
   const path = url.pathname;

@@ -1,7 +1,6 @@
 {
   "functions": {
     "api/index.ts": {
-      "runtime": "nodejs@18",
       "memory": 1024,
       "maxDuration": 30
     }
