@@ -30,12 +30,17 @@ export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
       try {
         const res = await fetch('/api/products');
         const data = await res.json();
-        const mappedProducts = data.map((p: any) => ({
-          ...p,
-          price: p.regular_price,
-          image: p.product_images?.[0]?.image_url || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80',
-          category: p.categories?.name || 'Uncategorized'
-        })).slice(0, 8);
+        // Filter out null entries and map safely
+        const mappedProducts = (Array.isArray(data) ? data.filter((p: any) => p != null) : []).map((p: any) => {
+          const productImages = (p?.product_images ?? []).map((img: any) => img.image_url);
+          const image = productImages.length > 0 ? productImages[0] : 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80';
+          return {
+            ...p,
+            price: p.regular_price ?? 0,
+            image,
+            category: p?.categories?.name ?? 'Uncategorized'
+          };
+        }).slice(0, 8);
         setProducts(mappedProducts);
       } catch {
         setProducts([]);
