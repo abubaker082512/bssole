@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { supabaseAdmin, isInitialized } from '../supabase.js';
+import { supabaseAdmin } from '../supabase.js';
 
 const router = Router();
 
@@ -7,7 +7,7 @@ const router = Router();
 router.get('/', async (req, res) => {
     console.log('[CATEGORIES] GET / called');
     try {
-        if (!isInitialized) {
+        if (!supabaseAdmin) {
             console.log('[CATEGORIES] Not initialized, returning empty');
             return res.json([]);
         }
@@ -35,7 +35,7 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
     console.log('[CATEGORIES] POST / called');
     try {
-        if (!isInitialized) {
+        if (!supabaseAdmin) {
             console.log('[CATEGORIES] Not initialized');
             return res.status(500).json({ error: 'Database not configured' });
         }
@@ -66,7 +66,7 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
     console.log('[CATEGORIES] PUT /:id called');
     try {
-        if (!isInitialized) {
+        if (!supabaseAdmin) {
             return res.status(500).json({ error: 'Database not configured' });
         }
         
@@ -95,7 +95,7 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     console.log('[CATEGORIES] DELETE /:id called');
     try {
-        if (!isInitialized) {
+        if (!supabaseAdmin) {
             return res.status(500).json({ error: 'Database not configured' });
         }
         
@@ -121,7 +121,7 @@ router.delete('/:id', async (req, res) => {
 router.get('/attributes', async (req, res) => {
     console.log('[ATTRIBUTES] GET /attributes called');
     try {
-        if (!isInitialized) {
+        if (!supabaseAdmin) {
             return res.json([]);
         }
         
