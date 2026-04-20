@@ -132,8 +132,8 @@ export default function App() {
       if (!res.ok) throw new Error('fetch error');
       const data = await res.json();
       const mappedProducts = data.map((p: any) => {
-        // Combine product images and variant images
-        const productImages = p.product_images?.map((img: any) => img.image_url) || [];
+        // Handle null product_images
+        const productImages = (p.product_images || []).map((img: any) => img.image_url) || [];
         const variantImages = p.variantImages || {};
         
         // Merge all images
