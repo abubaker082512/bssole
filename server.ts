@@ -2,37 +2,29 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 
+import productsRouter from './server/routes/products';
+import ordersRouter from './server/routes/orders';
+import categoriesRouter from './server/routes/categories';
+import attributesRouter from './server/routes/attributes';
+import variantsRouter from './server/routes/variants';
+import customersRouter from './server/routes/customers';
+import settingsRouter from './server/routes/settings';
+import siteContentRouter from './server/routes/siteContent';
+import heroSlidesRouter from './server/routes/heroSlides';
+
+
 export const app = express();
 app.use(express.json());
 
-// Lazy load routes to prevent server crash on initialization
-app.use('/api/products', (req, res, next) => {
-    import('./server/routes/products').then(m => app.use('/api/products', m.default)).catch(next);
-});
-app.use('/api/orders', (req, res, next) => {
-    import('./server/routes/orders').then(m => app.use('/api/orders', m.default)).catch(next);
-});
-app.use('/api/categories', (req, res, next) => {
-    import('./server/routes/categories').then(m => app.use('/api/categories', m.default)).catch(next);
-});
-app.use('/api/attributes', (req, res, next) => {
-    import('./server/routes/attributes').then(m => app.use('/api/attributes', m.default)).catch(next);
-});
-app.use('/api/variants', (req, res, next) => {
-    import('./server/routes/variants').then(m => app.use('/api/variants', m.default)).catch(next);
-});
-app.use('/api/customers', (req, res, next) => {
-    import('./server/routes/customers').then(m => app.use('/api/customers', m.default)).catch(next);
-});
-app.use('/api/settings', (req, res, next) => {
-    import('./server/routes/settings').then(m => app.use('/api/settings', m.default)).catch(next);
-});
-app.use('/api/site-content', (req, res, next) => {
-    import('./server/routes/siteContent').then(m => app.use('/api/site-content', m.default)).catch(next);
-});
-app.use('/api/hero-slides', (req, res, next) => {
-    import('./server/routes/heroSlides').then(m => app.use('/api/hero-slides', m.default)).catch(next);
-});
+app.use('/api/products', productsRouter);
+app.use('/api/orders', ordersRouter);
+app.use('/api/categories', categoriesRouter);
+app.use('/api/attributes', attributesRouter);
+app.use('/api/variants', variantsRouter);
+app.use('/api/customers', customersRouter);
+app.use('/api/settings', settingsRouter);
+app.use('/api/site-content', siteContentRouter);
+app.use('/api/hero-slides', heroSlidesRouter);
 
 // Simple health check - does NOT import supabase to avoid crash
 app.get('/api/health', (req, res) => {
