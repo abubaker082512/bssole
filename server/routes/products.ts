@@ -41,7 +41,8 @@ router.get('/', async (req, res) => {
             const sizes = new Set<string>();
             const variantImages: { [key: string]: string[] } = {};
             
-            const productImgs = p.product_images?.map((img: any) => img.image_url) || [];
+            const productImgs = (p.product_images || []).map((img: any) => img.image_url) || [];
+            if (!p) return { ...p, colors: [], sizes: [], variantImages: {} };
             
             // Process each variant
             variants.forEach((v: any) => {
