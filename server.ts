@@ -2,45 +2,47 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import productsRouter from './server/routes/products.js';
-import ordersRouter from './server/routes/orders.js';
-import categoriesRouter from './server/routes/categories.js';
-import attributesRouter from './server/routes/attributes.js';
-import variantsRouter from './server/routes/variants.js';
-import customersRouter from './server/routes/customers.js';
-import settingsRouter from './server/routes/settings.js';
-import siteContentRouter from './server/routes/siteContent.js';
-import heroSlidesRouter from './server/routes/heroSlides.js';
-
-
 export const app = express();
 app.use(express.json());
 
-app.use('/api/products', productsRouter);
-app.use('/api/orders', ordersRouter);
-app.use('/api/categories', categoriesRouter);
-app.use('/api/attributes', attributesRouter);
-app.use('/api/variants', variantsRouter);
-app.use('/api/customers', customersRouter);
-app.use('/api/settings', settingsRouter);
-app.use('/api/site-content', siteContentRouter);
-app.use('/api/hero-slides', heroSlidesRouter);
+// Lazy load routes to prevent server crash on initialization
+app.use('/api/products', (req, res, next) => {
+    import('./server/routes/products').then(m => app.use('/api/products', m.default)).catch(next);
+});
+app.use('/api/orders', (req, res, next) => {
+    import('./server/routes/orders').then(m => app.use('/api/orders', m.default)).catch(next);
+});
+app.use('/api/categories', (req, res, next) => {
+    import('./server/routes/categories').then(m => app.use('/api/categories', m.default)).catch(next);
+});
+app.use('/api/attributes', (req, res, next) => {
+    import('./server/routes/attributes').then(m => app.use('/api/attributes', m.default)).catch(next);
+});
+app.use('/api/variants', (req, res, next) => {
+    import('./server/routes/variants').then(m => app.use('/api/variants', m.default)).catch(next);
+});
+app.use('/api/customers', (req, res, next) => {
+    import('./server/routes/customers').then(m => app.use('/api/customers', m.default)).catch(next);
+});
+app.use('/api/settings', (req, res, next) => {
+    import('./server/routes/settings').then(m => app.use('/api/settings', m.default)).catch(next);
+});
+app.use('/api/site-content', (req, res, next) => {
+    import('./server/routes/siteContent').then(m => app.use('/api/site-content', m.default)).catch(next);
+});
+app.use('/api/hero-slides', (req, res, next) => {
+    import('./server/routes/heroSlides').then(m => app.use('/api/hero-slides', m.default)).catch(next);
+});
 
-// Simple health check - doesn't import supabase to avoid crash
+// Simple health check - does NOT import supabase to avoid crash
 app.get('/api/health', (req, res) => {
     try {
-        const supabaseUrl = process.env.SUPABASE_URL;
-        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-        
         res.json({ 
             status: 'ok', 
             timestamp: new Date().toISOString(),
-            env_check: {
-                SUPABASE_URL: supabaseUrl ? 'SET' : 'NOT SET',
-                SUPABASE_SERVICE_ROLE_KEY: supabaseKey ? 'SET' : 'NOT SET'
-            }
+            message: 'Server is running'
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error('[HEALTH] Error:', error);
         res.status(500).json({ error: 'Internal server error', message: error.message });
     }
