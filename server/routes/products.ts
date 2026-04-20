@@ -17,7 +17,15 @@ router.get('/', async (req, res) => {
         // Simple fetch
         const { data, error } = await supabaseAdmin
             .from('products')
-            .select('*');
+            .select(`
+                *,
+                categories(*),
+                product_images(*),
+                product_variants(
+                    *,
+                    variant_attribute_values(*)
+                )
+            `);
         
         if (error) {
             return res.json({ error: error.message });
