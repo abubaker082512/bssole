@@ -73,9 +73,9 @@ export default function ProductList({ onEdit, onAdd }: { onEdit: (id: number) =>
                                     <td className="p-4">
                                         <div className="flex items-center gap-4">
                                             <div className="w-12 h-16 bg-gray-100 dark:bg-[#111] border border-black/10 dark:border-white/10 overflow-hidden flex-shrink-0">
-                                                {p.product_images?.[0] ? 
-                                                    <img src={p.product_images[0].image_url} alt="" className="w-full h-full object-cover" /> 
-                                                    : <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-white/10">No Img</div>}
+                                            {p.product_images?.[0]?.image_url ? 
+                                                <img src={p.product_images[0].image_url} alt="" className="w-full h-full object-cover" /> 
+                                                : <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-white/10">No Img</div>}
                                             </div>
                                             <div>
                                                 <div className="font-bold text-base text-black dark:text-white hover:text-gold dark:hover:text-gold cursor-pointer transition-colors" onClick={() => onEdit(p.id)}>{p.name}</div>

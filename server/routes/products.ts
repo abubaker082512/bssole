@@ -12,9 +12,10 @@ router.get('/', async (req, res) => {
             return res.json([]);
         }
         
-        const { data, error } = await supabaseAdmin
-            .from('products')
-            .select(`
+        // fetch products and sanitize
+        let data = (await supabaseAdmin
+        .from('products')
+        .select(`
                 *,
                 categories(name),
                 brands(name),
@@ -33,6 +34,8 @@ router.get('/', async (req, res) => {
             console.error('[PRODUCTS] GET error:', error);
             return res.json([]);
         }
+        // Normalize data to an array and remove nulls
+        data = Array.isArray(data) ? data.filter((x: any) => x != null) : [];
         
         // Process variants to extract colors and sizes from attributes
         const processed = (data || []).map((p: any) => {
