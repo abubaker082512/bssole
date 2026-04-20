@@ -133,9 +133,47 @@ export default function App() {
       const data = await res.json();
       const safeData = Array.isArray(data) ? data.filter((p) => p != null) : [];
       const mappedProducts = safeData.map((p: any) => {
+        // Extract dynamically from new relational variants
+        const extractedColors = new Set<string>();
+        const extractedSizes = new Set<string>();
+        const variantImagesMap: Record<string, string[]> = {};
+        
+        if (p.product_variants && Array.isArray(p.product_variants)) {
+           p.product_variants.forEach((v: any) => {
+              let colorForV = '';
+              const attrs = v.variant_attribute_values || [];
+              attrs.forEach((vav: any) => {
+                 const attrVal = vav.attribute_values;
+                 if (attrVal && attrVal.attributes) {
+                    const attrName = attrVal.attributes.name;
+                    const valText = attrVal.value;
+                    if (attrName.toLowerCase() === 'color') {
+                        extractedColors.add(valText);
+                        colorForV = valText;
+                    }
+                    if (attrName.toLowerCase() === 'size') {
+                        extractedSizes.add(valText);
+                    }
+                 }
+              });
+              
+              if (colorForV && v.image_url) {
+                 if (!variantImagesMap[colorForV]) {
+                    variantImagesMap[colorForV] = [];
+                 }
+                 if (!variantImagesMap[colorForV].includes(v.image_url)) {
+                     variantImagesMap[colorForV].push(v.image_url);
+                 }
+              }
+           });
+        }
+        
+        const colorsArr = Array.from(extractedColors);
+        const sizesArr = Array.from(extractedSizes).sort();
+
         // Handle null product_images
         const productImages = (p.product_images || []).map((img: any) => img.image_url) || [];
-        const variantImages = p.variantImages || {};
+        const variantImages = Object.keys(variantImagesMap).length > 0 ? variantImagesMap : (p.variantImages || {});
         
         // Merge all images
         let allImages = [...productImages];
@@ -169,8 +207,8 @@ export default function App() {
           variants: p.product_variants || [],
           variantImages: variantImages,
           // Use colors from API or default
-          colors: p.colors || ['Default'],
-          sizes: p.sizes || ['US 7', 'US 8', 'US 9', 'US 10', 'US 11']
+          colors: colorsArr.length > 0 ? colorsArr : (p.colors || ['Default']),
+          sizes: sizesArr.length > 0 ? sizesArr : (p.sizes || ['US 7', 'US 8', 'US 9', 'US 10', 'US 11'])
         };
       });
       setProducts(mappedProducts || []);

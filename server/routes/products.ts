@@ -23,7 +23,13 @@ router.get('/', async (req, res) => {
                 product_images(*),
                 product_variants(
                     *,
-                    variant_attribute_values(*)
+                    variant_attribute_values(
+                        *,
+                        attribute_values(
+                            *,
+                            attributes(*)
+                        )
+                    )
                 )
             `);
         
