@@ -7,6 +7,7 @@ const router = Router();
 // Get all products
 router.get('/', async (req, res) => {
     try {
+        console.log('[PRODUCTS] Route hit, supabaseAdmin:', !!supabaseAdmin);
         if (!supabaseAdmin) {
             console.error('[PRODUCTS] Supabase client not initialized');
             return res.json([]);
