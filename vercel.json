@@ -1,9 +1,12 @@
 {
+  "functions": {
+    "api/index.ts": {
+      "runtime": "nodejs@18",
+      "memory": 1024,
+      "maxDuration": 30
+    }
+  },
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/index.ts"
-    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
