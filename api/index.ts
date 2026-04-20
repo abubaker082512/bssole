@@ -1,9 +1,13 @@
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
+console.log('ENV:', { SUPABASE_URL: !!SUPABASE_URL, SUPABASE_KEY: !!SUPABASE_KEY });
+
 async function supabaseFetch(endpoint: string, options: RequestInit = {}) {
   if (!SUPABASE_URL || !SUPABASE_KEY) {
-    throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+    const err = 'Missing ENV: SUPABASE_URL=' + !!SUPABASE_URL + ', SUPABASE_KEY=' + !!SUPABASE_KEY;
+    console.error(err);
+    throw new Error(err);
   }
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, {
     ...options,
