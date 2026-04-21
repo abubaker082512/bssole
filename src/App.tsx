@@ -34,8 +34,11 @@ export default function App() {
         setCurrentPage('home2');
       } else if (path === '/shop') {
         setCurrentPage('shop');
+      } else if (path === '/men-shoes') {
+        setCurrentPage('men-shoes');
+      } else if (path === '/women-shoes') {
+        setCurrentPage('women-shoes');
       } else if (path.startsWith('/product/')) {
-        // Product detail - need to find product from URL
         const slug = path.split('/product/')[1];
         const found = products.find(p => p.slug === slug || p.name.toLowerCase().replace(/\s+/g, '-') === slug);
         if (found) {
@@ -48,6 +51,10 @@ export default function App() {
         setCurrentPage('returns');
       } else if (path === '/delivery') {
         setCurrentPage('delivery');
+      } else if (path === '/checkout') {
+        setCurrentPage('checkout');
+      } else if (path === '/admin') {
+        setCurrentPage('admin');
       }
     };
     window.addEventListener('popstate', handlePopState);
@@ -60,10 +67,16 @@ export default function App() {
     switch (page) {
       case 'home2': url = '/'; break;
       case 'shop': url = '/shop'; break;
+      case 'men-shoes': url = '/men-shoes'; break;
+      case 'women-shoes': url = '/women-shoes'; break;
       case 'product-detail': url = productSlug ? `/product/${productSlug}` : '/shop'; break;
       case 'contact': url = '/contact'; break;
       case 'returns': url = '/returns'; break;
       case 'delivery': url = '/delivery'; break;
+      case 'checkout': url = '/checkout'; break;
+      case 'order-success': url = '/order-success'; break;
+      case 'admin': url = '/admin'; break;
+      default: url = `/${page}`; break;
     }
     window.history.pushState({}, '', url);
   };

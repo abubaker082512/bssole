@@ -11,11 +11,10 @@ router.get('/', async (req, res) => {
     try {
         const { data, error } = await supabaseAdmin
             .from('orders')
-            .select(`*, customers(first_name, last_name, email)`)
+            .select(`*, customers(first_name, last_name, email), order_items(id, quantity, price, products(name))`)
             .order('created_at', { ascending: false });
         if (error) throw error;
-        
-        // Map to frontend format
+
         const orders = (data || []).map(o => ({
             ...o,
             total_amount: o.total || o.total_amount || 0,
@@ -112,15 +111,32 @@ router.post('/', async (req, res) => {
     if (orderError) throw orderError;
     const orderId = (orderData as any).id;
 
-    // Attach items to the order
+    // Attach items and deduct stock
     for (const item of items) {
       const { product_id, quantity, price } = item;
+
+      // Insert order item
       await supabaseAdmin.from('order_items').insert([{
         order_id: orderId,
         product_id,
         quantity,
         price,
       }]);
+
+      // Decrement stock_quantity — fetch current then update
+      const { data: prod } = await supabaseAdmin
+        .from('products')
+        .select('stock_quantity')
+        .eq('id', product_id)
+        .single();
+
+      if (prod) {
+        const newStock = Math.max(0, (prod.stock_quantity ?? 0) - quantity);
+        await supabaseAdmin
+          .from('products')
+          .update({ stock_quantity: newStock })
+          .eq('id', product_id);
+      }
     }
 
     res.json({ orderId, order: orderData });
