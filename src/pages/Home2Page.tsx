@@ -59,7 +59,7 @@ export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
   return (
     <div className="min-h-screen bg-black">
       {/* Hero Carousel */}
-      <section className="relative h-[500px] md:h-[600px] overflow-hidden bg-black">
+      <section className="relative h-[75vh] md:h-[700px] overflow-hidden bg-black">
         {slides.map((s, idx) => (
           <div
             key={s.id ?? idx}
@@ -206,7 +206,7 @@ export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
           {/* Men Shoes Card */}
           <div 
             onClick={() => setPage('men-shoes')}
-            className="group relative aspect-[16/10] overflow-hidden rounded-2xl cursor-pointer"
+            className="group relative aspect-[4/5] sm:aspect-[16/10] overflow-hidden rounded-2xl cursor-pointer"
           >
             <img 
               src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80&fit=crop" 
@@ -228,7 +228,7 @@ export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
           {/* Women Shoes Card */}
           <div 
             onClick={() => setPage('women-shoes')}
-            className="group relative aspect-[16/10] overflow-hidden rounded-2xl cursor-pointer"
+            className="group relative aspect-[4/5] sm:aspect-[16/10] overflow-hidden rounded-2xl cursor-pointer"
           >
             <img 
               src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=800&q=80&fit=crop" 

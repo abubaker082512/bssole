@@ -236,10 +236,25 @@ export default function App() {
   };
 
   const addToCart = (product: Product) => {
+    const qtyToAdd = product.quantity || 1;
+    const availableStock = product.stock_quantity ?? product.stock ?? 0;
+    
+    if (availableStock <= 0) {
+      alert("This product is currently out of stock.");
+      return;
+    }
+
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
-      if (existing) return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
-      return [...prev, { ...product, quantity: 1 }];
+      const currentQty = existing ? existing.quantity : 0;
+      
+      if (currentQty + qtyToAdd > availableStock) {
+        alert(`Cannot add more than available stock (${availableStock}).`);
+        return prev;
+      }
+
+      if (existing) return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + qtyToAdd } : item);
+      return [...prev, { ...product, quantity: qtyToAdd }];
     });
     setIsCartOpen(true);
   };
@@ -248,7 +263,15 @@ export default function App() {
 
   const updateQuantity = (id: number, delta: number) => {
     setCart(prev => prev.map(item => {
-      if (item.id === id) return { ...item, quantity: Math.max(1, item.quantity + delta) };
+      if (item.id === id) {
+        const availableStock = item.stock_quantity ?? item.stock ?? 0;
+        const newQty = item.quantity + delta;
+        if (newQty > availableStock) {
+          alert(`Cannot add more than available stock (${availableStock}).`);
+          return item;
+        }
+        return { ...item, quantity: Math.max(1, newQty) };
+      }
       return item;
     }));
   };
@@ -413,7 +436,7 @@ export default function App() {
                     <span className="text-white/40 text-[10px] font-bold uppercase tracking-[0.3em]">Subtotal</span>
                     <span className="text-2xl font-serif font-bold text-gold">RS. {cartTotal.toLocaleString()}</span>
                   </div>
-                  <button onClick={() => setCurrentPage('checkout')} className="btn-luxury w-full py-6 text-sm">Checkout Now</button>
+                  <button onClick={() => { setIsCartOpen(false); setCurrentPage('checkout'); }} className="btn-luxury w-full py-6 text-sm">Checkout Now</button>
                   <p className="text-center text-[8px] text-white/20 uppercase tracking-[0.2em] mt-6">Shipping & taxes calculated at checkout</p>
                   <p className="text-center text-[10px] text-white/30 mt-3">Free shipping on orders above Rs. 3,000</p>
                 </div>
@@ -503,7 +526,7 @@ function HomePage({ products, setPage, addToCart, heroSlides }: { products: Prod
         <div className="relative z-10 px-6 md:px-24 max-w-4xl">
           <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 1, ease: "easeOut" }}>
             <span className="text-[gold] text-xs font-bold tracking-[0.5em] uppercase mb-6 block">Est. 2026</span>
-            <h1 className="text-6xl md:text-[100px] font-serif font-black leading-[0.9] mb-8 tracking-tighter text-[gold]">
+            <h1 className="text-5xl md:text-[100px] font-serif font-black leading-[0.9] mb-8 tracking-tighter text-[gold]">
               BEYOND <br />
               <span className="italic text-[gold]">LUXURY.</span>
             </h1>
@@ -641,9 +664,9 @@ function ShopPage({ products, addToCart, setPage, setSelectedProduct }: { produc
 
   return (
     <div className="max-w-[1600px] mx-auto py-32 px-6 md:px-12 bg-black">
-      <div className="mb-24">
+      <div className="mb-12 md:mb-24">
         <span className="text-white/30 text-[10px] font-bold tracking-[0.5em] uppercase mb-4 block">Collections</span>
-        <h1 className="text-7xl font-serif font-bold tracking-tighter text-white">THE <span className="italic text-gold">SOUL</span> STORE</h1>
+        <h1 className="text-5xl md:text-7xl font-serif font-bold tracking-tighter text-white">THE <span className="italic text-gold">SOUL</span> STORE</h1>
       </div>
       <div className="flex flex-wrap gap-8 mb-20 border-b border-white/10 pb-8">
         {categories.map(cat => (
@@ -720,9 +743,9 @@ function ProductCard({ product, addToCart }: { product: Product, addToCart: (p: 
 function CategoryPage({ category, products, addToCart, setPage, setSelectedProduct }: { category: string, products: Product[], addToCart: (p: Product) => void, setPage: (p: Page) => void, setSelectedProduct?: (p: Product) => void }) {
   return (
     <div className="max-w-[1600px] mx-auto py-32 px-6 md:px-12 bg-black min-h-screen">
-      <div className="mb-24">
+      <div className="mb-12 md:mb-24">
         <span className="text-white/30 text-[10px] font-bold tracking-[0.5em] uppercase mb-4 block">Collection</span>
-        <h1 className="text-7xl font-serif font-bold tracking-tighter text-white">{category.toUpperCase()}</h1>
+        <h1 className="text-5xl md:text-7xl font-serif font-bold tracking-tighter text-white">{category.toUpperCase()}</h1>
       </div>
       
       {products.length === 0 ? (
