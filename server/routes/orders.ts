@@ -4,106 +4,130 @@ import { OrderPayloadSchema } from '../validation/orderSchema.js';
 
 const router = Router();
 
-// Validation is now performed with Zod schema (OrderPayloadSchema)
+// ── Helpers ──────────────────────────────────────────────────────────────
 
-// GET all orders
+async function resolveItems(orderId: string) {
+  // Try both column names (price / unit_price) to handle schema variants
+  const { data: items, error } = await supabaseAdmin
+    .from('order_items')
+    .select('id, quantity, price, unit_price, total_price, product_id, product_name')
+    .eq('order_id', orderId);
+
+  if (error) {
+    console.error('[ORDERS] order_items fetch error:', error.message);
+    return [];
+  }
+
+  return Promise.all((items || []).map(async (item: any) => {
+    // Resolve product name
+    let name = item.product_name || '';
+    if (!name && item.product_id) {
+      const { data: prod } = await supabaseAdmin
+        .from('products').select('name').eq('id', item.product_id).single();
+      name = prod?.name || 'Product';
+    }
+    const unitPrice = item.price ?? item.unit_price ?? 0;
+    const qty = item.quantity ?? 1;
+    return {
+      id: item.id,
+      product_name: name || 'Product',
+      quantity: qty,
+      price: unitPrice,
+    };
+  }));
+}
+
+// ── GET all orders ────────────────────────────────────────────────────────
+
 router.get('/', async (req, res) => {
-    try {
-        // Fetch orders
-        const { data: orders, error } = await supabaseAdmin
-            .from('orders')
-            .select(`*, customers(first_name, last_name, email)`)
-            .order('created_at', { ascending: false });
-        if (error) throw error;
+  try {
+    const { data: orders, error } = await supabaseAdmin
+      .from('orders')
+      .select('*, customers(first_name, last_name, email)')
+      .order('created_at', { ascending: false });
 
-        // For each order fetch its items separately (avoids type-mismatch FK join issues)
-        const enriched = await Promise.all((orders || []).map(async (o: any) => {
-            const { data: items } = await supabaseAdmin
-                .from('order_items')
-                .select('id, quantity, price, product_id, product_name')
-                .eq('order_id', String(o.id));
+    if (error) throw error;
 
-            // Resolve product names for items that don't have them stored
-            const resolvedItems = await Promise.all((items || []).map(async (item: any) => {
-                if (item.product_name) return item;
-                if (item.product_id) {
-                    const { data: prod } = await supabaseAdmin
-                        .from('products').select('name').eq('id', item.product_id).single();
-                    return { ...item, product_name: prod?.name || 'Product' };
-                }
-                return { ...item, product_name: 'Product' };
-            }));
+    const enriched = await Promise.all((orders || []).map(async (o: any) => {
+      const orderItems = await resolveItems(String(o.id));
+      return {
+        ...o,
+        total_amount: o.total || o.total_amount || 0,
+        customer_name:
+          `${o.customers?.first_name || ''} ${o.customers?.last_name || ''}`.trim() ||
+          o.address?.name || 'Guest',
+        order_items: orderItems,
+      };
+    }));
 
-            return {
-                ...o,
-                total_amount: o.total || o.total_amount || 0,
-                customer_name: `${o.customers?.first_name || ''} ${o.customers?.last_name || ''}`.trim() || o.address?.name || 'Guest',
-                order_items: resolvedItems,
-            };
-        }));
-
-        res.json(enriched);
-    } catch (e: any) { res.status(500).json({ error: e.message }); }
+    res.json(enriched);
+  } catch (e: any) {
+    console.error('[ORDERS] GET / error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
 });
 
-// GET single order with items
+// ── GET single order ──────────────────────────────────────────────────────
+
 router.get('/:id', async (req, res) => {
-    try {
-        // Fetch base order
-        const { data: o, error } = await supabaseAdmin
-            .from('orders')
-            .select(`*, customers(*)`)
-            .eq('id', req.params.id)
-            .single();
-        if (error) throw error;
+  try {
+    const { data: o, error } = await supabaseAdmin
+      .from('orders')
+      .select('*, customers(*)')
+      .eq('id', req.params.id)
+      .single();
 
-        // Fetch items separately to avoid type-mismatch FK join issues
-        const { data: rawItems } = await supabaseAdmin
-            .from('order_items')
-            .select('id, quantity, price, product_id, product_name')
-            .eq('order_id', String(req.params.id));
+    if (error) throw error;
 
-        // Resolve product names
-        const items = await Promise.all((rawItems || []).map(async (item: any) => {
-            let name = item.product_name || '';
-            if (!name && item.product_id) {
-                const { data: prod } = await supabaseAdmin
-                    .from('products').select('name').eq('id', item.product_id).single();
-                name = prod?.name || 'Product';
-            }
-            return {
-                id: item.id,
-                product_name: name || 'Product',
-                quantity: item.quantity,
-                price: item.price,
-            };
-        }));
+    const items = await resolveItems(String(req.params.id));
 
-        const mapped = {
-            ...o,
-            total_amount: o.total || o.total_amount || 0,
-            customer_name: `${o.customers?.first_name || ''} ${o.customers?.last_name || ''}`.trim() || o.address?.name || 'Guest',
-            customer_email: o.customers?.email || o.address?.email || 'N/A',
-            customer_phone: o.customers?.phone || o.address?.phone || 'N/A',
-            shipping_address: typeof o.address === 'string' ? o.address :
-                (o.address ? `${o.address?.line1 || ''}, ${o.address?.city || ''}, ${o.address?.postalCode || ''}` : o.shipping_address || 'N/A'),
-            items,
-        };
-        res.json(mapped);
-    } catch (e: any) { res.status(500).json({ error: e.message }); }
+    const addr = o.address || o.shipping_address;
+    const shippingAddress =
+      typeof addr === 'string'
+        ? addr
+        : addr
+          ? `${addr?.line1 || addr?.address || ''}, ${addr?.city || ''}, ${addr?.postalCode || addr?.postal_code || ''}`.replace(/^,\s*|,\s*$/g, '')
+          : 'N/A';
+
+    const mapped = {
+      ...o,
+      total_amount: o.total || o.total_amount || 0,
+      customer_name:
+        `${o.customers?.first_name || ''} ${o.customers?.last_name || ''}`.trim() ||
+        (typeof addr === 'object' ? addr?.name : '') || 'Guest',
+      customer_email: o.customers?.email || (typeof addr === 'object' ? addr?.email : '') || 'N/A',
+      customer_phone: o.customers?.phone || (typeof addr === 'object' ? addr?.phone : '') || 'N/A',
+      shipping_address: shippingAddress,
+      items,
+    };
+
+    res.json(mapped);
+  } catch (e: any) {
+    console.error('[ORDERS] GET /:id error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
 });
 
-// UPDATE order status
+// ── UPDATE order status ───────────────────────────────────────────────────
+
 router.put('/:id', async (req, res) => {
-    try {
-        const { status } = req.body;
-        const { data, error } = await supabaseAdmin.from('orders').update({ status }).eq('id', req.params.id).select().single();
-        if (error) throw error;
-        res.json(data);
-    } catch (e: any) { res.status(400).json({ error: e.message }); }
+  try {
+    const { status } = req.body;
+    const { data, error } = await supabaseAdmin
+      .from('orders')
+      .update({ status, updated_at: new Date() })
+      .eq('id', req.params.id)
+      .select()
+      .single();
+    if (error) throw error;
+    res.json(data);
+  } catch (e: any) {
+    res.status(400).json({ error: e.message });
+  }
 });
 
-// CREATE new order
+// ── CREATE new order ──────────────────────────────────────────────────────
+
 router.post('/', async (req, res) => {
   try {
     const result = OrderPayloadSchema.safeParse(req.body);
@@ -111,49 +135,82 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: result.error.flatten() });
     }
     const payload = result.data as any;
-    const { customer_id, customer_email, items, total, address } = payload;
+    const { items, total, address } = payload;
+
     if (!Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({ error: 'Invalid order payload' });
+      return res.status(400).json({ error: 'No items in order' });
     }
 
-    // Resolve customer_id: prefer provided, otherwise create/find by email
-    let cid: number | undefined = payload.customer_id;
-    if (!cid) {
-      const email = payload.customer_email ?? (payload.address?.email ?? '');
-      if (email) {
-        const { data: existing, error: existErr } = await supabaseAdmin.from('customers').select('id').eq('email', email).single();
-        if (!existErr && (existing as any)?.id) {
-          cid = (existing as any).id;
-        } else {
-          const { data: newCust, error: createErr } = await supabaseAdmin.from('customers').insert([{ email }]).select('id').single();
-          if (!createErr && (newCust as any)?.id) cid = (newCust as any).id;
-        }
+    // Resolve or create customer
+    let cid: string | undefined;
+    const email = payload.customer_email ?? address?.email ?? '';
+
+    if (email) {
+      const { data: existing } = await supabaseAdmin
+        .from('customers').select('id').eq('email', email).single();
+      if (existing?.id) {
+        cid = existing.id;
+      } else {
+        const { data: newCust } = await supabaseAdmin
+          .from('customers')
+          .insert([{
+            email,
+            first_name: address?.name?.split(' ')[0] || '',
+            last_name: address?.name?.split(' ').slice(1).join(' ') || '',
+            phone: address?.phone || '',
+          }])
+          .select('id')
+          .single();
+        if (newCust?.id) cid = newCust.id;
       }
     }
+
     if (!cid) {
-      return res.status(400).json({ error: 'Missing customer_id or customer_email' });
+      return res.status(400).json({ error: 'Could not resolve customer' });
     }
-    // Create the order
+
+    // Create order — handle both schema variants (total / total_amount)
+    const orderPayload: any = {
+      customer_id: cid,
+      status: 'pending',
+      address,
+      payment_method: 'cod',
+      payment_status: 'pending',
+    };
+
+    // Try both column names gracefully
+    try {
+      orderPayload.total = total;
+      orderPayload.total_amount = total;
+    } catch {}
+
     const { data: orderData, error: orderError } = await supabaseAdmin
       .from('orders')
-      .insert([{ 
-        customer_id: cid, 
-        total, 
-        status: 'pending', 
-        address, 
-        payment_method: 'cod',
-        payment_status: 'pending'
-      }])
+      .insert([orderPayload])
       .select()
       .single();
-    if (orderError) throw orderError;
-    const orderId = (orderData as any).id;
 
-    // Attach items and deduct stock
+    if (orderError) {
+      // If total_amount failed (column might not exist), retry with just total
+      if (orderError.message.includes('total_amount')) {
+        delete orderPayload.total_amount;
+        const { data: od2, error: oe2 } = await supabaseAdmin
+          .from('orders').insert([orderPayload]).select().single();
+        if (oe2) throw oe2;
+        Object.assign(orderPayload, od2);
+      } else {
+        throw orderError;
+      }
+    }
+
+    const orderId = (orderData ?? orderPayload)?.id;
+    if (!orderId) throw new Error('Order ID not returned');
+
+    // Insert each line item — try both price column name variants
     for (const item of items) {
       const { product_id, quantity, price } = item;
 
-      // Insert order item — also store product_name for future-proof display
+      // Fetch product name
       let productName = '';
       try {
         const { data: prod } = await supabaseAdmin
@@ -161,32 +218,42 @@ router.post('/', async (req, res) => {
         productName = prod?.name || '';
       } catch {}
 
-      await supabaseAdmin.from('order_items').insert([{
-        order_id: String(orderId),
+      // Try inserting with `price` first, fall back to unit_price / total_price
+      const { error: itemErr } = await supabaseAdmin.from('order_items').insert([{
+        order_id: orderId,
         product_id,
         quantity,
         price,
         product_name: productName,
       }]);
 
-      // Decrement stock_quantity — fetch current then update
-      const { data: prod } = await supabaseAdmin
-        .from('products')
-        .select('stock_quantity')
-        .eq('id', product_id)
-        .single();
-
-      if (prod) {
-        const newStock = Math.max(0, (prod.stock_quantity ?? 0) - quantity);
-        await supabaseAdmin
-          .from('products')
-          .update({ stock_quantity: newStock })
-          .eq('id', product_id);
+      if (itemErr) {
+        // Fallback: schema_v2 uses unit_price + total_price instead of price
+        await supabaseAdmin.from('order_items').insert([{
+          order_id: orderId,
+          product_id,
+          quantity,
+          unit_price: price,
+          total_price: price * quantity,
+          product_name: productName,
+        }]);
       }
+
+      // Deduct stock
+      try {
+        const { data: prod } = await supabaseAdmin
+          .from('products').select('stock_quantity').eq('id', product_id).single();
+        if (prod) {
+          await supabaseAdmin.from('products')
+            .update({ stock_quantity: Math.max(0, (prod.stock_quantity ?? 0) - quantity) })
+            .eq('id', product_id);
+        }
+      } catch {}
     }
 
     res.json({ orderId, order: orderData });
   } catch (e: any) {
+    console.error('[ORDERS] POST error:', e.message);
     res.status(500).json({ error: e?.message ?? 'Failed to create order' });
   }
 });
