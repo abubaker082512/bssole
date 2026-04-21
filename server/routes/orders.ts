@@ -9,47 +9,85 @@ const router = Router();
 // GET all orders
 router.get('/', async (req, res) => {
     try {
-        const { data, error } = await supabaseAdmin
+        // Fetch orders
+        const { data: orders, error } = await supabaseAdmin
             .from('orders')
-            .select(`*, customers(first_name, last_name, email), order_items(id, quantity, price, products(name))`)
+            .select(`*, customers(first_name, last_name, email)`)
             .order('created_at', { ascending: false });
         if (error) throw error;
 
-        const orders = (data || []).map(o => ({
-            ...o,
-            total_amount: o.total || o.total_amount || 0,
-            customer_name: `${o.customers?.first_name || ''} ${o.customers?.last_name || ''}`.trim() || o.address?.name || 'Guest'
+        // For each order fetch its items separately (avoids type-mismatch FK join issues)
+        const enriched = await Promise.all((orders || []).map(async (o: any) => {
+            const { data: items } = await supabaseAdmin
+                .from('order_items')
+                .select('id, quantity, price, product_id, product_name')
+                .eq('order_id', String(o.id));
+
+            // Resolve product names for items that don't have them stored
+            const resolvedItems = await Promise.all((items || []).map(async (item: any) => {
+                if (item.product_name) return item;
+                if (item.product_id) {
+                    const { data: prod } = await supabaseAdmin
+                        .from('products').select('name').eq('id', item.product_id).single();
+                    return { ...item, product_name: prod?.name || 'Product' };
+                }
+                return { ...item, product_name: 'Product' };
+            }));
+
+            return {
+                ...o,
+                total_amount: o.total || o.total_amount || 0,
+                customer_name: `${o.customers?.first_name || ''} ${o.customers?.last_name || ''}`.trim() || o.address?.name || 'Guest',
+                order_items: resolvedItems,
+            };
         }));
-        res.json(orders);
+
+        res.json(enriched);
     } catch (e: any) { res.status(500).json({ error: e.message }); }
 });
 
 // GET single order with items
 router.get('/:id', async (req, res) => {
     try {
-        const { data, error } = await supabaseAdmin
+        // Fetch base order
+        const { data: o, error } = await supabaseAdmin
             .from('orders')
-            .select(`*, customers(*), order_items(*, products(name), product_variants(sku))`)
+            .select(`*, customers(*)`)
             .eq('id', req.params.id)
             .single();
         if (error) throw error;
 
-        // Map to frontend format
-        const o = data;
+        // Fetch items separately to avoid type-mismatch FK join issues
+        const { data: rawItems } = await supabaseAdmin
+            .from('order_items')
+            .select('id, quantity, price, product_id, product_name')
+            .eq('order_id', String(req.params.id));
+
+        // Resolve product names
+        const items = await Promise.all((rawItems || []).map(async (item: any) => {
+            let name = item.product_name || '';
+            if (!name && item.product_id) {
+                const { data: prod } = await supabaseAdmin
+                    .from('products').select('name').eq('id', item.product_id).single();
+                name = prod?.name || 'Product';
+            }
+            return {
+                id: item.id,
+                product_name: name || 'Product',
+                quantity: item.quantity,
+                price: item.price,
+            };
+        }));
+
         const mapped = {
             ...o,
             total_amount: o.total || o.total_amount || 0,
             customer_name: `${o.customers?.first_name || ''} ${o.customers?.last_name || ''}`.trim() || o.address?.name || 'Guest',
             customer_email: o.customers?.email || o.address?.email || 'N/A',
             customer_phone: o.customers?.phone || o.address?.phone || 'N/A',
-            shipping_address: typeof o.address === 'string' ? o.address : 
+            shipping_address: typeof o.address === 'string' ? o.address :
                 (o.address ? `${o.address?.line1 || ''}, ${o.address?.city || ''}, ${o.address?.postalCode || ''}` : o.shipping_address || 'N/A'),
-            items: (o.order_items || []).map((item: any) => ({
-                id: item.id,
-                product_name: item.products?.name || item.product_name || 'Product',
-                quantity: item.quantity,
-                price: item.price
-            }))
+            items,
         };
         res.json(mapped);
     } catch (e: any) { res.status(500).json({ error: e.message }); }
@@ -115,12 +153,20 @@ router.post('/', async (req, res) => {
     for (const item of items) {
       const { product_id, quantity, price } = item;
 
-      // Insert order item
+      // Insert order item — also store product_name for future-proof display
+      let productName = '';
+      try {
+        const { data: prod } = await supabaseAdmin
+          .from('products').select('name').eq('id', product_id).single();
+        productName = prod?.name || '';
+      } catch {}
+
       await supabaseAdmin.from('order_items').insert([{
-        order_id: orderId,
+        order_id: String(orderId),
         product_id,
         quantity,
         price,
+        product_name: productName,
       }]);
 
       // Decrement stock_quantity — fetch current then update
