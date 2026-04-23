@@ -69,3 +69,35 @@ Status: ${order.status || 'pending'}
 
   return transporter.sendMail(adminMailOptions);
 }
+
+const STATUS_MESSAGES: Record<string, string> = {
+  pending: 'Your order has been received and is being processed.',
+  processing: 'Your order is being prepared for shipment.',
+  shipped: 'Your order has been shipped and is on its way!',
+  delivered: 'Your order has been delivered. Thank you for shopping with us!',
+  cancelled: 'Your order has been cancelled.',
+};
+
+export async function sendOrderStatusUpdateEmail(order: any, customerEmail: string) {
+  const statusMessage = STATUS_MESSAGES[order.status] || `Your order status is now: ${order.status}`;
+  
+  const mailOptions = {
+    from: `"BS Sole" <${process.env.SMTP_USER || 'orders@bssole.com'}>`,
+    to: customerEmail,
+    subject: `Order #${order.id?.slice(0, 8)} - Status Update: ${order.status.toUpperCase()}`,
+    text: `Your order status has been updated!
+
+Order ID: ${order.id?.slice(0, 8)}
+New Status: ${order.status.toUpperCase()}
+
+${statusMessage}
+
+${order.tracking_number ? `Tracking Number: ${order.tracking_number}` : ''}
+
+${order.tracking_url ? `Track your order: ${order.tracking_url}` : ''}
+
+- BS Sole Team`,
+  };
+
+  return transporter.sendMail(mailOptions);
+}

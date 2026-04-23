@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { supabaseAdmin } from '../supabase.js';
 import { OrderPayloadSchema } from '../validation/orderSchema.js';
-import { sendOrderConfirmationEmail, sendAdminOrderNotification } from '../email.js';
+import { sendOrderConfirmationEmail, sendAdminOrderNotification, sendOrderStatusUpdateEmail } from '../email.js';
 
 const router = Router();
 
@@ -113,19 +113,36 @@ router.get('/:id', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status, tracking_number, tracking_url } = req.body;
+    
+    // Get current order to check previous status
+    const { data: oldOrder } = await supabaseAdmin
+      .from('orders')
+      .select('*, customers(email)')
+      .eq('id', req.params.id)
+      .single();
+    
+    const updateData: any = { status, updated_at: new Date() };
+    if (tracking_number) updateData.tracking_number = tracking_number;
+    if (tracking_url) updateData.tracking_url = tracking_url;
+    
     const { data, error } = await supabaseAdmin
       .from('orders')
-      .update({ status, updated_at: new Date() })
+      .update(updateData)
       .eq('id', req.params.id)
       .select()
       .single();
     if (error) throw error;
-
-    // Send email notification on status change
-    const fullOrder = { ...data, items, total, shipping_address: address, total_amount: total, payment_method: 'cod' };
-    sendOrderConfirmationEmail(fullOrder, customerEmail).catch(e => console.error('[EMAIL] Status update email failed:', e.message));
-
+    
+    // Send status update email if status changed
+    if (oldOrder && status && status !== oldOrder.status) {
+      const customerEmail = oldOrder.customers?.email || (typeof oldOrder.address === 'object' ? oldOrder.address?.email : '') || '';
+      if (customerEmail) {
+        const orderWithTracking = { ...oldOrder, ...data, tracking_number, tracking_url };
+        sendOrderStatusUpdateEmail(orderWithTracking, customerEmail).catch(e => console.error('[EMAIL] Status update failed:', e.message));
+      }
+    }
+    
     res.json(data);
   } catch (e: any) {
     res.status(400).json({ error: e.message });
