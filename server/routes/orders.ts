@@ -121,6 +121,11 @@ router.put('/:id', async (req, res) => {
       .select()
       .single();
     if (error) throw error;
+
+    // Send email notification on status change
+    const fullOrder = { ...data, items, total, shipping_address: address, total_amount: total, payment_method: 'cod' };
+    sendOrderConfirmationEmail(fullOrder, customerEmail).catch(e => console.error('[EMAIL] Status update email failed:', e.message));
+
     res.json(data);
   } catch (e: any) {
     res.status(400).json({ error: e.message });

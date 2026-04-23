@@ -5,12 +5,12 @@ const transporter = nodemailer.createTransport({
   port: parseInt(process.env.SMTP_PORT || '587'),
   secure: false,
   auth: {
-    user: process.env.SMTP_USER || '',
+    user: process.env.SMTP_USER || 'orders@bssole.com',
     pass: process.env.SMTP_PASS || '',
   },
 });
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'adminbssole@gmail.com';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'orders@bssole.com';
 
 export async function sendOrderConfirmationEmail(order: any, customerEmail: string) {
   const itemsList = order.items?.map((item: any) => 
