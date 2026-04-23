@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '../../../lib/apiClient';
-import { Search, Eye, Filter, X, Package, MapPin, Phone, Mail, RefreshCw } from 'lucide-react';
+import { Search, Eye, Filter, X, Package, MapPin, Phone, Mail, RefreshCw, Truck } from 'lucide-react';
 
 type OrderItem = {
     id: number;
@@ -30,6 +30,8 @@ type OrderDetail = {
     customer_phone: string;
     shipping_address: string;
     items: OrderItem[];
+    tracking_number?: string;
+    tracking_url?: string;
 };
 
 const STATUS_OPTIONS = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
@@ -50,6 +52,8 @@ export default function OrderList() {
     const [selectedOrder, setSelectedOrder] = useState<OrderDetail | null>(null);
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
+    const [trackingNumber, setTrackingNumber] = useState('');
+    const [trackingUrl, setTrackingUrl] = useState('');
 
     useEffect(() => { loadOrders(); }, []);
 
@@ -69,14 +73,20 @@ export default function OrderList() {
         try {
             const data = await apiClient.get(`/orders/${orderId}`);
             setSelectedOrder(data);
+            setTrackingNumber((data as any).tracking_number || '');
+            setTrackingUrl((data as any).tracking_url || '');
         } catch (e) {
             console.error(e);
         }
     };
 
-    const handleStatusChange = async (orderId: string, newStatus: string) => {
+    const handleStatusChange = async (orderId: string, newStatus: string, trackingNumber?: string, trackingUrl?: string) => {
         try {
-            await apiClient.put(`/orders/${orderId}/status`, { status: newStatus });
+            await apiClient.put(`/orders/${orderId}/status`, { 
+                status: newStatus,
+                tracking_number: trackingNumber || undefined,
+                tracking_url: trackingUrl || undefined
+            });
             loadOrders();
             if (selectedOrder) loadOrderDetail(orderId);
         } catch (e) {
@@ -205,23 +215,52 @@ export default function OrderList() {
                                 <h3 className="text-2xl font-serif font-bold text-gold">Order #{selectedOrder.id.substring(0, 8)}</h3>
                                 <p className="text-white/30 text-xs mt-1">{new Date(selectedOrder.created_at).toLocaleString()}</p>
                             </div>
-                            <button onClick={() => setSelectedOrder(null)} className="text-white/30 hover:text-white p-2"><X size={24} /></button>
+                            <button onClick={() => { setSelectedOrder(null); setTrackingNumber(''); setTrackingUrl(''); }} className="text-white/30 hover:text-white p-2"><X size={24} /></button>
                         </div>
 
                         <div className="p-6 space-y-6">
-                            {/* Status Changer */}
-                            <div className="flex items-center justify-between bg-white/5 rounded-xl p-4">
-                                <div>
-                                    <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Status</span>
-                                    <div className={`text-sm font-bold mt-1 capitalize ${statusStyle(selectedOrder.status).split(' ')[0]}`}>{selectedOrder.status}</div>
+                            {/* Status Changer with Tracking */}
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between bg-white/5 rounded-xl p-4">
+                                    <div>
+                                        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Status</span>
+                                        <div className={`text-sm font-bold mt-1 capitalize ${statusStyle(selectedOrder.status).split(' ')[0]}`}>{selectedOrder.status}</div>
+                                    </div>
+                                    <select
+                                        value={selectedOrder.status}
+                                        onChange={(e) => handleStatusChange(selectedOrder.id, e.target.value, trackingNumber, trackingUrl)}
+                                        className="bg-[#111] border border-white/10 px-4 py-2 outline-none focus:border-gold text-white text-sm rounded"
+                                    >
+                                        {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
+                                    </select>
                                 </div>
-                                <select
-                                    value={selectedOrder.status}
-                                    onChange={(e) => handleStatusChange(selectedOrder.id, e.target.value)}
-                                    className="bg-[#111] border border-white/10 px-4 py-2 outline-none focus:border-gold text-white text-sm rounded"
-                                >
-                                    {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
-                                </select>
+                                
+                                {/* Tracking Info */}
+                                <div className="bg-white/5 rounded-xl p-4">
+                                    <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest flex items-center gap-2 mb-3"><Truck size={12} /> Tracking Info (optional)</span>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <input
+                                            type="text"
+                                            placeholder="Tracking Number"
+                                            value={trackingNumber}
+                                            onChange={(e) => setTrackingNumber(e.target.value)}
+                                            className="bg-[#111] border border-white/10 px-4 py-2 outline-none focus:border-gold text-white text-sm rounded"
+                                        />
+                                        <input
+                                            type="text"
+                                            placeholder="Tracking URL"
+                                            value={trackingUrl}
+                                            onChange={(e) => setTrackingUrl(e.target.value)}
+                                            className="bg-[#111] border border-white/10 px-4 py-2 outline-none focus:border-gold text-white text-sm rounded"
+                                        />
+                                    </div>
+                                    {(selectedOrder as any).tracking_number && (
+                                        <div className="mt-3 pt-3 border-t border-white/10">
+                                            <span className="text-[10px] text-white/30">Current: </span>
+                                            <span className="text-gold text-xs">{(selectedOrder as any).tracking_number}</span>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             {/* Customer Info */}
