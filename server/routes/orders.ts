@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { supabaseAdmin } from '../supabase.js';
 import { OrderPayloadSchema } from '../validation/orderSchema.js';
+import { sendOrderConfirmationEmail, sendAdminOrderNotification } from '../email.js';
 
 const router = Router();
 
@@ -252,6 +253,14 @@ router.post('/', async (req, res) => {
     }
 
     res.json({ orderId, order: orderData });
+
+    // Send confirmation emails
+    const customerEmail = address?.email || '';
+    if (customerEmail && orderId) {
+      const fullOrder = { id: orderId, items, total, shipping_address: address, total_amount: total, payment_method: 'cod', status: 'pending' };
+      sendOrderConfirmationEmail(fullOrder, customerEmail).catch(e => console.error('[EMAIL] Customer email failed:', e.message));
+      sendAdminOrderNotification(fullOrder, customerEmail).catch(e => console.error('[EMAIL] Admin email failed:', e.message));
+    }
   } catch (e: any) {
     console.error('[ORDERS] POST error:', e.message);
     res.status(500).json({ error: e?.message ?? 'Failed to create order' });
