@@ -49,9 +49,10 @@ export default function Header({ onMenu, onSearch, onLogin, onCart, cartCount = 
 
       {/* Main dark header */}
       <div className="bg-black border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 h-16 flex items-center justify-between">
-          {/* Left: Menu + Nav */}
-          <div className="flex items-center gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 h-16 flex items-center justify-between relative">
+          
+          {/* Left: Hamburger (mobile) + Nav (desktop) */}
+          <div className="flex items-center gap-4 z-10">
             <button onClick={onMenu} aria-label="Open menu" className="p-2 rounded hover:bg-white/5 lg:hidden">
               <Menu size={20} className="text-white/70" />
             </button>
@@ -70,13 +71,16 @@ export default function Header({ onMenu, onSearch, onLogin, onCart, cartCount = 
             </nav>
           </div>
 
-          {/* Center: Logo */}
-          <button onClick={() => setPage?.('home2')} className="flex items-center">
-            <span className="text-white text-2xl font-serif font-bold tracking-wider">BS Sole</span>
+          {/* Center: Logo — absolutely centered on the full header width */}
+          <button
+            onClick={() => setPage?.('home2')}
+            className="absolute left-1/2 -translate-x-1/2 flex items-center z-10"
+          >
+            <span className="text-white text-2xl font-serif font-bold tracking-wider whitespace-nowrap">BS Sole</span>
           </button>
 
           {/* Right: Icons */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 z-10">
             <button onClick={onSearch} aria-label="Search" className="p-2 rounded hover:bg-white/5">
               <Search size={20} className="text-white/70" />
             </button>
@@ -90,6 +94,7 @@ export default function Header({ onMenu, onSearch, onLogin, onCart, cartCount = 
               <User size={20} className="text-white/70" />
             </button>
           </div>
+
         </div>
       </div>
       <style>{`
