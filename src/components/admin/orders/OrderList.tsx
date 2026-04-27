@@ -80,9 +80,12 @@ export default function OrderList() {
         }
     };
 
+    const [dateFilter, setDateFilter] = useState('all'); // all, today, yesterday, week
+
     const handleStatusChange = async (orderId: string, newStatus: string, trackingNumber?: string, trackingUrl?: string) => {
         try {
-            await apiClient.put(`/orders/${orderId}/status`, { 
+            // Fix: Endpoint is /orders/:id, not /orders/:id/status
+            await apiClient.put(`/orders/${orderId}`, { 
                 status: newStatus,
                 tracking_number: trackingNumber || undefined,
                 tracking_url: trackingUrl || undefined
@@ -95,10 +98,42 @@ export default function OrderList() {
     };
 
     const filteredOrders = orders.filter(o => {
-        const name = `${o.customers?.first_name || ''} ${o.customers?.last_name || ''}`.toLowerCase();
-        const matchSearch = !search || name.includes(search.toLowerCase()) || o.id.toLowerCase().includes(search.toLowerCase());
+        const customer = o.customers || {};
+        const name = `${customer.first_name || ''} ${customer.last_name || ''}`.toLowerCase();
+        const guestName = (o.address?.name || '').toLowerCase();
+        const phone = (customer.phone || o.address?.phone || '').toLowerCase();
+        const email = (customer.email || o.address?.email || '').toLowerCase();
+        const orderId = o.id.toLowerCase();
+        
+        const q = search.toLowerCase();
+        const matchSearch = !search || 
+            name.includes(q) || 
+            guestName.includes(q) || 
+            orderId.includes(q) || 
+            phone.includes(q) || 
+            email.includes(q);
+            
         const matchStatus = statusFilter === 'all' || o.status === statusFilter;
-        return matchSearch && matchStatus;
+        
+        // Date Filter
+        let matchDate = true;
+        if (dateFilter !== 'all') {
+            const orderDate = new Date(o.created_at);
+            const now = new Date();
+            if (dateFilter === 'today') {
+                matchDate = orderDate.toDateString() === now.toDateString();
+            } else if (dateFilter === 'yesterday') {
+                const yesterday = new Date();
+                yesterday.setDate(now.getDate() - 1);
+                matchDate = orderDate.toDateString() === yesterday.toDateString();
+            } else if (dateFilter === 'week') {
+                const weekAgo = new Date();
+                weekAgo.setDate(now.getDate() - 7);
+                matchDate = orderDate >= weekAgo;
+            }
+        }
+
+        return matchSearch && matchStatus && matchDate;
     });
 
     const getCustomerName = (o: Order) =>
@@ -135,12 +170,22 @@ export default function OrderList() {
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={16} />
                     <input
                         type="text"
-                        placeholder="Search by name or order ID..."
+                        placeholder="Search by name, ID, phone or email..."
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                         className="w-full bg-[#111] border border-white/10 pl-11 pr-4 py-3 outline-none focus:border-gold transition-colors text-white text-sm rounded"
                     />
                 </div>
+                <select
+                    value={dateFilter}
+                    onChange={e => setDateFilter(e.target.value)}
+                    className="bg-[#111] border border-white/10 px-4 py-3 outline-none focus:border-gold text-white text-sm rounded"
+                >
+                    <option value="all">Any Date</option>
+                    <option value="today">Today</option>
+                    <option value="yesterday">Yesterday</option>
+                    <option value="week">Last 7 Days</option>
+                </select>
                 <select
                     value={statusFilter}
                     onChange={e => setStatusFilter(e.target.value)}
@@ -149,6 +194,14 @@ export default function OrderList() {
                     <option value="all">All Statuses</option>
                     {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
                 </select>
+                {(search || statusFilter !== 'all' || dateFilter !== 'all') && (
+                    <button 
+                        onClick={() => { setSearch(''); setStatusFilter('all'); setDateFilter('all'); }}
+                        className="px-4 py-3 text-xs font-bold uppercase tracking-widest text-red-500 hover:text-white transition-colors"
+                    >
+                        Reset
+                    </button>
+                )}
             </div>
 
             {loading ? (

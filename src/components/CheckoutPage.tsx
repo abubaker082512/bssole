@@ -19,7 +19,7 @@ export default function CheckoutPage({ cart, onBack, onSuccess }: Props) {
   const [error, setError] = useState<string | null>(null);
   const cartTotal = useMemo(() => cart.reduce((a, c) => a + c.price * c.quantity, 0), [cart]);
 
-  const canProceedAddress = name.trim() !== '' && email.trim() !== '' && line1.trim() !== '' && city.trim() !== '' && postalCode.trim() !== '';
+  const canProceedAddress = name.trim() !== '' && line1.trim() !== '' && city.trim() !== '' && phone.trim() !== '';
 
   const placeOrder = async () => {
     setError(null);
@@ -68,11 +68,11 @@ export default function CheckoutPage({ cart, onBack, onSuccess }: Props) {
           <h3 className="text-xl mb-4 text-white">Shipping Address</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <input className="bg-white/5 border border-white/10 rounded px-4 py-3 outline-none focus:border-gold transition-colors text-sm text-white placeholder:text-white/30" placeholder="Full Name" value={name} onChange={e => setName(e.target.value)} />
-            <input className="bg-white/5 border border-white/10 rounded px-4 py-3 outline-none focus:border-gold transition-colors text-sm text-white placeholder:text-white/30" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
+            <input className="bg-white/5 border border-white/10 rounded px-4 py-3 outline-none focus:border-gold transition-colors text-sm text-white placeholder:text-white/30" placeholder="Email (Optional)" value={email} onChange={e => setEmail(e.target.value)} />
             <input className="bg-white/5 border border-white/10 rounded px-4 py-3 outline-none focus:border-gold transition-colors text-sm text-white placeholder:text-white/30" placeholder="Phone" value={phone} onChange={e => setPhone(e.target.value)} />
             <input className="bg-white/5 border border-white/10 rounded px-4 py-3 outline-none focus:border-gold transition-colors text-sm text-white placeholder:text-white/30" placeholder="Address Line 1" value={line1} onChange={e => setLine1(e.target.value)} />
             <input className="bg-white/5 border border-white/10 rounded px-4 py-3 outline-none focus:border-gold transition-colors text-sm text-white placeholder:text-white/30" placeholder="City" value={city} onChange={e => setCity(e.target.value)} />
-            <input className="bg-white/5 border border-white/10 rounded px-4 py-3 outline-none focus:border-gold transition-colors text-sm text-white placeholder:text-white/30" placeholder="Postal Code" value={postalCode} onChange={e => setPostalCode(e.target.value)} />
+            <input className="bg-white/5 border border-white/10 rounded px-4 py-3 outline-none focus:border-gold transition-colors text-sm text-white placeholder:text-white/30" placeholder="Postal Code (Optional)" value={postalCode} onChange={e => setPostalCode(e.target.value)} />
           </div>
           <div className="mt-6 flex justify-end">
             <button disabled={!canProceedAddress} onClick={() => setStep(2)} className="px-10 py-4 bg-gold text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-colors rounded disabled:opacity-50 disabled:cursor-not-allowed">Continue to Review</button>

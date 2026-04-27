@@ -188,9 +188,12 @@ router.post('/', async (req, res) => {
       }
     }
 
+    // Guest checkout is allowed if email is missing; cid will remain undefined
+    /*
     if (!cid) {
       return res.status(400).json({ error: 'Could not resolve customer' });
     }
+    */
 
     // Create order — handle both schema variants (total / total_amount)
     const orderPayload: any = {
