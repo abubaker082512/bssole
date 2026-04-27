@@ -18,6 +18,7 @@ const defaultSlides = [
 
 export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [slide, setSlide] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -30,7 +31,6 @@ export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
       try {
         const res = await fetch('/api/products');
         const data = await res.json();
-        // Filter out null entries and map safely
         const mappedProducts = (Array.isArray(data) ? data.filter((p: any) => p != null) : []).map((p: any) => {
           const productImages = (p?.product_images ?? []).map((img: any) => img.image_url);
           const image = productImages.length > 0 ? productImages[0] : 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80';
@@ -48,7 +48,20 @@ export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
         setLoading(false);
       }
     };
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch('/api/categories');
+        if (res.ok) {
+          const data = await res.json();
+          // Filter root categories
+          setCategories(data.filter((c: any) => !c.parent_id));
+        }
+      } catch (e) {
+        console.error('Failed to load categories', e);
+      }
+    };
     fetchProducts();
+    fetchCategories();
   }, []);
 
   useEffect(() => {
@@ -203,49 +216,31 @@ export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Men Shoes Card */}
-          <div 
-            onClick={() => setPage('men-shoes')}
-            className="group relative aspect-[4/5] sm:aspect-[16/10] overflow-hidden rounded-2xl cursor-pointer"
-          >
-            <img 
-              src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80&fit=crop" 
-              alt="Men Shoes" 
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <span className="text-gold text-xs font-bold uppercase tracking-[0.3em] block mb-2">Premium Collection</span>
-                <h3 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">Men's Shoes</h3>
-                <span className="inline-flex items-center gap-2 text-white/80 text-sm font-bold uppercase tracking-widest group-hover:text-gold transition-colors">
-                  Shop Now <ArrowRight size={16} />
-                </span>
+          {categories.length > 0 ? categories.map((cat, idx) => (
+            <div 
+              key={cat.id}
+              onClick={() => setPage(`collection/${cat.slug}`)}
+              className="group relative aspect-[4/5] sm:aspect-[16/10] overflow-hidden rounded-2xl cursor-pointer"
+            >
+              <img 
+                src={cat.image_url || `https://images.unsplash.com/photo-${idx % 2 === 0 ? '1542291026-7eec264c27ff' : '1543163521-1bf539c55dd2'}?w=800&q=80&fit=crop`} 
+                alt={cat.name} 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center">
+                  <span className="text-gold text-xs font-bold uppercase tracking-[0.3em] block mb-2">Collection</span>
+                  <h3 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">{cat.name}</h3>
+                  <span className="inline-flex items-center gap-2 text-white/80 text-sm font-bold uppercase tracking-widest group-hover:text-gold transition-colors">
+                    Shop Now <ArrowRight size={16} />
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Women Shoes Card */}
-          <div 
-            onClick={() => setPage('women-shoes')}
-            className="group relative aspect-[4/5] sm:aspect-[16/10] overflow-hidden rounded-2xl cursor-pointer"
-          >
-            <img 
-              src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=800&q=80&fit=crop" 
-              alt="Women Shoes" 
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <span className="text-gold text-xs font-bold uppercase tracking-[0.3em] block mb-2">Elegant Collection</span>
-                <h3 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">Women's Shoes</h3>
-                <span className="inline-flex items-center gap-2 text-white/80 text-sm font-bold uppercase tracking-widest group-hover:text-gold transition-colors">
-                  Shop Now <ArrowRight size={16} />
-                </span>
-              </div>
-            </div>
-          </div>
+          )) : (
+            <div className="col-span-2 text-center text-white/40 py-10">No collections found.</div>
+          )}
         </div>
       </section>
 

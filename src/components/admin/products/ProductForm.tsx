@@ -273,7 +273,22 @@ export default function ProductForm({ productId, onBack }: { productId?: number,
                                 <label className="text-[10px] font-bold text-gray-400 dark:text-white/30 uppercase tracking-[0.3em]">Category</label>
                                 <select value={product.category_id || ''} onChange={e => setProduct({...product, category_id: parseInt(e.target.value)})} className="w-full bg-gray-100 dark:bg-[#111] border border-black/10 dark:border-white/10 py-4 px-4 outline-none focus:border-gold transition-colors text-sm text-gray-800 dark:text-white/80">
                                     <option value="">Select a category</option>
-                                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                    {(() => {
+                                        const buildOptions = (cats: any[], parentId: number | null = null, depth: number = 0): any[] => {
+                                            let result: any[] = [];
+                                            const children = cats.filter(c => c.parent_id === parentId);
+                                            for (const child of children) {
+                                                result.push(
+                                                    <option key={child.id} value={child.id}>
+                                                        {'\u00A0'.repeat(depth * 4)}{depth > 0 ? '└─ ' : ''}{child.name}
+                                                    </option>
+                                                );
+                                                result = result.concat(buildOptions(cats, child.id, depth + 1));
+                                            }
+                                            return result;
+                                        };
+                                        return buildOptions(categories);
+                                    })()}
                                 </select>
                             </div>
                             <div className="space-y-4">

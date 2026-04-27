@@ -10,10 +10,31 @@ type Props = {
   setPage?: (page: string) => void;
   currentPage?: string;
   marqueeText?: string;
+  categories?: any[];
 };
 
-export default function Header({ onMenu, onSearch, onLogin, onCart, cartCount = 0, setPage, currentPage = '', marqueeText }: Props) {
+export default function Header({ onMenu, onSearch, onLogin, onCart, cartCount = 0, setPage, currentPage = '', marqueeText, categories = [] }: Props) {
   const displayText = marqueeText || 'Get 10% Extra Discount on Every RS. 10,000 Purchase | Get 5% Extra Discount on Advance Payment';
+  
+  // Default links
+  const defaultLinks = [
+    { label: 'Men', page: 'men-shoes' },
+    { label: 'Women', page: 'women-shoes' }
+  ];
+
+  // If categories are provided, use top-level ones
+  const topLevelCategories = categories.filter(c => !c.parent_id);
+  const categoryLinks = topLevelCategories.length > 0 
+    ? topLevelCategories.slice(0, 3).map(c => ({ label: c.name, page: `collection/${c.slug}` }))
+    : defaultLinks;
+
+  const links = [
+    { label: 'Home', page: 'home2' },
+    ...categoryLinks,
+    { label: 'Shop', page: 'shop' },
+    { label: 'Contact', page: 'contact' },
+  ];
+
   return (
     <header className="sticky top-0 z-50">
       {/* Top marquee bar */}
@@ -35,13 +56,7 @@ export default function Header({ onMenu, onSearch, onLogin, onCart, cartCount = 
               <Menu size={20} className="text-white/70" />
             </button>
             <nav className="hidden lg:flex items-center gap-8">
-              {[
-                { label: 'Home', page: 'home2' },
-                { label: 'Men', page: 'men-shoes' },
-                { label: 'Women', page: 'women-shoes' },
-                { label: 'Shop', page: 'shop' },
-                { label: 'Contact', page: 'contact' },
-              ].map((link) => (
+              {links.map((link) => (
                 <button
                   key={link.page}
                   onClick={() => setPage?.(link.page)}

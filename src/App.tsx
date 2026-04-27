@@ -7,12 +7,14 @@ import AdminLogin from './components/AdminLogin';
 import CheckoutPage from './components/CheckoutPage';
 import AdminDashboard from './components/admin/AdminDashboard';
 import Home2Page from './pages/Home2Page';
+import CollectionPage from './pages/CollectionPage';
 import Header from './components/Header';
 import type { Session } from '@supabase/supabase-js';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home2');
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -34,6 +36,9 @@ export default function App() {
         setCurrentPage('home2');
       } else if (path === '/shop') {
         setCurrentPage('shop');
+      } else if (path.startsWith('/collection/')) {
+        const slug = path.split('/collection/')[1];
+        setCurrentPage(`collection/${slug}`);
       } else if (path === '/men-shoes') {
         setCurrentPage('men-shoes');
       } else if (path === '/women-shoes') {
@@ -92,6 +97,7 @@ export default function App() {
   }, [currentPage, selectedProduct]);
 
   useEffect(() => {
+    loadCategories();
     loadProducts();
     loadDeliveryCharges();
     loadSiteContent();
@@ -113,6 +119,16 @@ export default function App() {
     });
     return () => subscription.unsubscribe();
   }, []);
+
+  const loadCategories = async () => {
+    try {
+      const res = await fetch('/api/categories');
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(data);
+      }
+    } catch (e) { console.error('Failed to load categories', e); }
+  };
 
   const loadSiteContent = async () => {
     try {
@@ -294,6 +310,14 @@ export default function App() {
 
   const renderPage = () => {
 
+    if (typeof currentPage === 'string' && currentPage.startsWith('collection/')) {
+      const slug = currentPage.split('collection/')[1];
+      const category = categories.find(c => c.slug === slug || c.name.toLowerCase().replace(/\s+/g, '-') === slug);
+      if (category) {
+        return <CollectionPage category={category} categories={categories} products={products} addToCart={addToCart} setPage={setCurrentPage} setSelectedProduct={setSelectedProduct} />;
+      }
+    }
+
     switch (currentPage) {
       case 'home': return <HomePage products={products.filter(p => p.featured)} setPage={setCurrentPage} addToCart={addToCart} heroSlides={heroSlides} />;
       case 'home2': return <Home2Page setPage={setCurrentPage} addToCart={addToCart} heroSlides={heroSlides} />;
@@ -348,6 +372,7 @@ export default function App() {
         setPage={(p) => setCurrentPage(p as Page)}
         currentPage={currentPage}
         marqueeText={marqueeText}
+        categories={categories}
       />
 
       {/* Floating WhatsApp Button */}
@@ -371,13 +396,30 @@ export default function App() {
                 <button onClick={() => setIsMenuOpen(false)} className="text-gold hover:rotate-90 transition-transform duration-500"><X size={32} /></button>
               </div>
               <div className="flex flex-col gap-6">
-                {['home2', 'men-shoes', 'women-shoes', 'shop', 'contact'].map((page, i) => (
-                  <motion.button key={page} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }}
-                    onClick={() => { setCurrentPage(page as Page); setIsMenuOpen(false); }}
-                    className="text-5xl md:text-7xl font-serif font-bold text-left hover:italic hover:pl-4 transition-all duration-500 group">
-                    <span className={currentPage === page ? 'gold-text-gradient' : 'text-white/20 group-hover:text-white'}>{page === 'home2' ? 'HOME' : page === 'men-shoes' ? 'MEN' : page === 'women-shoes' ? 'WOMEN' : page.toUpperCase()}</span>
-                  </motion.button>
-                ))}
+                {(() => {
+                  const rootCats = categories.filter(c => !c.parent_id);
+                  const menuItems = rootCats.length > 0
+                    ? [
+                        { label: 'HOME', page: 'home2' },
+                        ...rootCats.slice(0, 4).map(c => ({ label: c.name.toUpperCase(), page: `collection/${c.slug}` })),
+                        { label: 'SHOP', page: 'shop' },
+                        { label: 'CONTACT', page: 'contact' },
+                      ]
+                    : [
+                        { label: 'HOME', page: 'home2' },
+                        { label: 'MEN', page: 'men-shoes' },
+                        { label: 'WOMEN', page: 'women-shoes' },
+                        { label: 'SHOP', page: 'shop' },
+                        { label: 'CONTACT', page: 'contact' },
+                      ];
+                  return menuItems.map((item, i) => (
+                    <motion.button key={item.page} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.08 }}
+                      onClick={() => { setCurrentPage(item.page as Page); setIsMenuOpen(false); }}
+                      className="text-5xl md:text-7xl font-serif font-bold text-left hover:italic hover:pl-4 transition-all duration-500 group">
+                      <span className={currentPage === item.page ? 'gold-text-gradient' : 'text-white/20 group-hover:text-white'}>{item.label}</span>
+                    </motion.button>
+                  ));
+                })()}
               </div>
               <div className="flex gap-8 text-white/30 text-xs tracking-[0.2em] uppercase font-bold">
                 <a href="https://www.instagram.com/bssoleofficial/?hl=en" target="_blank" rel="noreferrer" className="hover:text-gold">Instagram</a>
