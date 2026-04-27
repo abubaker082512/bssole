@@ -72,7 +72,7 @@ export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
   return (
     <div className="min-h-screen bg-black">
       {/* Hero Carousel */}
-      <section className="relative h-[75vh] md:h-[700px] overflow-hidden bg-black">
+      <section className="relative h-[75vh] md:h-[700px] overflow-hidden bg-black hero-poppins-nums">
         {slides.map((s, idx) => (
           <div
             key={s.id ?? idx}
@@ -114,7 +114,7 @@ export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
       </section>
 
       {/* Features Strip */}
-      <section className="bg-black border-b border-white/5">
+      <section className="bg-black border-b border-white/5 hero-poppins-nums">
         <div className="max-w-6xl mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             { icon: <Truck size={24} />, title: 'Free Shipping', desc: 'On orders above Rs. 3,000' },
@@ -125,7 +125,7 @@ export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
               <div className="text-gold">{f.icon}</div>
               <div>
                 <div className="font-bold text-white text-sm">{f.title}</div>
-                <div className="text-xs text-white/40">{f.desc}</div>
+                <div className="text-xs text-white/40 font-poppins">{f.desc}</div>
               </div>
             </div>
           ))}
@@ -133,7 +133,7 @@ export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
       </section>
 
       {/* Featured Products */}
-      <section className="max-w-6xl mx-auto px-6 py-16">
+      <section className="max-w-6xl mx-auto px-6 py-16 hero-poppins-nums">
         <div className="flex justify-between items-end mb-10">
           <div>
             <span className="text-xs font-bold uppercase tracking-[0.3em] text-gold">Curated For You</span>
@@ -168,7 +168,7 @@ export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
                     <span className="absolute top-3 left-3 bg-gold text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1">Featured</span>
                   )}
                   {(p.sale_price && p.regular_price) && Math.round(((p.regular_price - p.sale_price) / p.regular_price) * 100) > 0 && (
-                    <span className="absolute top-3 right-3 bg-gold text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1">
+                    <span className="absolute top-3 right-3 bg-gold text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 font-poppins">
                       {Math.round(((p.regular_price - p.sale_price) / p.regular_price) * 100)}% OFF
                     </span>
                   )}
@@ -193,11 +193,11 @@ export default function Home2Page({ setPage, addToCart, heroSlides }: Props) {
                 <div className="flex items-center gap-2 mt-1">
                   {p.sale_price ? (
                     <>
-                      <span className="text-sm font-bold text-gold">Rs. {p.sale_price.toLocaleString()}</span>
-                      <span className="text-xs text-white/40 line-through">Rs. {p.regular_price?.toLocaleString()}</span>
+                      <span className="text-sm font-bold text-gold font-poppins">Rs. {p.sale_price.toLocaleString()}</span>
+                      <span className="text-xs text-white/40 line-through font-poppins">Rs. {p.regular_price?.toLocaleString()}</span>
                     </>
                   ) : (
-                    <span className="text-sm font-bold text-gold">Rs. {(p.regular_price || p.price)?.toLocaleString()}</span>
+                    <span className="text-sm font-bold text-gold font-poppins">Rs. {(p.regular_price || p.price)?.toLocaleString()}</span>
                   )}
                 </div>
               </div>

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;600;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;600;800&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -10,6 +10,7 @@
   --color-black-matte: #0D0D0D;
   --font-serif: "Playfair Display", serif;
   --font-sans: "Inter", sans-serif;
+  --font-poppins: "Poppins", sans-serif;
 }
 
 body {
@@ -40,4 +41,20 @@ body {
 
 h1, h2, h3 {
   @apply font-serif;
+}
+
+/* Custom font-face to target only numbers with Poppins */
+@font-face {
+  font-family: 'PoppinsOnlyNums';
+  src: local('Poppins'), local('Poppins-Regular');
+  unicode-range: U+30-39; /* 0-9 */
+}
+
+.poppins-nums {
+  font-family: 'PoppinsOnlyNums', inherit;
+}
+
+/* Apply Poppins to all numbers in hero section */
+.hero-poppins-nums {
+  font-family: 'PoppinsOnlyNums', inherit;
 }

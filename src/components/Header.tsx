@@ -43,7 +43,7 @@ export default function Header({ onMenu, onSearch, onLogin, onCart, cartCount = 
           className="flex items-center h-full"
           style={{ whiteSpace: 'nowrap', display: 'inline-block', paddingLeft: '100%', animation: 'marquee 20s linear infinite' }}
         >
-          <span className="mx-8">{displayText}</span>
+          <span className="mx-8 poppins-nums">{displayText}</span>
         </div>
       </div>
 
